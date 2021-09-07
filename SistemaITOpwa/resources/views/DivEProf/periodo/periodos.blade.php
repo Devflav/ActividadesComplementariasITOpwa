@@ -40,7 +40,7 @@
                             <td><strong> {{ $p->fin }} </strong></td>
                             <td><strong> {{ $p->estado }} </strong></td>
                             <td>
-                                <a href="{{ url('DivEProf/detallePeri').$p->id_periodo }}" class="btn btn-outline-primary btn-sm">Detalle</a>
+                                <a href="{{ url('DivEProf/detallePeri').'/'.$p->id_periodo }}" class="btn btn-outline-primary btn-sm">Detalle</a>
                             </td>
                         </tr>
                     @else
@@ -50,7 +50,7 @@
                             <td>{{ $p->fin }}</td>
                             <td>{{ $p->estado }}</td>
                             <td>
-                                <a href="{{ url('DivEProf/detallePeri').$p->id_periodo }}" class="btn btn-outline-primary btn-sm">Detalle</a>
+                                <a href="{{ url('DivEProf/detallePeri').'/'.$p->id_periodo }}" class="btn btn-outline-primary btn-sm">Detalle</a>
                             </td>
                         </tr>
                     @endif

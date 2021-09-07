@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 31, 2021 at 04:56 AM
+-- Generation Time: Sep 07, 2021 at 06:30 PM
 -- Server version: 5.7.33
 -- PHP Version: 7.4.19
 
@@ -156,7 +156,7 @@ INSERT INTO `actividad` (`id_actividad`, `id_depto`, `id_tipo`, `id_periodo`, `c
 (111, 7, 2, 17, 'GTA20', 'ELABORACIÓN DE PRODUCTOS ALIMENTICIOS COMERCIALIZABLES', 2, '', 1, 1),
 (112, 3, 2, 16, 'CCE20', 'CLUB DE CIRCUITOS I Y II', 2, '', 1, 0),
 (113, 17, 4, 17, 'PRU01', 'PROCESOS CONTABLES', 2, '', 0, 1),
-(114, 17, 4, 17, 'PRU02', 'CONTABILIDAD EDUCATIVA', 2, NULL, 0, 1),
+(114, 17, 4, 17, 'PRU02', 'CONTABILIDAD EDUCATIVA', 2, '', 0, 1),
 (115, 18, 2, 17, 'PRU03', 'ACTIVIDAD PRUEBA 03', 1, '', 0, 1),
 (116, 18, 2, 17, 'PDP01', 'ACTIVIDAD DEPTO PRU', 1, '', 0, 1),
 (117, 18, 3, 17, 'PRU04', 'PRUEBA ELIMINAR', 1, NULL, 0, 1),
@@ -230,7 +230,7 @@ CREATE TABLE `departamento` (
   `id_depto` int(11) NOT NULL,
   `id_persona` int(11) NOT NULL,
   `nombre` varchar(60) COLLATE utf8_bin NOT NULL,
-  `hoja_mem` mediumblob,
+  `hoja_mem` varchar(200) COLLATE utf8_bin DEFAULT NULL,
   `estado` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -240,7 +240,7 @@ CREATE TABLE `departamento` (
 
 INSERT INTO `departamento` (`id_depto`, `id_persona`, `nombre`, `hoja_mem`, `estado`) VALUES
 (1, 84, 'DEPARTAMENTO DE INGENIERÍA ELECTRÓNICA', NULL, 1),
-(2, 27, 'DEPARTAMENTO DE SISTEMAS Y COMPUTACIÓN', 0x3439392e706466, 1),
+(2, 27, 'DEPARTAMENTO DE SISTEMAS Y COMPUTACIÓN', NULL, 1),
 (3, 89, 'DEPARTAMENTO DE INGENIERÍA ELÉCTRICA', NULL, 1),
 (4, 5283, 'DEPARTAMENTO DE CIENCIAS DE LA TIERRA', NULL, 1),
 (5, 66, 'DEPARTAMENTO DE INGENIERÍA INDUSTRIAL', NULL, 1),
@@ -255,8 +255,8 @@ INSERT INTO `departamento` (`id_depto`, `id_persona`, `nombre`, `hoja_mem`, `est
 (14, 5285, 'RECURSOS MATERIALES', NULL, 1),
 (15, 73, 'COMUNICACIÓN Y DIFUSIÓN', NULL, 1),
 (16, 42, 'DEPARTAMENTO DE GESTIÓN TECNOLÓGICA Y VINCULACIÓN', NULL, 1),
-(17, 5261, 'DEPARTAMENTO DE CONTABILIDAD', 0x4d656d62726574616461732f6530557535474c3052386848444b695979757a425a4a523132526a7959574147476a755a62506b362e706466, 1),
-(18, 5286, 'DEPARTAMENTO DE PRUEBA SEGUNDO', 0x323032302d31312d32355f3130343631372e706466, 0);
+(17, 5261, 'DEPARTAMENTO DE CONTABILIDAD', NULL, 1),
+(18, 5286, 'DEPARTAMENTO DE PRUEBA SEGUNDO', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -5567,7 +5567,7 @@ CREATE TABLE `evaluacion` (
   `asistencias` tinyint(2) NOT NULL,
   `calificacion` decimal(10,2) NOT NULL,
   `observaciones` varchar(250) COLLATE utf8_bin NOT NULL,
-  `constancia` varchar(75) COLLATE utf8_bin DEFAULT NULL
+  `constancia` varchar(200) COLLATE utf8_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
@@ -5737,9 +5737,9 @@ INSERT INTO `evaluacion` (`id_evaluacion`, `id_inscripcion`, `id_desempenio`, `a
 (160, 160, 5, 20, '4.00', ' ', ''),
 (161, 161, 1, 1, '0.00', ' ', ''),
 (162, 162, 5, 20, '4.00', ' ', ''),
-(163, 163, 5, 12, '4.00', ' ', 'constancias/ghVUAo11EpUxGLazNmBxhtaoagC8hnTsxOjw4zvs.pdf'),
-(173, 257, 1, 13, '0.00', 'ninguna', ''),
-(174, 165, 3, 23, '1.70', 'Buen desempeño', '');
+(163, 163, 5, 12, '4.00', ' ', NULL),
+(173, 257, 1, 13, '0.00', '', NULL),
+(174, 165, 3, 23, '1.70', '', NULL);
 
 -- --------------------------------------------------------
 
@@ -7314,7 +7314,8 @@ INSERT INTO `periodo` (`id_periodo`, `nombre`, `inicio`, `fin`, `ini_inscripcion
 (1, 'AGO-DIC/2019', '2019-07-29', '2019-12-23', '2019-09-10', '2019-09-15', '2019-12-09', '2019-12-13', '2019-12-16', '2019-12-20', '', '', '', '', 'Finalizado', 1),
 (15, 'ENE-JUN/2020', '2020-01-27', '2020-08-01', '2020-02-17', '2020-02-21', '2020-06-30', '2020-07-26', '2020-07-27', '2020-07-31', '/images/ac_ito/Sep.png', '/images/ac_ito/TecNM.png', '/images/ac_ito/logoITO.png', '/images/ac_ito/cabeHorario.png', 'Anterior', 1),
 (16, 'AGO-DIC/2020', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '', '', '', '', 'Espera', 1),
-(17, 'SEPTIEMBRE 2020- ENERO 2021', '2020-09-21', '2021-01-26', '2020-10-19', '2020-10-23', '2021-01-25', '2021-02-05', '2021-02-08', '2021-02-12', '/images/ac_ito/Sep.png', '/images/ac_ito/TecNM.png', '/images/ac_ito/logoITO.png', '/images/ac_ito/cabeHorario.png', 'Actual', 1);
+(17, 'SEPTIEMBRE 2020- ENERO 2021', '2020-09-21', '2021-01-26', '2020-10-19', '2020-10-23', '2021-01-25', '2021-02-05', '2021-02-08', '2021-02-12', '/images/ac_ito/Sep.png', '/images/ac_ito/TecNM.png', '/images/ac_ito/logoITO.png', '/images/ac_ito/cabeHorario.png', 'Actual', 1),
+(18, 'SEPTIEMBRE 2021 - ENERO 2022', '2021-09-20', '2022-01-26', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '', NULL, 'Siguiente', 1);
 
 -- --------------------------------------------------------
 
@@ -12700,7 +12701,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `id_persona`, `id_puesto`, `nombre`, `usuario`, `password`, `fecha_registro`, `edo_sesion`, `estado`) VALUES
-(3, 19, 3, 'DULCE ANGÃ‰LICA CASTAÃ‘ON CRUZ', 'CACD920825MOCSRL09', '$2y$10$ZMQE5XxW3owld6D9h7y5zeWylLGoZPsZvQrq//eYIzANEkQau0csC', '0000-00-00', 1, 1),
+(3, 19, 7, 'DULCE ANGÉLICA CASTAÑON CRUZ', 'CACD920825MOCSRL09', '$2y$10$ZMQE5XxW3owld6D9h7y5zeWylLGoZPsZvQrq//eYIzANEkQau0csC', '0000-00-00', 1, 1),
 (46, 5194, 6, 'DIANA HEIDI ACEVEDO LUNA', '19160018@itoaxaca.edu.mx', '$2y$10$.yJ1iY1mXacS4rCwkblfjuWAKZKJTzxB7ucLA0PvTabaMOMby.OjG', '0000-00-00', 1, 1),
 (47, 5195, 6, 'MICHELLE AGUILAR BUSTAMANTE', '19160019@itoaxaca.edu.mx', '$2y$10$xNjHDPLoB1R/t/6lHhS3Juf9cso.IsU0m0z6sJVcLIROgj9M03kFS', '0000-00-00', 1, 1),
 (48, 5196, 6, 'ERNESTO ALONSO CARRASCO', '19160020@itoaxaca.edu.mx', '$2y$10$7aCJVZ.SFhdfqdNzPZHE4.dR9EyrxfWKqgKI.FcXBGcrWu50xq.Du', '0000-00-00', 1, 1),
@@ -12749,7 +12750,7 @@ INSERT INTO `users` (`id`, `id_persona`, `id_puesto`, `nombre`, `usuario`, `pass
 (91, 5239, 6, 'PEDRO MAURO CRUZ MENDEZ', '19160063@itoaxaca.edu.mx', '$2y$10$Qp7OOBtZyW/DHbAgTasfZuzXW6htkWyZefi9zsIUUQcv1TF2nT5Ny', '0000-00-00', 1, 1),
 (92, 5240, 6, 'ARLET JOANA CRUZ NAVA', '19160064@itoaxaca.edu.mx', '$2y$10$zXhmn.flmvUbaixk/54FxeUgmo9T3CAYYkB2rhi/kJ3iurJfmE0WO', '0000-00-00', 1, 1),
 (93, 5241, 6, 'ALVARO CRUZ ORTIZ', '19160065@itoaxaca.edu.mx', '$2y$10$aDenIXag7Hme1YNBiDPG2.0BzQQ2b8CWaacIfeeHwoSZ.1rK/66jm', '0000-00-00', 1, 1),
-(94, 93, 6, 'ENRIQUE CRUZ RUIZ', '19160066@itoaxaca.edu.mx', '$2y$10$eszIFSHM/2B0ahrECsZPjeI5x2cbwZZHJ40b/5zhOKtBTxSgx8aWa', '0000-00-00', 0, 1),
+(94, 93, 6, 'ENRIQUE CRUZ RUIZ', '19160066', '$2y$10$eszIFSHM/2B0ahrECsZPjeI5x2cbwZZHJ40b/5zhOKtBTxSgx8aWa', '0000-00-00', 0, 1),
 (95, 94, 6, 'JUAN DIEGO CRUZ SANCHEZ', '19160067@itoaxaca.edu.mx', '$2y$10$W51hfxywGPOeMrXT9w5fUuQDC71gHFFeL6zUD1JggIO7Hs4CU6EmO', '0000-00-00', 1, 1),
 (96, 95, 6, 'JESUS CRUZ VASQUEZ', '19160068@itoaxaca.edu.mx', '$2y$10$G7PxfRLeNbVZ/4K3fiWFbuHZ/xkS9f2RU3VcA3SGtGyzSy2KvaVV.', '0000-00-00', 0, 1),
 (97, 96, 6, 'MARTÃN ANTONIO DE LA CRUZ MATÃAS', '19160069@itoaxaca.edu.mx', '$2y$10$Xel2Uv6YghAnQhdZIlZ47eX/ZxjC4x/qvujN26b/xTwHdzItmwuEa', '0000-00-00', 1, 1),
@@ -14358,9 +14359,9 @@ INSERT INTO `users` (`id`, `id_persona`, `id_puesto`, `nombre`, `usuario`, `pass
 (1695, 1694, 6, 'ESPERANZA GARCIA BAUTISTA', '19161740@itoaxaca.edu.mx', '$2y$10$gQLQW9eofDgV75N1c/S3.eXeDwKTYJvsv22ygq5nxNx7IyPgaGIQi', '0000-00-00', 0, 1),
 (1696, 1695, 6, 'LUZ VANESSA CORTES LARA', '19161741@itoaxaca.edu.mx', '$2y$10$c6wlfWxWpbYdJo0BJYY19ufTyabySHuRvLuY8O/BIa7rinj26onfm', '0000-00-00', 1, 1),
 (1697, 1696, 6, 'WILVER RUBEN MIJANGOS FIGUEROA', '19161742@itoaxaca.edu.mx', '$2y$10$ZuIzlJBOOzwmJ4ak2jO8SuKp0XgY8il6qU7Ys20QzO3W/inh2zo2m', '0000-00-00', 1, 1),
-(1702, 24, 5, 'HUITZILI DIAZ JAIMES', 'PEMJ950204HOCPRS00', '$2y$10$YqEYPcq4LUcDaq6gCayaI.Mj3lNqNTilDgABY1HZEkwfnxT98mewS', '0000-00-00', 1, 0),
+(1702, 24, 2, 'HUITZILI DIAZ JAIMES', 'PEMJ950204HOCPRS00', '$2y$10$YqEYPcq4LUcDaq6gCayaI.Mj3lNqNTilDgABY1HZEkwfnxT98mewS', '0000-00-00', 1, 0),
 (1703, 1697, 6, 'YOSAFAT GOPAR MORALES', '13161127@itoaxaca.edu.mx', '$2y$10$FwgyNMZanxrmuF61gjH6guNXlfxWh7utBc3VrCOmkVDogcvngiFTa', '0000-00-00', 1, 1),
-(1704, 25, 3, 'DULCE ANGÃ‰LICA CASTAÃ‘Ã“N CRUZ', 'CACD920825MOCSRL10', '$2y$10$kazE7BoMTSdWrJpMJpESw.Cbdr/QRwwGqG1q.lH46kBMtiISPAUQq', '0000-00-00', 1, 1),
+(1704, 25, 3, 'DULCE ANGÉLICA CASTAÑÓN CRUZ', 'CACD920825MOCSRL10', '$2y$10$kazE7BoMTSdWrJpMJpESw.Cbdr/QRwwGqG1q.lH46kBMtiISPAUQq', '0000-00-00', 1, 1),
 (1705, 26, 4, 'LUIS REY LUNA DÃAZ', 'LUDL530825HOCNZS01', '$2y$10$V36L2xd4s8zg6MkI9UF1g.RI6wCHIemOiQGCZAYLvOuFj4y3frbLi', '0000-00-00', 1, 1),
 (1706, 27, 4, 'MARISOL ALTAMIRANO CABRERA', 'AACM690226MOCLBR05', '$2y$10$.x/orBEH4a4Wek72gvQ8YuECFlzqnk4jymZigzhAehnjJWddrCCG6', '0000-00-00', 1, 1),
 (1707, 28, 3, 'ABEL RUIZ LÃ“PEZ', 'RULA500701HOCZPB07', '$2y$10$T1NjLpqXpuSlca4Km6HDi.ACC/LKB5vXfNiZCmA10MYaCxMY5eOxu', '0000-00-00', 1, 1),
@@ -18208,7 +18209,7 @@ ALTER TABLE `nivel_desempenio`
 -- AUTO_INCREMENT for table `periodo`
 --
 ALTER TABLE `periodo`
-  MODIFY `id_periodo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id_periodo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `persona`

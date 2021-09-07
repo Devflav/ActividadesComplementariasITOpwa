@@ -41,9 +41,17 @@
    
         </div>
 
-        <div class="row">
-            <div class="form-group col float-right">
-                <a href="{{ url('CoordAC/personal/1') }}" class="btn btn-sm btn-outline-primary float-right">Personal</a>
+        <div class="container-fluid">
+            <div class="form-group">
+                <div class="col-sm"></div>
+                <div class="col-sm"></div>
+                <div class="col-sm"></div>
+                <br>
+                <div class="col-sm">
+                    <a href="{{ url('CoordAC/personal/1') }}" class="btn btn-outline-primary"> 
+                        Personal 
+                    </a> 
+                </div>
             </div>
         </div>
 

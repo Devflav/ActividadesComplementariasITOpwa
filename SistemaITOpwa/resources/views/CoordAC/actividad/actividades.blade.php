@@ -11,18 +11,25 @@
                 <label for="" class="col-1"></label>
                 <div class="input-group-append">
                 @if($mod)
-                    <a href="{{ url('CoordAC/nuevaAct') }}" class="btn btn-outline-success btn-sm"><i class="fa fa-fw fa-plus"></i> Agregar </a>
+                    <a href="{{ url('CoordAC/nuevaAct') }}" class="btn btn-outline-success btn-sm">
+                        <i class="fa fa-fw fa-plus"></i> Agregar 
+                    </a>
                 @else
-                    <a href="{{ url('CoordAC/nuevaAct') }}" class="btn btn-outline-success btn-sm disabled"><i class="fa fa-fw fa-plus"></i> Agregar </a>
+                    <a href="{{ url('CoordAC/nuevaAct') }}" class="btn btn-outline-success btn-sm disabled">
+                        <i class="fa fa-fw fa-plus"></i> Agregar 
+                    </a>
                 @endif
                 </div>
             </div>
 
             <form method="GET" action="{{ url('/searchact') }}">
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Buscar actividad por: Clave ó Nombre" name="search" required>
+                    <input type="text" class="form-control" 
+                        placeholder="Buscar actividad por: Clave ó Nombre" name="search" required>
                     <div class="input-group-append">
-                        <button class="btn btn-outline-primary" type="submit"><i class="fa fa-fw fa-search"></i> Buscar </button>
+                        <button class="btn btn-outline-primary" type="submit">
+                            <i class="fa fa-fw fa-search"></i> Buscar 
+                        </button>
                     </div>
                 </div>
             </form>
@@ -54,12 +61,16 @@
                         @if($mod)
                             <center>
                             <a href="{{ url('CoordAC/editarAct').$a->id_actividad }}" 
-                                class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
+                                class="btn btn-outline-primary btn-sm" title="Editar">
+                                <i class="fa fa-fw fa-edit"></i>
+                            </a>
                             </center>
                         @else
                         <center>
                             <a href="{{ url('CoordAC/editarAct').$a->id_actividad }}" 
-                                class="btn btn-outline-primary btn-sm disabled"><i class="fa fa-fw fa-edit"></i></a>
+                                class="btn btn-outline-primary btn-sm disabled" title="Editar">
+                                <i class="fa fa-fw fa-edit"></i>
+                            </a>
                         </center>
                         @endif
                         </td>

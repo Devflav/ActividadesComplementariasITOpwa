@@ -27,9 +27,9 @@
                 <thead style="background:#1B396A; width: 100%; height: 50px;">
                     <tr class="text-white">
                         <th with="05%">#</th>
-                        <th with="30%">Nombre</th>
-                        <th with="55%">Departamento</th>
-                        <th with="10%">Opciones</th>
+                        <th with="35%">Nombre</th>
+                        <th with="60%">Departamento</th>
+                        <!-- <th with="10%">Opciones</th> -->
                     </tr>
                 </thead>
                 
@@ -41,11 +41,12 @@
                         <td>{{ $c->id_carrera }}</td>
                         <td>{{ $c->nombre }}</td>
                         <td>{{ $c->depto }}</td>
-                        <td>
+                        <!-- <td>
                             <center>
-                            <a href="{{ url('DivEProf/editarCarr').$c->id_carrera }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
+                            <a href="{{ url('DivEProf/editarCarr').$c->id_carrera }}" 
+                                class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
                             </center>
-                        </td>
+                        </td> -->
                     </tr> 
                 <?php $num++; } ?>
                 </tbody>

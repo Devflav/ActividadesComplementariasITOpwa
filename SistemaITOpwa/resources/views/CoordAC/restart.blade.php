@@ -10,7 +10,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body" style="background-color: transparent;">
+      <div class="modal-body text-center" style="background-color: transparent;">
       <center>INTENTAS REESTABLECER UN USUARIO <br> ¿ESTAS SEGURO DE ESTA ACCIÓN?</center>
       </div>
       <div class="modal-footer">

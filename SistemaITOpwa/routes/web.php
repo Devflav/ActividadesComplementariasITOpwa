@@ -33,7 +33,7 @@ use App\Http\Controllers\EscServicesController;
 
         Route::get('/', [PublicController::class, 'iniSesion']);
         Route::get('IniciarSesion', [PublicController::class, 'iniSesion'])->name('inises');
-        Route::post('Acceso', [PublicController::class, 'authenticate']);
+        Route::post('/Acceso', [PublicController::class, 'authenticate']);
         Route::get('CambiarConstrasenia', [PublicController::class, 'change']);
         Route::post('/change/passwd', [PublicController::class, 'changepasswd']);
         Route::get('SeleccionarSesion', [PublicController::class, 'selectSesion']);
@@ -127,7 +127,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('/regGrado', [AdministratorController::class, 'f_regGrado']);
         Route::get('CoordAC/editGrado{id_gra}', [AdministratorController::class, 'f_e_grado']);
         Route::get('/delete/grado/{id}', [AdministratorController::class, 'f_deletegra']);
-        Route::post('/update/grado{g}', [AdministratorController::class, 'f_editGrado']);
+        Route::post('/update/grado/{g}', [AdministratorController::class, 'f_editGrado']);
         
         Route::get('CoordAC/periodos/{p}', [AdministratorController::class, 'f_periodos']);
         Route::get('CoordAC/periodos/{s}/{p}', [AdministratorController::class, 'f_periodo']);
@@ -297,6 +297,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('DivEProf/editPer{id_per}', [DEProfessionalsController::class, 'f_e_persona']);
         Route::post('DivEProf/update/personal/{e}', [DEProfessionalsController::class, 'f_editEmp']);
         Route::get('DivEProf/delete/personal/{e}', [DEProfessionalsController::class, 'f_deleteper']);
+        Route::get('DivEProf/detallePeri/{id}', [DEProfessionalsController::class, 'f_det_periodo']);
         
         Route::get('DivEProf/puestos/{s}', [DEProfessionalsController::class, 'f_puestos']);
         Route::get('DivEProf/searchpue', [DEProfessionalsController::class, 'f_searchpue']);
@@ -335,7 +336,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('JDepto', [JDepartmentController::class, 'f_inicio']);
         
         Route::get('JDepto/estudiante/Hist', [JDepartmentController::class, 'f_estudianteH']);
-        Route::get('JDepto/estudiante/Hist/{e}', [JDepartmentController::class, 'f_estudianteHist']);
+        Route::get('JDepto/estudiante/Historial', [JDepartmentController::class, 'f_estudianteHist']);
 
         Route::get('JDepto/actividad/{p}', [JDepartmentController::class, 'f_deptoAct']);
         Route::get('JDepto/actividad/{s}/{p}', [JDepartmentController::class, 'f_deptoA']);

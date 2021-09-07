@@ -7,7 +7,7 @@
 			<div class="modal-header text-light" style="background:#333333">
 				<h4 class="modal-title">PROTOCOLO DE PREVENCIÓN ANTE COVID-19 </h4>
 			</div>
-			<div class="modal-body" style="background:#e5edf3">
+			<div class="modal-body text-center" style="background:#e5edf3">
 				<a>En el TecNM campus Oaxaca estamos conscientes de la importancia de tomar medidas de prevención
 					ante el COVID-19, por lo que en atención a ello, decidimos implementar un protocolo
 					con tres niveles de prevención: un cuestionario de identificación de riesgos,

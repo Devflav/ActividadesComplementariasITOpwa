@@ -24,9 +24,9 @@
                 
                 <thead style="background:#1B396A; width: 100%; height: 50px;">
                     <tr class="text-white">
-                        <th width="45%">Departamento</th>
-                        <th width="45%">Jefe del Departamento</th>
-                        <th width="10%">Opciones</th>
+                        <th width="50%">Departamento</th>
+                        <th width="50%">Jefe del Departamento</th>
+                        <!-- <th width="10%">Opciones</th> -->
                     </tr>
                 </thead>
 
@@ -35,11 +35,11 @@
                     <tr>
                         <td>{{$d->depto}}</td>
                         <td>{{$d->grado}} {{$d->nombre}} {{$d->apePat}} {{$d->apeMat}}</td>
-                        <td>
+                        <!-- <td>
                             <center>
                             <a href="{{ url ('DivEProf/editDepto').$d->id_depto }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
                             </center>
-                        </td>
+                        </td> -->
                     </tr>
                 @endforeach
                 </tbody>

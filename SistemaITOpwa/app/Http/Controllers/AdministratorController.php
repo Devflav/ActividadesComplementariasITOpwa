@@ -429,16 +429,14 @@ class AdministratorController extends Controller
 
         $clave = mb_strtoupper($request->clave);
         $nombre = mb_strtoupper($request->nombre);
-        $creditos = $request->creditos;
         $depto = $request->depto;
         $tipo = $request->tipo;
         $descrip = mb_strtoupper($request->descripcion);
 
         Mactividad::where('id_actividad', $id_act)
-        ->update(['id_depto' => $depto, 'id_tipo' => $tipo,
-        'clave' => $clave, 'nombre' => $nombre,
-        'creditos' => $creditos, 'descripcion' => $descrip, 
-        'estado' => 1]);
+            ->update(['id_depto' => $depto, 'id_tipo' => $tipo,
+            'clave' => $clave, 'nombre' => $nombre,
+            'descripcion' => $descrip]);
 
         return redirect()->to('CoordAC/actividades/1');
     }
@@ -1613,9 +1611,12 @@ class AdministratorController extends Controller
             if($newjefe == null){
                 Mdepartamento::where('id_depto', $id_dep)
                     ->update(['nombre' => $nombre]);
+
+                return redirect()->to('/CoordAC/departamentos/1');
+
             }else{
                 $puesto = Mempleado::select('id_puesto')
-                ->where('id_persona', $newjefe)->first();
+                    ->where('id_persona', $newjefe)->first();
                 $anterior = Mdepartamento::select('id_persona')
                     ->where('id_depto', $id_dep)->first();
                 $puestoa = Mempleado::select('id_puesto')
@@ -1938,7 +1939,7 @@ class AdministratorController extends Controller
         $finCons = $request->finGcons;
         $inscrip = true; $eval = true; $const = true; 
         $mi = true; $me = true; $mc = true;
-        $gob; $tecnm; $ito; $encabezado;
+        $gob = ''; $tecnm = ''; $ito = ''; $encabezado = '';
 
         if($request->hasFile('gobierno')){
             $g_new = $request->file('gobierno')->getClientOriginalName();
@@ -3958,8 +3959,9 @@ class AdministratorController extends Controller
 
         $usuario_actual = auth()->user();
         $id_e = $usuario_actual->id;
-        $periodo_ = Mperiodo::select('id_periodo', 'nombre', 'inicio')
+        $periodo_ = Mperiodo::select('id_periodo', 'nombre', 'inicio', 'logo_anio')
             ->where('estado', "Actual")->first();
+        $periodo_->logo_anio = substr($periodo_->logo_anio, 1);
         $fecha_hoy = date('d - m - Y');
 
         $impresos = DB::select('SELECT id_grupo FROM horarios_impresos GROUP BY id_grupo');
@@ -4044,7 +4046,7 @@ class AdministratorController extends Controller
                             Fpdf::SetFont('Arial', '', 8);
                             Fpdf::SetMargins(30, 5 , 30);
                             Fpdf::SetAutoPageBreak(true);
-                            Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+                            Fpdf::Image($periodo_->logo_anio, 33, 7, 145, 30);   
 
                             Fpdf::setXY(10,33);
                             Fpdf::SetFont('Arial', '', 9);
@@ -4167,7 +4169,7 @@ class AdministratorController extends Controller
                         
                         } else{
                             
-                            Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+                            Fpdf::Image($periodo_->logo_anio, 33, 140, 145, 30);   
 
                             Fpdf::setXY(10,166);
                             Fpdf::SetFont('Arial', '', 9);
@@ -4300,7 +4302,7 @@ class AdministratorController extends Controller
                     Fpdf::SetFont('Arial', '', 8);
                     Fpdf::SetMargins(30, 5 , 30);
                     Fpdf::SetAutoPageBreak(true);
-                    Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+                    Fpdf::Image($periodo_->logo_anio, 33, 7, 145, 30);   
 
                     Fpdf::setXY(10,33);
                     Fpdf::SetFont('Arial', '', 9);
@@ -4424,7 +4426,7 @@ class AdministratorController extends Controller
                 
                 } else{
                     
-                    Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+                    Fpdf::Image($periodo_->logo_anio, 33, 140, 145, 30);   
 
                     Fpdf::setXY(10,166);
                     Fpdf::SetFont('Arial', '', 9);
@@ -4580,7 +4582,7 @@ class AdministratorController extends Controller
                             Fpdf::SetFont('Arial', '', 8);
                             Fpdf::SetMargins(30, 5 , 30);
                             Fpdf::SetAutoPageBreak(true);
-                            Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+                            Fpdf::Image($periodo_->logo_anio, 33, 7, 145, 30);   
 
                             Fpdf::setXY(10,33);
                             Fpdf::SetFont('Arial', '', 9);
@@ -4791,7 +4793,7 @@ class AdministratorController extends Controller
                         
                         } else{
                             
-                            Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+                            Fpdf::Image($periodo_->logo_anio, 33, 140, 145, 30);   
 
                             Fpdf::setXY(10,166);
                             Fpdf::SetFont('Arial', '', 9);
@@ -4974,7 +4976,7 @@ class AdministratorController extends Controller
                     Fpdf::SetFont('Arial', '', 8);
                     Fpdf::SetMargins(30, 5 , 30);
                     Fpdf::SetAutoPageBreak(true);
-                    Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+                    Fpdf::image($periodo_->logo_anio."", 33, 7, 145, 30);   
 
                     Fpdf::setXY(10,33);
                     Fpdf::SetFont('Arial', '', 9);
@@ -5116,7 +5118,7 @@ class AdministratorController extends Controller
                 
                 } else{
                     
-                    Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+                    Fpdf::image($periodo_->logo_anio, 33, 140, 145, 30);   
 
                     Fpdf::setXY(10,166);
                     Fpdf::SetFont('Arial', '', 9);
@@ -5277,8 +5279,9 @@ class AdministratorController extends Controller
 
         $usuario_actual = auth()->user();
         $id_e = $usuario_actual->id;
-        $periodo_ = Mperiodo::select('id_periodo', 'nombre', 'inicio')
+        $periodo_ = Mperiodo::select('id_periodo', 'nombre', 'inicio', 'logo_anio')
             ->where('estado', "Actual")->first();
+        $periodo_->logo_anio = substr($periodo_->logo_anio, 1);
         $fecha_hoy = date('d - m - Y');
 
         $impresos = DB::select('SELECT id_estudiante FROM horarios_impresos');
@@ -5353,7 +5356,7 @@ class AdministratorController extends Controller
                             Fpdf::SetFont('Arial', '', 8);
                             Fpdf::SetMargins(30, 5 , 30);
                             Fpdf::SetAutoPageBreak(true);
-                            Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+                            Fpdf::Image($periodo_->logo_anio, 33, 7, 145, 30);   
 
                             Fpdf::setXY(10,33);
                             Fpdf::SetFont('Arial', '', 9);
@@ -5476,7 +5479,7 @@ class AdministratorController extends Controller
                         
                         } else{
                             
-                            Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+                            Fpdf::Image($periodo_->logo_anio, 33, 140, 145, 30);   
 
                             Fpdf::setXY(10,166);
                             Fpdf::SetFont('Arial', '', 9);
@@ -5609,7 +5612,7 @@ class AdministratorController extends Controller
                     Fpdf::SetFont('Arial', '', 8);
                     Fpdf::SetMargins(30, 5 , 30);
                     Fpdf::SetAutoPageBreak(true);
-                    Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+                    Fpdf::Image($periodo_->logo_anio, 33, 7, 145, 30);   
 
                     Fpdf::setXY(10,33);
                     Fpdf::SetFont('Arial', '', 9);
@@ -5733,7 +5736,7 @@ class AdministratorController extends Controller
                 
                 } else{
                     
-                    Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+                    Fpdf::Image($periodo_->logo_anio, 33, 140, 145, 30);   
 
                     Fpdf::setXY(10,166);
                     Fpdf::SetFont('Arial', '', 9);
@@ -5886,7 +5889,7 @@ class AdministratorController extends Controller
                             Fpdf::SetFont('Arial', '', 8);
                             Fpdf::SetMargins(30, 5 , 30);
                             Fpdf::SetAutoPageBreak(true);
-                            Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+                            Fpdf::Image($periodo_->logo_anio, 33, 7, 145, 30);   
 
                             Fpdf::setXY(10,33);
                             Fpdf::SetFont('Arial', '', 9);
@@ -6097,7 +6100,7 @@ class AdministratorController extends Controller
                         
                         } else{
                             
-                            Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+                            Fpdf::Image($periodo_->logo_anio, 33, 140, 145, 30);   
 
                             Fpdf::setXY(10,166);
                             Fpdf::SetFont('Arial', '', 9);
@@ -6280,7 +6283,7 @@ class AdministratorController extends Controller
                     Fpdf::SetFont('Arial', '', 8);
                     Fpdf::SetMargins(30, 5 , 30);
                     Fpdf::SetAutoPageBreak(true);
-                    Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+                    Fpdf::Image($periodo_->logo_anio, 33, 7, 145, 30);   
 
                     Fpdf::setXY(10,33);
                     Fpdf::SetFont('Arial', '', 9);
@@ -6422,7 +6425,7 @@ class AdministratorController extends Controller
                 
                 } else{
                     
-                    Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+                    Fpdf::Image($periodo_->logo_anio, 33, 140, 145, 30);   
 
                     Fpdf::setXY(10,166);
                     Fpdf::SetFont('Arial', '', 9);
@@ -6658,8 +6661,13 @@ class AdministratorController extends Controller
 
     public function f_horario($id_ins){
 
-        $periodo_ = Mperiodo::select('nombre', 'inicio')->where('estado', "Actual")->first();
-        $id_std = Minscripcion::select('id_estudiante')->where('id_inscripcion', $id_ins)->first();
+        $periodo_ = Mperiodo::select('nombre', 'inicio', 'logo_anio')
+            ->where('estado', "Actual")->first();
+
+        $periodo_->logo_anio = substr($periodo_->logo_anio, 1);
+
+        $id_std = Minscripcion::select('id_estudiante')
+            ->where('id_inscripcion', $id_ins)->first();
 
         $schedule = DB::select('SELECT ds.nombre, h.hora_inicio, 
             h.hora_fin, i.id_grupo
@@ -6703,7 +6711,6 @@ class AdministratorController extends Controller
 
         // $usuario_actual = auth()->user();
         // $id_e = $usuario_actual->id;
-        $periodo_ = Mperiodo::select('nombre', 'inicio')->where('estado', "Actual")->first();
         $fecha_hoy = date('d - m - Y'); $nctrl = mb_strtoupper("número control: ");
 
         setlocale(LC_ALL,"es_MX.UTF-8");
@@ -6712,7 +6719,7 @@ class AdministratorController extends Controller
         Fpdf::SetFont('Arial', '', 8);
         Fpdf::SetMargins(30, 5 , 30);
         Fpdf::SetAutoPageBreak(true);
-        Fpdf::Image("img/tec_nm.jpeg", 33, 17, 140, 17);   
+        Fpdf::Image($periodo_->logo_anio, 33, 15, 145, 20);   
 
         Fpdf::setXY(10,33);
         Fpdf::SetFont('Arial', '', 9);
@@ -6785,7 +6792,7 @@ class AdministratorController extends Controller
 
         //segunda parteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 
-        Fpdf::Image("img/tec_nm.jpeg", 33, 150, 140, 17);   
+        Fpdf::Image($periodo_->logo_anio, 33, 148, 145, 20);   
 
         Fpdf::setXY(10,166);
         Fpdf::SetFont('Arial', '', 9);

@@ -2,10 +2,10 @@
 @section('content')
 <div class="container" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 55px;">
     <div class="row justify-content-center">
-		<div class="col-md-9">
+		<div class="col-sm-9">
 			<div class="card border-bottom-0 border-left-0 border-right-0" style="background-color: transparent;">
                
-				<div class="card-header text-white" style="background:#1B396A;">
+				<div class="card-header">
                     @if($v == 00)
                         Datos de la Actividad
                     @else
@@ -122,7 +122,7 @@
                 </button>
             </div>
 
-            <div class="modal-body">
+            <div class="modal-body text-center">
                 Se registrará tú solicitud de inscripción, por favor espera a que sea confirmada
                 por la Coordinación de Actividades Complementarias. <br>
                 Cuando sea aprobada recibirás un correo electrónico de aprobación, este correo

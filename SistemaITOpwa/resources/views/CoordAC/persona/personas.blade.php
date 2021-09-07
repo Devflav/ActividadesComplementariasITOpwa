@@ -20,11 +20,11 @@
                 </div>
             </form>
         
-        <div class="row">
-            <div class="form-group col float-right">
-                <a href="{{ url('CoordAC/inhabilitados') }}" class="btn btn-sm btn-outline-primary float-right">Inhabilitados</a>
+            <div class="form-group">
+                <div class="col-sm-3 float-right">
+                    <a href="{{ url('CoordAC/inhabilitados') }}" class="btn btn-sm btn-outline-primary float-right">Inhabilitados</a>
+                </div>
             </div>
-        </div>
         
         <div id="divTable">
             <table id="carreras" class="table table-hover">

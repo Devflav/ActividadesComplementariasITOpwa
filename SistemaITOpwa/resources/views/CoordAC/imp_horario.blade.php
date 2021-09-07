@@ -13,7 +13,7 @@
                 <span aria-hidden="true">&times;</span>
               </button> -->
             </div>
-            <div class="modal-body" style="background-color: transparent;">
+            <div class="modal-body text-center" style="background-color: transparent;">
               <center>LOS HORARIOS DE ESTE GRUPO YA FUERON IMPRESOS, 
               <br> ¿QUIERES VOLVER A IMPRIMIRLOS?</center>
             </div>

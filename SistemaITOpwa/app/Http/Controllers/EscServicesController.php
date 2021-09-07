@@ -103,8 +103,7 @@ class EscServicesController extends Controller
     public function f_saveproof($ideval, Request $request){
 
         if($request->hasFile('constancia')){
-            $proof = $request->file('constancia')->store('public/constancias');
-            $proof = substr($proof, 7); 
+            $proof = $request->file('constancia')->store('constancias');
 
             Mevaluacion::where('id_evaluacion', $ideval)
                 ->update(['constancia' => $proof]);

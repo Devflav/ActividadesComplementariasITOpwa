@@ -2,7 +2,7 @@
 @section('content')
 <div class="container" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 40px;">
     <div class="justify-content-center">
-		<div class="col-md-12">
+		<div class="col-sm-12">
         <label for="" ><strong> - HISTORIAL DEL ESTUDIANTE -</strong></label>
 
             @if($search == 0)
@@ -73,7 +73,7 @@
                         @php $peri = 0; @endphp
                         @foreach($inscripcion as $i)
                                 @if($i -> id_periodo != $peri)
-                                <div class="card-header text-white" style="background:#1B396A;"> 
+                                <div class="card-header"> 
                                     <center>
                                         {{ $i -> periodo }}
                                     </center>
@@ -136,7 +136,7 @@
                                                                     <span aria-hidden="true" class="text-white">&times;</span>
                                                                     </button>
                                                                 </div>
-                                                                <div class="modal-body">
+                                                                <div class="modal-body text-center">
                                                                     <form method="POST" action="{{ url('ServEsc/saveproof').'/'.$i->id_evaluacion }}" class="needs-validation" enctype="multipart/form-data">
                                                                         @csrf
 

@@ -2,10 +2,10 @@
 @section('content')
 <div class="container" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 55px;">
     <div class="justify-content-center">
-		<div class="col-md-12">
+		<div class="col-sm-12">
 			<div class="card border-bottom-0 border-left-0 border-right-0" style="background-color: transparent;">
 				@foreach($historial as $h)
-					<div class="card-header text-white" style="background:#1B396A;"> 
+					<div class="card-header"> 
 						<center>
 							{{ $h -> periodo }}
 						</center> </div>

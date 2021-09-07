@@ -14,7 +14,7 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
-            <div class="modal-body" style="background-color: transparent;">
+            <div class="modal-body text-center" style="background-color: transparent;">
             @if($modal)
               <center>INTENTAS EDITAR UN(A) {{$nombre}} <br> ¿ESTAS SEGURO DE ESTA ACCIÓN?</center>
             @else

@@ -65,7 +65,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Control de asistencias</h5>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-center">
                 <form role='form' id='grupoForm'>
                     {{ csrf_field() }}
                     <div class="form-group">

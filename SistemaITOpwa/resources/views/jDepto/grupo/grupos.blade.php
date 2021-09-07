@@ -49,12 +49,9 @@
                         <td>
                         @if($mod)
                             <a href="{{ url('JDepto/editGru').$g->id_grupo }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
-                            <a href="/eliminarGru/{{ $g->id_grupo }}" class="btn btn-outline-danger btn-sm"><i class="fa fa-fw fa-trash-o"></i></a>
                         @else
                             <a href="{{ url('JDepto/editGru').$g->id_grupo }}" 
                                 class="btn btn-outline-primary btn-sm disabled"><i class="fa fa-fw fa-edit"></i></a>
-                            <a href="/eliminarGru/{{ $g->id_grupo }}" 
-                                class="btn btn-outline-danger btn-sm disabled"><i class="fa fa-fw fa-trash-o"></i></a>
                         @endif
                         </td>
                     </tr>

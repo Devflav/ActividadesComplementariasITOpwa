@@ -25,12 +25,12 @@
              <table class="table table-hover table-responsive" id="students">
                  <thead style="background:#1B396A;">
                     <tr class="text-white">
-                        <th width="09%">Número Control</th>
-                        <th width="28%">Estudiante</th>
-                        <th width="20%">Carrera</th>
+                        <th width="10%">Número Control</th>
+                        <th width="33%">Estudiante</th>
+                        <th width="28%">Carrera</th>
                         <th width="09%">Semestre</th>
                         <th width="20%">CURP</th>
-                        <th width="14%">Opciones</th>
+                        <!-- <th width="14%">Opciones</th> -->
                     </tr>
                 </thead>
 
@@ -45,9 +45,10 @@
                             <td>{{$e->carrera}}</td>
                             <td><center>{{$e->semestre}}</center></td>
                             <td>{{$e->curp}}</td>
-                            <td>
-                                <a href="{{ url('DivEProf/editEst').$e->id_persona }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-lg fa-edit"></i></a>
-                            </td>
+                            <!-- <td>
+                                <a href="{{ url('DivEProf/editEst').$e->id_persona }}" 
+                                    class="btn btn-outline-primary btn-sm"><i class="fa fa-lg fa-edit"></i></a>
+                            </td> -->
                         @endif
                     </tr>
                     @endif

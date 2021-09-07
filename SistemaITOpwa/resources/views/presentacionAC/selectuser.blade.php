@@ -2,15 +2,38 @@
 @section('content')
 
 <br>
-<center>
-      <hr class="col-8">
-      <center> <strong>¿QUIERES ACCEDER CÓMO PROFESOR O CÓMO JEFE DE DEPARTAMENTO?</strong> <br><br>
-        <a href="{{ url('/ProfR') }}" class="btn btn-outline-primary">PROFESOR</a>
-        <label class="col-1"></label>
-        <a href="{{ url('/JDepto') }}" class="btn btn-outline-primary">JEFE DEPTO</a>
-      </center>
-      <hr class="col-8">
-</center>
+<div class="container form-content col-sm-9">
+	<div class="form-group">
+    <div class="card-body">
+      <hr>
+      <div class="form-group">
+          <div class="col-sm">
+            <p class="text-center">
+              <strong>¿QUIERES ACCEDER CÓMO PROFESOR O CÓMO JEFE DE DEPARTAMENTO?</strong>
+            </p>
+          </div>
+      </div>
+      <div class="container">
+          <div class="form-group">
+            <div class="col-sm"></div>
+            <div class="col-sm">
+                <a href="{{ url('/ProfR') }}" class="btn btn-outline-primary"> 
+                    PROFESOR
+                </a>
+            </div>
+            <br>
+            <div class="col-sm">
+                <a href="{{  url('/JDepto') }}" class="btn btn-outline-primary"> 
+                    JEFE DEPTO. 
+                </a> 
+            </div>
+            <div class="col-sm"></div>
+          </div>
+      </div>
+      <hr>
+    </div>
+  </div>
+</div> 
         
 <!-- <div class="modal fade" id="selusuario"  aria-labelledby="selusuarioLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -21,7 +44,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body" style="background-color: transparent;">
+      <div class="modal-body text-center" style="background-color: transparent;">
       <center>¿QUIERES ACCEDER CÓMO PROFESOR O CÓMO JEFE DE DEPARTAMENTO?</center>
       </div>
       <div class="modal-footer">

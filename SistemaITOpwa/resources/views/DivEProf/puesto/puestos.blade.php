@@ -23,9 +23,9 @@
                 <thead style="background:#1B396A; width: 100%; height: 50px;">
                     <tr class="text-white">
                         <th width="05%">#</th>
-                        <th width="30%">Puesto</th>
-                        <th width="50%">Descripción</th>
-                        <th width="15%">Opciones</th>
+                        <th width="35%">Puesto</th>
+                        <th width="60%">Descripción</th>
+                        <!-- <th width="15%">Opciones</th> -->
                     </tr>
                 </thead>
                 <tbody style="width: 100%">
@@ -34,11 +34,11 @@
                         <td>{{$p->id_puesto}}</td>
                         <td>{{$p->nombre}}</td>
                         <td>{{$p->descripcion}}</td>
-                        <td>
+                        <!-- <td>
                         <center>
                             <a href="{{ url('DivEProf/editarPues').$p->id_puesto }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
                         </center>
-                        </td>
+                        </td> -->
                     </tr>
                 @endforeach
                 </tbody>

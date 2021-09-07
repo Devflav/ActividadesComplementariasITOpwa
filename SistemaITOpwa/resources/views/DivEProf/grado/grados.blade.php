@@ -25,8 +25,8 @@
                     <tr class="text-white">
                             <th width="10%">#</th>
                             <th width="15%">Grado</th>
-                            <th width="65%">Descripción</th>
-                            <th width="10%">Opciones</th>
+                            <th width="75%">Descripción</th>
+                            <!-- <th width="10%">Opciones</th> -->
                     </tr>
                     </thead>
                 <tbody style="width: 100%">
@@ -36,9 +36,10 @@
                         <td>{{$g->id_grado}}</td>
                         <td>{{$g->nombre}}</td>
                         <td>{{$g->significado}}</td>
-                        <td>
-                            <a href="{{ url('DivEProf/editGrado').$g->id_grado }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
-                        </td>
+                        <!-- <td>
+                            <a href="{{ url('DivEProf/editGrado').$g->id_grado }}" 
+                                class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
+                        </td> -->
                     </tr>
                     @php $id++; @endphp
                 @endforeach

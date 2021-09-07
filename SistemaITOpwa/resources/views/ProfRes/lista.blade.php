@@ -123,7 +123,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Control de asistencias</h5>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-center">
                 <form method="POST" action="{{ url('/ProfR/updateGroup') }}"
                     role='form' id='grupoForm'>
                     {{ csrf_field() }}

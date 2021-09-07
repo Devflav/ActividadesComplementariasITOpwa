@@ -568,7 +568,7 @@ public function f_actividad($search, $pagina) {
         ->get();
 
         $actividad = DB::select('SELECT a.id_actividad, a.clave, 
-                a.nombre
+                a.nombre, a.creditos
         FROM actividad AS a
         LEFT JOIN  departamento AS  d ON  a.id_depto =  d.id_depto
         WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
@@ -1579,9 +1579,9 @@ public function f_actividad($search, $pagina) {
                     "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE");
 
         $año = [date("Y"), date("Y")+1, date("Y")+2];
-/**<input type="text" class="form-control" name="nombre" 
-									pattern="[ENE]{1}[A-Z]+[-][JUN]{1}[A-Z]+[0-9]{4}|[AGO]{1}[A-Z]+[-][DIC]{1}[A-Z]+[0-9]{4}|[SEP]{1}[A-Z]+[-][ENE]{1}[A-Z]+[0-9]{4}" 
-									placeholder="MESINICIO-MESFIN/AÑO ó MESINICIO AÑO-MESFIN AÑO" required> */
+        /**<input type="text" class="form-control" name="nombre" 
+            pattern="[ENE]{1}[A-Z]+[-][JUN]{1}[A-Z]+[0-9]{4}|[AGO]{1}[A-Z]+[-][DIC]{1}[A-Z]+[0-9]{4}|[SEP]{1}[A-Z]+[-][ENE]{1}[A-Z]+[0-9]{4}" 
+            placeholder="MESINICIO-MESFIN/AÑO ó MESINICIO AÑO-MESFIN AÑO" required> */
         return view('DivEProf.periodo.nuevo')
             ->with('mes', $mes)
             ->with('año', $año)
@@ -1590,10 +1590,7 @@ public function f_actividad($search, $pagina) {
 
     public function f_regPeriodo(Request $request){
         
-        $ruta = "/images/ac_ito/";
-        $ruta2 = "public/images/ac_ito/";
-        
-        //$nombre = $request->nombre;
+        $ruta = "images/ac_ito/";
         $nombre = $request->mesi.' '.$request->anioi.' - '.$request->mesf.' '.$request->aniof;
         $inicio = $request->iniPeri;
         $fin = $request->finPeri;
@@ -1603,19 +1600,38 @@ public function f_actividad($search, $pagina) {
         $finEval = $request->finEval;
         $iniCons = $request->iniGcons;
         $finCons = $request->finGcons;
-        $gob = $request->logoGob;
-        $rutG = $request->logS;
-        $tecnm = $request->logoTecNM;
-        $ito = $request->logoIto;
-        $encabezado = $request->logoEnca;
         $inscrip = true; $eval = true; $const = true; 
         $mi = true; $me = true; $mc = true;
-        $periodo;
-        //$fi = date('Y-m-d', strtotime('+ 2days', strtotime($iniIns)));
-        //$fe = date('Y-m-d', strtotime('+ 2days', strtotime($iniEval)));
-        //$fc = date('Y-m-d', strtotime('+ 2days', strtotime($iniCons)));
-//return $mi."-".$me."-".$mc;
-        
+        $gob = ''; $tecnm = ''; $ito = ''; $encabezado = '';
+
+        if($request->hasFile('gobierno')){
+            $g_new = $request->file('gobierno')->getClientOriginalName();
+            $gob =  $request->file('gobierno');
+            $gob->move($ruta, $g_new);
+            $gob = '/'.$ruta.$g_new;
+        }
+
+        if($request->hasFile('tecnmlog')){
+            $t_new = $request->file('tecnmlog')->getClientOriginalName();
+            $tecnm = $request->file('tecnmlog');
+            $tecnm->move($ruta, $t_new);
+            $tecnm = '/'.$ruta.$t_new;
+        }
+
+        if($request->hasFile('itolog')){
+            $i_new = $request->file('itolog')->getClientOriginalName();
+            $ito = $request->file('itolog');
+            $ito->move($ruta, $i_new);
+            $ito = '/'.$ruta.$i_new;
+        }
+
+        if($request->hasFile('encabezado')){
+            $e_new = $request->file('encabezado')->getClientOriginalName();
+            $encabezado = $request->file('encabezado'); 
+            $encabezado->move($ruta, $e_new);
+            $encabezado = '/'.$ruta.$e_new;
+        }
+
         ($iniIns != '' && $finIns != '') 
             ? (($finIns < date('Y-m-d', strtotime('+2 days', strtotime($iniIns)))
                 || $finIns > date('Y-m-d', strtotime('+14 days', strtotime($iniIns))))
@@ -1633,8 +1649,6 @@ public function f_actividad($search, $pagina) {
                 || $finCons > date('Y-m-d', strtotime('+14 days', strtotime($iniCons))))
                 ? $mc = true : $mc = false) 
             : $const = false;
-
-//return $mi."-".$me."-".$mc;
         
         if($inicio < $fin){
 
@@ -1646,27 +1660,47 @@ public function f_actividad($search, $pagina) {
                 </script><?php
             }else{
                 if(!$inscrip && !$eval && !$const){
-                    //return "Resgistrado sin procesos";
+
+                    $sig = Mperiodo::select('id_periodo')
+                        ->where('estado', "Siguiente")->first();
+                    
+                    $sig != null 
+                        ? 
+                            Mperiodo::where('id_periodo', $sig->id_periodo)
+                                ->update(['estado' => "Espera"])
+                        :   "";
+
                     Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                    'logo_gob' => $ruta.$gob, 'logo_tecnm' => $ruta.$tecnm, 'logo_ito' => $ruta.$ito,
-                    'logo_anio' => $ruta.$encabezado, 'estado' => "Espera"]);
+                    'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
+                    'logo_ito' => $ito, 'logo_anio' => $encabezado, 
+                    'estado' => "Siguiente"]);
 
                     return redirect()->to('DivEProf/periodos/1');
                 }else{
                     if(!$mi && !$me && !$mc){
                         if($inicio < $iniIns && $finIns < $iniEval && $finEval < $iniCons && $finCons < $fin){
-                            //return "Valiadción completa";
+                            
+                            $sig = Mperiodo::select('id_periodo')
+                                ->where('estado', "Siguiente")->first();
+                            
+                            $sig != null 
+                                ? 
+                                    Mperiodo::where('id_periodo', $sig->id_periodo)
+                                        ->update(['estado' => "Espera"])
+                                :   "";
+
                             Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
                             'ini_inscripcion' => $iniIns, 'fin_inscripcion' => $finIns,
                             'ini_evaluacion' => $iniEval, 'fin_evaluacion' => $finEval,
                             'ini_gconstancias' => $iniCons, 'fin_gconstancias' => $finCons,
-                            'logo_gob' => $ruta.$gob, 'logo_tecnm' => $ruta.$tecnm, 'logo_ito' => $ruta.$ito,
-                            'logo_anio' => $ruta.$encabezado, 'estado' => "Espera"]);
+                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
+                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
+                            'estado' => "Siguiente"]);
                             
                             return redirect()->to('DivEProf/periodos/1');
 
                         }else{
-                            //return "fechas traslapadas";
+
                             ?> <script>
                                 alert('Las fechas de los procesos de Inscripción, Evaluación y G. Constancias no pueden traslaparse.');
                                 location.href = "DivEProf/nuevoPeri";
@@ -1674,67 +1708,127 @@ public function f_actividad($search, $pagina) {
                         }
                     }elseif(!$mi && $inicio < $iniIns){
                         if(!$me && $finIns < $iniEval && $finEval < $fin){
-                            //return "Registro con inscripción evaluación";
+                            
+                            $sig = Mperiodo::select('id_periodo')
+                                ->where('estado', "Siguiente")->first();
+                            
+                            $sig != null 
+                                ? 
+                                    Mperiodo::where('id_periodo', $sig->id_periodo)
+                                        ->update(['estado' => "Espera"])
+                                :   "";
+
                             Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
                             'ini_inscripcion' => $iniIns, 'fin_inscripcion' => $finIns,
                             'ini_evaluacion' => $iniEval, 'fin_evaluacion' => $finEval,
-                            'logo_gob' => $ruta.$gob, 'logo_tecnm' => $ruta.$tecnm, 'logo_ito' => $ruta.$ito,
-                            'logo_anio' => $ruta.$encabezado, 'estado' => "Espera"]);
+                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
+                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
+                            'estado' => "Siguiente"]);
 
                             return redirect()->to('DivEProf/periodos/1');
 
                         }elseif(!$mc && $finIns < $iniCons && $finCons < $fin){
-                            //return "Registro con inscripción constancias";
+                            
+                            $sig = Mperiodo::select('id_periodo')
+                                ->where('estado', "Siguiente")->first();
+                            
+                            $sig != null 
+                                ? 
+                                    Mperiodo::where('id_periodo', $sig->id_periodo)
+                                        ->update(['estado' => "Espera"])
+                                :   "";
+
                             Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
                             'ini_inscripcion' => $iniIns, 'fin_inscripcion' => $finIns,
                             'ini_gconstancias' => $iniCons, 'fin_gconstancias' => $finCons,
-                            'logo_gob' => $ruta.$gob, 'logo_tecnm' => $ruta.$tecnm, 'logo_ito' => $ruta.$ito,
-                            'logo_anio' => $ruta.$encabezado, 'estado' => "Espera"]);
+                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
+                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
+                            'estado' => "Siguiente"]);
 
                             return redirect()->to('DivEProf/periodos/1');
 
                         }else{
-                            //return "Registro con inscripción";
+
+                            $sig = Mperiodo::select('id_periodo')
+                                ->where('estado', "Siguiente")->first();
+                            
+                            $sig != null 
+                                ? 
+                                    Mperiodo::where('id_periodo', $sig->id_periodo)
+                                        ->update(['estado' => "Espera"])
+                                :   "";
+
                             Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
                             'ini_inscripcion' => $iniIns, 'fin_inscripcion' => $finIns,
-                            'logo_gob' => $ruta.$gob, 'logo_tecnm' => $ruta.$tecnm, 'logo_ito' => $ruta.$ito,
-                            'logo_anio' => $ruta.$encabezado, 'estado' => "Espera"]);
+                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
+                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
+                            'estado' => "Siguiente"]);
 
                             return redirect()->to('DivEProf/periodos/1');
 
                         }
                     }elseif(!$me && $inicio < $iniEval){
                         if(!$mc && $finEval < $iniCons && $finCons < $fin){
-                            //return "Registro con evaluación constancias";
+                            
+                            $sig = Mperiodo::select('id_periodo')
+                                ->where('estado', "Siguiente")->first();
+                            
+                            $sig != null 
+                                ? 
+                                    Mperiodo::where('id_periodo', $sig->id_periodo)
+                                        ->update(['estado' => "Espera"])
+                                :   "";
+
                             Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
                             'ini_evaluacion' => $iniEval, 'fin_evaluacion' => $finEval,
                             'ini_gconstancias' => $iniCons, 'fin_gconstancias' => $finCons,
-                            'logo_gob' => $ruta.$gob, 'logo_tecnm' => $ruta.$tecnm, 'logo_ito' => $ruta.$ito,
-                            'logo_anio' => $ruta.$encabezado, 'estado' => "Espera"]);
+                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
+                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
+                            'estado' => "Siguiente"]);
 
                             return redirect()->to('DivEProf/periodos/1');
 
                         }else{
-                            //return "Registro con evaluación";
+                            
+                            $sig = Mperiodo::select('id_periodo')
+                                ->where('estado', "Siguiente")->first();
+                            
+                            $sig != null 
+                                ? 
+                                    Mperiodo::where('id_periodo', $sig->id_periodo)
+                                        ->update(['estado' => "Espera"])
+                                :   "";
+
                             Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
                             'ini_evaluacion' => $iniEval, 'fin_evaluacion' => $finEval,
-                            'logo_gob' => $ruta.$gob, 'logo_tecnm' => $ruta.$tecnm, 'logo_ito' => $ruta.$ito,
-                            'logo_anio' => $ruta.$encabezado, 'estado' => "Espera"]);
+                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
+                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
+                            'estado' => "Siguiente"]);
 
                             return redirect()->to('DivEProf/periodos/1');
 
                         }
                     }elseif(!$mc && $inicio < $iniCons && $finCons < $fin){
-                        //return "Registro con constancias";
+                        
+                        $sig = Mperiodo::select('id_periodo')
+                                ->where('estado', "Siguiente")->first();
+                            
+                            $sig != null 
+                                ? 
+                                    Mperiodo::where('id_periodo', $sig->id_periodo)
+                                        ->update(['estado' => "Espera"])
+                                :   "";
+
                         Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
                         'ini_gconstancias' => $iniCons, 'fin_gconstancias' => $finCons,
-                        'logo_gob' => $ruta.$gob, 'logo_tecnm' => $ruta.$tecnm, 'logo_ito' => $ruta.$ito,
-                        'logo_anio' => $ruta.$encabezado, 'estado' => "Espera"]);
+                        'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
+                        'logo_ito' => $ito, 'logo_anio' => $encabezado, 
+                        'estado' => "Siguiente"]);
 
                         return redirect()->to('DivEProf/periodos/1');
 
                     }else{
-                        //return "proceso fuera de rango";
+
                         ?> <script>
                             alert('Los procesos de Inscripción, Evaluación y G. Constancias deben ser mínimo de 3 días y máximo 2 semanas.');
                             location.href = "DivEProf/nuevoPeri";
@@ -1749,27 +1843,6 @@ public function f_actividad($search, $pagina) {
                 </script> <?php
         }
 
-       /*move_uploaded_file($gob, $ruta2);
-        move_uploaded_file($tecnm, $ruta2);
-        move_uploaded_file($ito, $ruta2);
-        move_uploaded_file($encabezado, $ruta2);
-
-        Storage::copy('old/file1.jpg', 'new/file1.jpg');
-        Storage::move('old/file1.jpg', 'new/file1.jpg');
-        Storage::putFileAs('photos', new File('/path/to/photo'), 'photo.jpg');*/
-
-        /*
-
-        /*$imagen = $request->file("nombre de tu input file de imagen");
-        $ruta = "tu dirección donde se guardara";
-        $nombre = "nombre con el que se guardara"
-        $imagen->move($ruta, $nombre);
-        ModeloX::create([
-            Atributos => Atributos,
-            imagen => $ruta.$nombre
-        ]); */
-
-        //return redirect()->to('DivEProf/periodos/0');
     }
 
     public function f_det_periodo($id_peri){

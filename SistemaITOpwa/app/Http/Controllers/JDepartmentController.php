@@ -14,6 +14,7 @@ use App\Models\Mgrado;
 use App\Models\Mgrupo;
 use App\Models\Musers;
 use App\Models\Mpuesto;
+use App\Models\Mhorario;
 use App\Models\Mpersona;
 use App\Models\Mperiodo;
 use App\Models\Mempleado;
@@ -485,14 +486,63 @@ class JDepartmentController extends Controller
         $cupo = $request->cupo;
         $orden = $request->orden;
 
+        $lun = $request->lunes;
+        $lunf = $request->lunesf;
+        $mar = $request->martes;
+        $marf = $request->martesf;
+        $mie = $request->miercoles;
+        $mief = $request->miercolesf;
+        $jue = $request->jueves;
+        $juef = $request->juevesf;
+        $vie = $request->viernes;
+        $vief = $request->viernesf;
+        $sab = $request->sabado;
+        $sabf = $request->sabadof;
+
         $periodo = Mperiodo::select('id_periodo')
                 ->where('estado', "Actual")
                 ->first();
 
-        Mgrupo::create(['id_periodo' => $periodo->id_periodo, 'id_actividad' => $actividad,
+        $grupo = Mgrupo::create(['id_periodo' => $periodo->id_periodo, 'id_actividad' => $actividad,
         'id_persona' => $responsable, 'id_lugar' => $lugar,
         'clave' => $clave, 'cupo' => $cupo, 'orden' => $orden, 
         'estado' => 1]);
+
+        if($lun != null){
+            Mhorario::create(['id_grupo' => $grupo->id, 
+                'id_dia' => 1, 'hora_inicio' => $lun,
+                'hora_fin' => $lunf]);
+        }
+
+        if($mar != null){
+            Mhorario::create(['id_grupo' => $grupo->id, 
+                'id_dia' => 2, 'hora_inicio' => $mar,
+                'hora_fin' => $marf]);
+        }
+
+        if($mie != null){
+            Mhorario::create(['id_grupo' => $grupo->id, 
+                'id_dia' => 3, 'hora_inicio' => $mie,
+                'hora_fin' => $mief]);
+        }
+
+        if($jue != null){
+            Mhorario::create(['id_grupo' => $grupo->id, 
+                'id_dia' => 4, 'hora_inicio' => $jue,
+                'hora_fin' => $juef]);
+        }
+
+        if($vie != null){
+            Mhorario::create(['id_grupo' => $grupo->id, 
+                'id_dia' => 5, 'hora_inicio' => $vie,
+                'hora_fin' => $vief]);
+        }
+
+        if($sab != null){
+            Mhorario::create(['id_grupo' => $grupo->id, 
+                'id_dia' => 6, 'hora_inicio' => $sab,
+                'hora_fin' => $sabf]);
+        }
 
         return redirect()->to('JDepto/grupos/1');
     }
@@ -549,11 +599,61 @@ class JDepartmentController extends Controller
             ->where('id_grupo', $id_gru)
             ->get();
 
+            $h1 = DB::select('SELECT h.hora_inicio, h.hora_fin
+            FROM grupo AS g
+                LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
+                LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
+            WHERE ds.id_dia = 1
+            AND h.estado = 1
+            AND g.id_grupo = '.$id_gru);
+
+            $h2 = DB::select('SELECT h.hora_inicio, h.hora_fin
+            FROM grupo AS g
+                LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
+                LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
+            WHERE ds.id_dia = 2
+            AND h.estado = 1
+            AND g.id_grupo = '.$id_gru);
+
+            $h3 = DB::select('SELECT h.hora_inicio, h.hora_fin
+            FROM grupo AS g
+                LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
+                LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
+            WHERE ds.id_dia = 3
+            AND h.estado = 1
+            AND g.id_grupo = '.$id_gru);
+
+            $h4 = DB::select('SELECT h.hora_inicio, h.hora_fin
+            FROM grupo AS g
+                LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
+                LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
+            WHERE ds.id_dia = 4
+            AND h.estado = 1
+            AND g.id_grupo = '.$id_gru);
+
+            $h5 = DB::select('SELECT h.hora_inicio, h.hora_fin
+            FROM grupo AS g
+                LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
+                LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
+            WHERE ds.id_dia = 5
+            AND h.estado = 1
+            AND g.id_grupo = '.$id_gru);
+
+            $h6 = DB::select('SELECT h.hora_inicio, h.hora_fin
+            FROM grupo AS g
+                LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
+                LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
+            WHERE ds.id_dia = 6
+            AND h.estado = 1
+            AND g.id_grupo = '.$id_gru);
+
             return view('jDepto.grupo.editar')->with('grupo', $grupo)
                     ->with('periodo', $periodo)
                     ->with('actividades', $actividad)
                     ->with('personas', $persona)
-                    ->with('lugares', $lugar);
+                    ->with('lugares', $lugar)
+                    ->with('hlun', $h1)->with('hmar', $h2)->with('hmie', $h3)
+                    ->with('hjue', $h4)->with('hvie', $h5)->with('hsab', $h6);
         // }else{
         //     return view('jDepto.procesos')
         //     ->with('v', 00);
@@ -572,10 +672,163 @@ class JDepartmentController extends Controller
         $cupo = $request->cupo;
         $orden = $request->orden;
 
-        Mgrupo::where('id_grupo', $id_gru)
-        ->update(['id_actividad' => $actividad,
-        'id_persona' => $responsable, 'id_lugar' => $lugar,
-        'clave' => $clave, 'cupo' => $cupo, 'orden' => $orden]);
+        $lun = $request->lunes;         $lunf = $request->lunesf;
+        $mar = $request->martes;        $marf = $request->martesf;
+        $mie = $request->miercoles;     $mief = $request->miercolesf;
+        $jue = $request->jueves;        $juef = $request->juevesf;
+        $vie = $request->viernes;       $vief = $request->viernesf;
+        $sab = $request->sabado;        $sabf = $request->sabadof;
+
+        $oldcupo = Mgrupo::select('cupo', 'cupo_libre')->where('id_grupo', $id_gru)->first();
+
+        if($oldcupo->cupo == $oldcupo->cupo_libre){
+            Mgrupo::where('id_grupo', $id_gru)
+            ->update(['id_actividad' => $actividad,
+            'id_persona' => $responsable, 'id_lugar' => $lugar,
+            'clave' => $clave, 'cupo' => $cupo, 
+            'cupo_libre' => $cupo, 'orden' => $orden]);
+        }else{
+            Mgrupo::where('id_grupo', $id_gru)
+            ->update(['id_actividad' => $actividad,
+            'id_persona' => $responsable, 'id_lugar' => $lugar,
+            'clave' => $clave, 'cupo' => $cupo, 'orden' => $orden]);
+        }
+
+        $haylun = 0; $haymar = 0; $haymie = 0; $hayjue = 0; $hayvie = 0; $haysab = 0;
+
+        $horario = Mhorario::where('id_grupo', $id_gru)->where('estado', 1)->get();
+
+            foreach($horario as $h){
+
+                if($h->id_dia == 1){
+                    if($lun != null){
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 1)
+                        ->update(['hora_inicio' => $lun,
+                        'hora_fin' => $lunf]);
+                    }else{
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 1)
+                        ->update(['estado' => 0]);
+                    }
+                    $haylun = 1;
+
+                }elseif($h->id_dia == 2){
+                    if($mar != null){
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 2)
+                        ->update(['hora_inicio' => $mar,
+                            'hora_fin' => $marf]);
+                    }else{
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 2)
+                        ->update(['estado' => 0]);
+                    }
+                    $haymar = 1;
+
+                }elseif($h->id_dia == 3){
+                    if($mie != null){
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 3)
+                        ->update(['hora_inicio' => $mie,
+                            'hora_fin' => $mief]);
+                    }else{
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 3)
+                        ->update(['estado' => 0]);
+                    }
+                    $haymie = 1;
+
+                }elseif($h->id_dia == 4){
+                    if($jue != null){
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 4)
+                        ->update(['hora_inicio' => $jue,
+                            'hora_fin' => $juef]);
+                    }else{
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 4)
+                        ->update(['estado' => 0]);
+                    }
+                    $hayjue = 1;
+
+                }elseif($h->id_dia == 5){
+                    if($vie != null){
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 5)
+                        ->update(['hora_inicio' => $vie,
+                            'hora_fin' => $vief]);
+                    }else{
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 5)
+                        ->update(['estado' => 0]);
+                    }
+                    $hayvie = 1;
+
+                }elseif($h->id_dia == 6){
+                    if($sab != null){
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 6)
+                        ->update(['hora_inicio' => $sab,
+                            'hora_fin' => $sabf]);
+                    }else{
+                        Mhorario::where('id_grupo', $id_gru)
+                        ->where('id_dia', 6)
+                        ->update(['estado' => 0]);
+                    }
+                    $haysab = 1;
+                }
+            }
+
+        
+            if($haylun == 0){
+                if($lun != null){
+                    Mhorario::create(['id_grupo' => $id_gru, 
+                        'id_dia' => 1, 'hora_inicio' => $lun,
+                        'hora_fin' => $lunf]);
+                }
+
+            }
+
+            if($haymar == 0){
+                if($mar != null){
+                    Mhorario::create(['id_grupo' => $id_gru, 
+                        'id_dia' => 2, 'hora_inicio' => $mar,
+                        'hora_fin' => $marf]);
+                }
+            }
+            
+            if($haymie == 0){
+                if($mie != null){
+                    Mhorario::create(['id_grupo' => $id_gru, 
+                        'id_dia' => 3, 'hora_inicio' => $mie,
+                        'hora_fin' => $mief]);
+                }
+            }
+            
+            if($hayjue == 0){
+                if($jue != null){
+                    Mhorario::create(['id_grupo' => $id_gru, 
+                        'id_dia' => 4, 'hora_inicio' => $jue,
+                        'hora_fin' => $juef]);
+                }
+            }
+            
+            if($hayvie == 0){
+                if($vie != null){
+                    Mhorario::create(['id_grupo' => $id_gru, 
+                        'id_dia' => 5, 'hora_inicio' => $vie,
+                        'hora_fin' => $vief]);
+                }
+            }
+            
+            if($haysab == 0){
+                if($sab != null){
+                    Mhorario::create(['id_grupo' => $id_gru, 
+                        'id_dia' => 6, 'hora_inicio' => $sab,
+                        'hora_fin' => $sabf]);
+                }
+            }
 
         return redirect()->to('JDepto/grupos/1');
     }
@@ -948,8 +1201,7 @@ class JDepartmentController extends Controller
     public function f_savehmem(Request $request){
 
         if($request->hasFile('hojamem')){
-            $proof = $request->file('hojamem')->store('public/Membretadas');
-            $proof = substr($proof, 7); 
+            $proof = $request->file('hojamem')->store('membretadas');
 
             $dptP = Mempleado::select('id_depto')
                 ->where('id_persona', $request->user()->id_persona)
@@ -1181,7 +1433,7 @@ class JDepartmentController extends Controller
         GROUP BY pr.id_periodo, pr.nombre, i.fecha,
         a.nombre, ev.constancia, ev.id_evaluacion, 
         g.clave, i.aprobada
-        ORDER BY pr.id_periodo, i.id_inscripcion ASC');
+        ORDER BY pr.id_periodo');
 
         $student = DB::select('SELECT p.nombre, p.apePat, p.apeMat, 
             e.num_control, e.semestre, c.nombre AS carrera

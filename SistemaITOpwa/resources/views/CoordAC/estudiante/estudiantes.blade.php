@@ -19,14 +19,15 @@
             </div>
         </form>
         
-        <div class="float-right">
-            @if($mod && $outime)
+        <div class="form-group">
+            <div class="col-sm-3 float-right">
+                @if($mod && $outime)
                 <a href="{{ url('CoordAC/inscrip_fuera_tiempo/1/1') }}" class="btn btn-outline-danger btn-sm"><i class="fa fa-lg fa-leanpub"></i>Inscribir fuera de tiempo</a>
-            @else
-
-            @endif
+                @else
+                @endif
+            </div>
         </div>
-
+        
         <div id="divTable">
              
              <table class="table table-hover table-responsive" id="students">
@@ -59,7 +60,7 @@
                             @else
                                 <a class="btn btn-outline-primary btn-sm disabled"><i class="fa fa-lg fa-leanpub"></i></a>
                             @endif
-                                <a href="{{ url('CoordAC/editEst').$e->id_persona }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-lg fa-edit" title="Inscribir"></i></a>                            
+                                <a href="{{ url('CoordAC/editEst').$e->id_persona }}" class="btn btn-outline-primary btn-sm"  title="Editar"><i class="fa fa-lg fa-edit""></i></a>                            
                                 </td>
                             </center>
                         @endif

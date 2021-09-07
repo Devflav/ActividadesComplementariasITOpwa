@@ -23,19 +23,19 @@
             <table id="carreras" class="table table-hover">
                 <thead style="background:#1B396A; width: 100%; height: 50px;">
                     <tr class="text-white">
-                            <th width="10%">#</th>
-                            <th width="75%">Lugar</th>
-                            <th width="15%">Opciones</th>
+                            <th width="05%">#</th>
+                            <th width="95%">Lugar</th>
+                            <!-- <th width="15%">Opciones</th> -->
                     </tr>
                 </thead>
                 <tbody style="width: 100%">
                 @foreach($lugares as $l)
                     <tr>
-                        <td width="10%">{{$l->id_lugar}}</td>
-                        <td width="70%">{{$l->nombre}}</td>
-                        <td width="20%">
+                        <td>{{$l->id_lugar}}</td>
+                        <td>{{$l->nombre}}</td>
+                        <!-- <td width="20%">
                             <a href="{{ url('DivEProf/editLugar').$l->id_lugar }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
-                        </td>
+                        </td> -->
                     </tr>
                 @endforeach
                 </tbody>

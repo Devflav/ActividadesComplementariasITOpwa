@@ -25,10 +25,10 @@
                 </div>
             </form>
         
-            <div id="divTable" class="table-hover table-responsive">
+            <div id="divTable" class="table table-hover">
                 
                 <table class="table">
-                    <thead id="divTable">
+                    <thead style="background:#1B396A; width: 100%; height: 50px;">
                         <tr class="text-white" style="background:#1B396A;">
                                 <th width="05%">Clave</th>
                                 <th width="20%">Nombre</th>
@@ -51,10 +51,8 @@
                             <td>
                             @if($mod)
                                 <a href="{{ url('JDepto/editAct').$a->id_actividad }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
-                                <a href="/eliminarEst/{{ $a->id_actividad }}" class="btn btn-outline-danger btn-sm"><i class="fa fa-fw fa-trash-o"></i></a>
                             @else
                                 <a href="{{ url('JDepto/editAct').$a->id_actividad }}" class="btn btn-outline-primary btn-sm disabled"><i class="fa fa-fw fa-edit"></i></a>
-                                <a href="{{ url('/eliminarEst').'/'.$a->id_actividad }}" class="btn btn-outline-danger btn-sm disabled"><i class="fa fa-fw fa-trash-o"></i></a>
                             @endif
                             </td>
                         </tr>

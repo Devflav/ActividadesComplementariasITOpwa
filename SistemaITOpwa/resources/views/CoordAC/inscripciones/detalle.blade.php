@@ -2,9 +2,9 @@
 @section('content')
 <div class="container" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 55px;">
     <div class="row justify-content-center">
-		<div class="col-md-9">
+		<div class="col-sm-9">
 			<div class="card border-bottom-0 border-left-0 border-right-0" style="background-color: transparent;">
-				<div class="card-header text-white" style="background:#1B396A;"> Datos del Estudiante </div>
+				<div class="card-header"> Datos del Estudiante </div>
 					<div class="card-body">
 						@foreach($estudiante as $e)
 						<div class="row">
@@ -50,7 +50,7 @@
 					    @endforeach
                 </div>
                 
-				<div class="card-header text-white" style="background:#1B396A;"> Datos de la Actividad </div>
+				<div class="card-header"> Datos de la Actividad </div>
                     <div class="card-body">
 						@foreach($actividad as $a)
 						<div class="row">
@@ -146,7 +146,7 @@
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>  </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body text-center">
                         <center>APROBARÁS LA INSCRIPCIÓN DE ESTE ESTUDIANTE <br> ¿ESTAS SEGURO DE ESTA ACCIÓN?</center>
                     </div>
                     <div class="modal-footer">
@@ -165,7 +165,7 @@
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>  </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body text-center">
                         <center>NO APROBARÁS LA INSCRIPCIÓN DE ESTE ESTUDIANTE A LA ACTIVIDAD COMPLEMENTARIA <br> ¿ESTAS SEGURO DE ESTA ACCIÓN?</center>
                     </div>
                     <div class="modal-footer">
@@ -184,7 +184,7 @@
                         <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>  </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body text-center">
                         <center>DARÁS DE BAJA A ESTE ESTUDIANTE DE SU ACTIVIDAD COMPLEMENTARIA <br> ¿ESTAS SEGURO DE ESTA ACCIÓN?</center>
                     </div>
                     <div class="modal-footer">

@@ -43,8 +43,6 @@
                     <td>
                         <a href="{{ url('JDepto/editpers').$p->id_persona }}" 
                             class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
-                        <a href="/eliminarPerso/{{ $p->id_persona }}" 
-                            class="btn btn-outline-danger btn-sm"><i class="fa fa-fw fa-trash-o"></i></a>
                     </td>
                 </tr>
             @endforeach

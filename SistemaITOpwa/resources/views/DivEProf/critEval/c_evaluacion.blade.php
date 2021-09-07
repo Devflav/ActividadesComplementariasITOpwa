@@ -25,9 +25,9 @@
                 <thead style="background:#1B396A; width: 100%; height: 50px;">
                     <tr class="text-white">
                         <th width="05%">#</th>
-                        <th width="25%">Nombre</th>
-                        <th width="60%">Descripción</th>
-                        <th width="10%">Opciones</th>
+                        <th width="30%">Nombre</th>
+                        <th width="65%">Descripción</th>
+                        <!-- <th width="10%">Opciones</th> -->
                     </tr>
                 </thead>
 
@@ -38,11 +38,11 @@
                         <td>{{$num}}</td>
                         <td>{{$c->nombre}}</td>
                         <td>{{$c->descripcion}}</td>
-                        <td>
+                        <!-- <td>
                             <center>
                             <a href="{{ url('DivEProf/editCritEval').$c->id_crit_eval }}" class="btn btn-outline-primary btn-sm"><i class="fa fa-fw fa-edit"></i></a>
                             </center>
-                        </td>
+                        </td> -->
                     </tr>
                     <?php $num++; ?>
                 @endforeach

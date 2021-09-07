@@ -2,9 +2,9 @@
 @section('content')
 <div class="container" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 55px;">
     <div class="row justify-content-center">
-		<div class="col-md-10">
+		<div class="col-sm-10">
 			<div class="card border-bottom-0 border-left-0 border-right-0" style="background-color: transparent;">
-				<div class="card-header text-white" style="background:#1B396A;"> Datos del Estudiante </div>
+				<div class="card-header"> Datos del Estudiante </div>
 					<div class="card-body">
 						@foreach($student as $e)
 						<div class="row" >

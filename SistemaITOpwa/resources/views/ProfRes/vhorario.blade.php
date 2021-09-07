@@ -11,7 +11,7 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <div class="modal-body" style="background-color: transparent;">
+      <div class="modal-body text-center" style="background-color: transparent;">
         <table class="table table-hover">
 
             <tr class="text-white" style="background:#1B396A;">

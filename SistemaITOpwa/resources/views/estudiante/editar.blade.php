@@ -3,9 +3,9 @@
 
 	<div class="container" style="padding-bottom: 55px;">
 		<div class="row justify-content-center">
-			<div class="col-md-9">
+			<div class="col-sm-9">
 				<div class="card border-bottom-0 border-left-0 border-right-0" style="background-color: transparent;">
-					<div class="card-header text-white" style="background:#1B396A;"> Actualizar mis datos Generales </div>
+					<div class="card-header"> Actualizar mis datos Generales </div>
 					<div class="card-body">
 					
 						<form method="POST" action="{{url('/Enviar/nuevoEst')}}" class="needs-validation">

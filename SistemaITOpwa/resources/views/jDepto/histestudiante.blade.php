@@ -1,12 +1,14 @@
 @extends('layouts.jDeptos')
 @section('content')
-<div class="container" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 40px;">
+<div class="container form-content">
+<!-- <div class="container" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 40px;"> -->
     <div class="justify-content-center">
-		<div class="col-md-12">
+		<div class="col-sm-12">
+        
         <label for="" ><strong> - HISTORIAL DEL ESTUDIANTE -</strong></label>
 
             @if($search == 0)
-                <form method="GET" action="{{ url('CoordC/searchest') }}">
+                <form method="GET" action="{{ url('JDepto/estudiante/Historial') }}">
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Escribe el número de control del estudiante" 
                         name="search" pattern="[0-9]{8}|[B][0-9]{8}|[0-9]{9}" required>
@@ -17,7 +19,7 @@
                 </form>
 
                 @else
-                <form method="GET" action="{{ url('CoordC/searchest') }}">
+                <form method="GET" action="{{ url('JDepto/estudiante/Historial') }}">
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Escribe el número de control del estudiante" 
                         name="search" pattern="[0-9]{8}|[B][0-9]{8}|[0-9]{9}" required>
@@ -33,16 +35,16 @@
                     @else
                         <div id="mitexto" class="card-body justify-content-center">
                             <div  class="row">
-                                <div  class="form-group col-2 badge" style="background:#1B396A;">
+                                <div  class="form-group col-2 card-header">
                                     <h6 for="" class="text-white">Número de Control</h6>
                                 </div>
-                                <div class="form-group col-5 badge" style="background:#1B396A;">
+                                <div class="form-group col-5 card-header">
                                     <h6 for="" class="text-white">Estudiante</h6>
                                 </div>
-                                <div class="form-group col-1 badge" style="background:#1B396A;">
+                                <div class="form-group col-1 card-header">
                                     <h6 for="" class="text-white">Semestre</h6>
                                 </div>
-                                <div class="form-group col-4 badge" style="background:#1B396A;">
+                                <div class="form-group col-4 card-header">
                                     <h6 for="" class="text-white">Carrera</h6>
                                 </div>
                             </div> 
@@ -73,7 +75,7 @@
                         @php $peri = 0; @endphp
                         @foreach($inscripcion as $i)
                                 @if($i -> id_periodo != $peri)
-                                <div class="card-header text-white" style="background:#1B396A;"> 
+                                <div class="card-header"> 
                                     <center>
                                         {{ $i -> periodo }}
                                     </center>
@@ -119,7 +121,7 @@
                                                         Actividad evaluada, sin registro de constancia.
                                                     @endif
                                                 @else
-                                                    <button class="btn btn-sm btn-outline-info float-right" onclick="fx_show('/documents/{{ $i->constancia }}', 780)"><i class="fa fa-lg fa-file-pdf-o"></i> {{ $i -> constancia}}</button>
+                                                    <button class="btn btn-sm btn-outline-info float-right" onclick="fx_show('/storage/{{ $i->constancia }}', 780)"><i class="fa fa-lg fa-file-pdf-o"></i> Ver Constancia </button>
                                                 @endif
                                             @endif       
                                         </div>
