@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\MessageBag;
+use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Hash;
 
 use App\Models\Mcarrera;
@@ -11,8 +13,8 @@ use App\Models\Mestudiante;
 use App\Models\Mpersona;
 use Auth;
 
-class PublicController extends Controller
-{
+class PublicController extends Controller {
+
     public function _construct() {  
         //$this->middleware('guest');
      }
@@ -26,7 +28,7 @@ class PublicController extends Controller
  */
     public function registro() { 
 
-        $carreras = Mcarrera::select('id_carrera', 'nombre')->get();
+        $carreras = Mcarrera::select('id_carrera', 'nombre')->where('estado', 1)->get();
 
         $semestres = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
@@ -38,51 +40,60 @@ class PublicController extends Controller
  */
     public function nuevo_registro(Request $request)  {
 
-        $nControl = $request->nControl;
-        $contraseña = bcrypt($request->nControl);
-        $nombre = mb_strtoupper($request->nombre);
-        $apePat = mb_strtoupper($request->apePat);
-        $apeMat = mb_strtoupper($request->apeMat);
-        $nomUser = mb_strtoupper($request->nombre.' '.$request->apePat.' '.$request->apeMat);
-        $carrera = $request->carrera;
-        $semestre = $request->semestre;
-        $email = $request->email;
-        $curp = mb_strtoupper($request->curp);
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'unique' => 'El campo :attribute ya se ha registrado.',
+            'email' => 'El dominio valido para el e-mail es: @itoaxaca.edu.mx'
+        ];
+      
+        $validation = \Validator::make($request->all(), [
+            'num_control' => 'required|unique:estudiante|min:8|max:9',
+            'nombre' => 'required|min:3|max:30',
+            'apePat' => 'required|min:3|max:20',
+            'apeMat' => 'required|min:3|max:20',
+            'id_carrera' => 'required',
+            'email' => 'required|email|unique:estudiante|min:13|max:50',
+            'curp' => 'nullable|unique:persona|min:18|max:18'
+        ], $messages);      
+          
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
+      
+        $data = $request->all();
         $hoy = date("Y-m-d");
+        $nomUser = mb_strtoupper($data['nombre'].' '.$data['apePat'].' '.$data['apeMat']);
+        $contraseña = bcrypt($data['num_control']);
 
-        if( substr_compare($email, "@itoaxaca.edu.mx", -16) == 0 ){
+        $persona = Mpersona::create([
+                    'nombre' => mb_strtoupper($data['nombre']), 
+                    'apePat' => mb_strtoupper($data['apePat']),
+                    'apeMat' => mb_strtoupper($data['apeMat']), 
+                    'curp' => mb_strtoupper($data['curp']), 
+                    'tipo' => "Estudiante", 
+                    'estado' => 1]);
 
-            $existe = false;
-            $estudiantes = Mestudiante::select('num_control', 'email')->get();
-            foreach($estudiantes as $e){
-                if($e->num_control == $nControl || $e->email == $email)
-                    $existe = true;
-            }
+        Mestudiante::create([
+            'id_persona' => $persona->id, 
+            'id_carrera' => $data['id_carrera'], 
+            'num_control' => $data['num_control'], 
+            'email' => $data['email'], 
+            'semestre' => $data['semestre']]);
 
-            if($existe){
-                ?><script>
-                    alert("Ya estas registrado en el sistema");
-                    location.href = "/IniciarSesion";
-                </script><?php
-            }else{
-                $persona = Mpersona::create(['nombre' => $nombre, 'apePat' => $apePat,
-                'apeMat' => $apeMat, 'curp' => $curp, 'tipo' => "Estudiante", 'estado' => 1]);
+        Musers::create([
+            'id_persona' => $persona->id, 
+            'id_puesto' => 6,
+            'nombre' => $nomUser, 
+            'usuario' => $data['email'], 
+            'password' => $contraseña,
+            'fecha_registro' => $hoy, 
+            'edo_sesion' => 0, 
+            'estado' => 1]);
 
-                Mestudiante::create(['id_persona' => $persona->id, 'id_carrera' => $carrera, 
-                'num_control' => $nControl, 'email' => $email, 'semestre' => $semestre]);
+        return redirect()->to('IniciarSesion');
 
-                Musers::create(['id_persona' => $persona->id, 'id_puesto' => 6,
-                'nombre' => $nomUser, 'usuario' => $email, 'password' => $contraseña,
-                'fecha_registro' => $hoy, 'edo_sesion' => 0, 'estado' => 1]);
-
-                return redirect()->to('IniciarSesion');
-            }
-        }else{
-            ?><script>
-                alert("Correo incorrecto, debes usar tu correo institucional.");
-                location.href = "/Registrarse";
-            </script><?php
-        }  
     }
 
 /**Esta función de encarga de los inicios de sesión, trabaja en
@@ -91,7 +102,7 @@ class PublicController extends Controller
  * 2.- Verifica el tipo de usuario
  * 3.- Verifica que sea un usuario vigente
  * 4.- Si es el primer inico de sesión lo redirige a cambiar la
- * contraseña, si no lo enia a su inicio correspondiente.
+ *      contraseña, si no lo envía a su inicio correspondiente.
  */
     public function authenticate(Request $request)    {
         $usuario = $request->usuario;

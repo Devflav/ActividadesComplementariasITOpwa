@@ -32,13 +32,13 @@ use App\Http\Controllers\EscServicesController;
     Route::group(['namespace' => 'App\Http\Controllers'], function()     {
 
         Route::get('/', [PublicController::class, 'iniSesion']);
-        Route::get('IniciarSesion', [PublicController::class, 'iniSesion'])->name('inises');
+        Route::get('/IniciarSesion', [PublicController::class, 'iniSesion'])->name('inises');
         Route::post('/Acceso', [PublicController::class, 'authenticate']);
-        Route::get('CambiarConstrasenia', [PublicController::class, 'change']);
+        Route::get('/CambiarConstrasenia', [PublicController::class, 'change']);
         Route::post('/change/passwd', [PublicController::class, 'changepasswd']);
-        Route::get('SeleccionarSesion', [PublicController::class, 'selectSesion']);
+        Route::get('/SeleccionarSesion', [PublicController::class, 'selectSesion']);
         Route::post('/redirectUsu', [PublicController::class, 'selectesion']);
-        Route::get('Registrarse', [PublicController::class, 'registro']);
+        Route::get('/Registrarse', [PublicController::class, 'registro']);
         Route::post('/Enviar/Registro', [PublicController::class, 'nuevo_registro']);
         Route::get('/sesionexpired', [PublicController::class, 'expired']);
         
@@ -59,168 +59,168 @@ Route::group(['middleware' => 'auth'], function() {
 //Rutas de la Coordinación de Actividades Complementarias
     Route::group([], function()    {
         //'prefix' => 'CoordAC',
-        Route::get('CoordAC', [AdministratorController::class, 'f_inicio']);
+        Route::get('/CoordAC', [AdministratorController::class, 'f_inicio']);
 
-        Route::get('CoordAC/actividades/{p}', [AdministratorController::class, 'f_actividades']);
-        Route::get('CoordAC/actividad/{s}/{p}', [AdministratorController::class, 'f_actividad']);
+        Route::get('/CoordAC/actividades/{p}', [AdministratorController::class, 'f_actividades']);
+        Route::get('/CoordAC/actividad/{s}/{p}', [AdministratorController::class, 'f_actividad']);
         Route::get('/searchact', [AdministratorController::class, 'f_searchact']);
-        Route::get('CoordAC/actip/{t}/{p}', [AdministratorController::class, 'f_actipo']);
-        Route::get('CoordAC/actdeptos', [AdministratorController::class, 'f_depto']);
-        Route::get('CoordAC/actdep/{d}/{p}', [AdministratorController::class, 'f_actdepto']);
-        Route::get('CoordAC/nuevaAct', [AdministratorController::class, 'f_n_actividad']);
+        Route::get('/CoordAC/actip/{t}/{p}', [AdministratorController::class, 'f_actipo']);
+        Route::get('/CoordAC/actdeptos', [AdministratorController::class, 'f_depto']);
+        Route::get('/CoordAC/actdep/{d}/{p}', [AdministratorController::class, 'f_actdepto']);
+        Route::get('/CoordAC/nuevaAct', [AdministratorController::class, 'f_n_actividad']);
         Route::post('/regAct', [AdministratorController::class, 'f_regAct']);
-        Route::get('CoordAC/editarAct{a}', [AdministratorController::class, 'f_e_actividad']);
+        Route::get('/CoordAC/editarAct{a}', [AdministratorController::class, 'f_e_actividad']);
         Route::get('/update/actividad/{a}', [AdministratorController::class, 'f_editAct']);
         //Route::get('CoordAC/eliminar/actividad/{a}', [AdministratorController::class, 'f_eliminaciones']);
         Route::get('/delete/actividad/{a}', [AdministratorController::class, 'f_deleteact']);
         
-        Route::get('CoordAC/grupos/{p}', [AdministratorController::class, 'f_grupos']);
-        Route::get('CoordAC/grupos/{s}/{p}', [AdministratorController::class, 'f_gruposB']);
+        Route::get('/CoordAC/grupos/{p}', [AdministratorController::class, 'f_grupos']);
+        Route::get('/CoordAC/grupos/{s}/{p}', [AdministratorController::class, 'f_gruposB']);
         Route::get('/searchgru', [AdministratorController::class, 'f_searchgru']);
-        Route::get('CoordAC/nuevoGrupo/{d}', [AdministratorController::class, 'f_n_grupo']);
+        Route::get('/CoordAC/nuevoGrupo/{d}', [AdministratorController::class, 'f_n_grupo']);
         Route::get('/nuevoGrupo{d}', [AdministratorController::class, 'f_n_g_d']);
         Route::post('/regGrupo', [AdministratorController::class, 'f_regGrupo']);
-        Route::get('CoordAC/editarGru/{g}/{d}', [AdministratorController::class, 'f_e_grupo']);
+        Route::get('/CoordAC/editarGru/{g}/{d}', [AdministratorController::class, 'f_e_grupo']);
         Route::post('/update/grupo/{g}', [AdministratorController::class, 'f_editGrupo']);
         Route::get('/delete/grupo/{g}', [AdministratorController::class, 'f_deletegru']);
 
-        Route::get('CoordAC/estudiantes/{p}', [AdministratorController::class, 'f_estudiantes']);
-        Route::get('CoordAC/estudiantes/{s}/{p}', [AdministratorController::class, 'f_estudiantesB']);
+        Route::get('/CoordAC/estudiantes/{p}', [AdministratorController::class, 'f_estudiantes']);
+        Route::get('/CoordAC/estudiantes/{s}/{p}', [AdministratorController::class, 'f_estudiantesB']);
         Route::get('/searchest', [AdministratorController::class, 'f_searchest']);
-        Route::get('CoordAC/nuevoEst', [AdministratorController::class, 'f_n_estudiante']);
-        Route::get('CoordAC/editEst{id_est}', [AdministratorController::class, 'f_e_estudiante']);
+        Route::get('/CoordAC/nuevoEst', [AdministratorController::class, 'f_n_estudiante']);
+        Route::get('/CoordAC/editEst{id_est}', [AdministratorController::class, 'f_e_estudiante']);
         Route::post('/regEst', [AdministratorController::class, 'f_regEst']);
         Route::post('/update/estudiante/{e}', [AdministratorController::class, 'f_editEst']);
         Route::get('/delete/estudiante/{id}', [AdministratorController::class, 'f_deleteest']);
         
-        Route::get('CoordAC/reportes', [AdministratorController::class, 'f_reportes']);
+        Route::get('/CoordAC/reportes', [AdministratorController::class, 'f_reportes']);
         
-        Route::get('CoordAC/carreras/{search}', [AdministratorController::class, 'f_carreras']);
+        Route::get('/CoordAC/carreras/{search}', [AdministratorController::class, 'f_carreras']);
         Route::get('/searchcar', [AdministratorController::class, 'f_searchcar']);
-        Route::get('CoordAC/nuevaCarr', [AdministratorController::class, 'f_n_carrera']);
+        Route::get('/CoordAC/nuevaCarr', [AdministratorController::class, 'f_n_carrera']);
         Route::post('/regCar', [AdministratorController::class, 'f_regCar']);
-        Route::get('CoordAC/editarCarr{id_car}', [AdministratorController::class, 'f_e_carrera']);
+        Route::get('/CoordAC/editarCarr{id_car}', [AdministratorController::class, 'f_e_carrera']);
         Route::post('/update/carrera/{c}', [AdministratorController::class, 'f_editCar']);
         Route::get('/delete/carrera/{id}', [AdministratorController::class, 'f_deletecar']);
         
-        Route::get('CoordAC/critEvaluacion/{search}', [AdministratorController::class, 'f_critEva']);
+        Route::get('/CoordAC/critEvaluacion/{search}', [AdministratorController::class, 'f_critEva']);
         Route::get('/searchcrit', [AdministratorController::class, 'f_searchcrit']);
-        Route::get('CoordAC/nuevoCritEval', [AdministratorController::class, 'f_n_critEva']);
+        Route::get('/CoordAC/nuevoCritEval', [AdministratorController::class, 'f_n_critEva']);
         Route::post('/regCritE', [AdministratorController::class, 'f_regCritE']);
-        Route::get('CoordAC/editCritEval{id_crit}', [AdministratorController::class, 'f_e_critEva']);
+        Route::get('/CoordAC/editCritEval{id_crit}', [AdministratorController::class, 'f_e_critEva']);
         Route::post('/update/criterio_evaluacion/{ce}', [AdministratorController::class, 'f_editCritE']);
         Route::get('/delete/criterio_evaluacion/{ce}', [AdministratorController::class, 'f_deletecrit']);
         
-        Route::get('CoordAC/departamentos/{s}', [AdministratorController::class, 'f_departamentos']);
-        Route::get('CoordAC/departamentos/{s}/{p}', [AdministratorController::class, 'f_departamento']);
+        Route::get('/CoordAC/departamentos/{s}', [AdministratorController::class, 'f_departamentos']);
+        Route::get('/CoordAC/departamentos/{s}/{p}', [AdministratorController::class, 'f_departamento']);
         Route::get('/searchdpt', [AdministratorController::class, 'f_searchdpt']);
-        Route::get('CoordAC/nuevoDepto', [AdministratorController::class, 'f_n_depto']);
+        Route::get('/CoordAC/nuevoDepto', [AdministratorController::class, 'f_n_depto']);
         Route::post('/regDepto', [AdministratorController::class, 'f_regDepto']);
-        Route::get('CoordAC/editDepto{d}', [AdministratorController::class, 'f_e_depto']);
+        Route::get('/CoordAC/editDepto{d}', [AdministratorController::class, 'f_e_depto']);
         Route::post('/update/departamento/{d}', [AdministratorController::class, 'f_editDepto']);
         Route::get('/delete/departamento/{d}', [AdministratorController::class, 'f_deletedpt']);
         
-        Route::get('CoordAC/grados/{s}', [AdministratorController::class, 'f_grados']);
-        Route::get('CoordAC/grados/{s}/{p}', [AdministratorController::class, 'f_grado']);
+        Route::get('/CoordAC/grados/{s}', [AdministratorController::class, 'f_grados']);
+        Route::get('/CoordAC/grados/{s}/{p}', [AdministratorController::class, 'f_grado']);
         Route::get('/searchgra', [AdministratorController::class, 'f_searchgra']);
-        Route::get('CoordAC/nuevoGrado', [AdministratorController::class, 'f_n_grado']);
+        Route::get('/CoordAC/nuevoGrado', [AdministratorController::class, 'f_n_grado']);
         Route::post('/regGrado', [AdministratorController::class, 'f_regGrado']);
-        Route::get('CoordAC/editGrado{id_gra}', [AdministratorController::class, 'f_e_grado']);
+        Route::get('/CoordAC/editGrado{id_gra}', [AdministratorController::class, 'f_e_grado']);
         Route::get('/delete/grado/{id}', [AdministratorController::class, 'f_deletegra']);
         Route::post('/update/grado/{g}', [AdministratorController::class, 'f_editGrado']);
         
-        Route::get('CoordAC/periodos/{p}', [AdministratorController::class, 'f_periodos']);
-        Route::get('CoordAC/periodos/{s}/{p}', [AdministratorController::class, 'f_periodo']);
+        Route::get('/CoordAC/periodos/{p}', [AdministratorController::class, 'f_periodos']);
+        Route::get('/CoordAC/periodos/{s}/{p}', [AdministratorController::class, 'f_periodo']);
         Route::get('/searchperi', [AdministratorController::class, 'f_searchperi']);
-        Route::get('CoordAC/nuevoPeri', [AdministratorController::class, 'f_n_periodo']);
-        Route::get('CoordAC/detallePeri{id_peri}', [AdministratorController::class, 'f_det_periodo']);
-        Route::get('CoordAC/editPeri/{id_peri}', [AdministratorController::class, 'f_e_peri']);
+        Route::get('/CoordAC/nuevoPeri', [AdministratorController::class, 'f_n_periodo']);
+        Route::get('/CoordAC/detallePeri{id_peri}', [AdministratorController::class, 'f_det_periodo']);
+        Route::get('/CoordAC/editPeri/{id_peri}', [AdministratorController::class, 'f_e_peri']);
         Route::post('/regPeriE', [AdministratorController::class, 'f_regPeriodo']);
         Route::post('/update/periodo/{p}', [AdministratorController::class, 'f_editPeriodo']);
         Route::get('/delete/periodo/{id}', [AdministratorController::class, 'f_deleteperi']);
         
-        Route::get('CoordAC/personal/{p}', [AdministratorController::class, 'f_personal']);
-        Route::get('CoordAC/personal/{s}/{p}', [AdministratorController::class, 'f_personalB']);
+        Route::get('/CoordAC/personal/{p}', [AdministratorController::class, 'f_personal']);
+        Route::get('/CoordAC/personal/{s}/{p}', [AdministratorController::class, 'f_personalB']);
         Route::get('/searchpers', [AdministratorController::class, 'f_searchpers']);
-        Route::get('CoordAC/nuevaPer', [AdministratorController::class, 'f_n_persona']);
+        Route::get('/CoordAC/nuevaPer', [AdministratorController::class, 'f_n_persona']);
         Route::post('/regEmp', [AdministratorController::class, 'f_regEmp']);
-        Route::get('CoordAC/nuevoAdmin', [AdministratorController::class, 'f_n_admin']);
+        Route::get('/CoordAC/nuevoAdmin', [AdministratorController::class, 'f_n_admin']);
         Route::post('CoordAC/regAdmin', [AdministratorController::class, 'f_regAdmin']);
-        Route::get('CoordAC/editPer{id_per}', [AdministratorController::class, 'f_e_persona']);
+        Route::get('/CoordAC/editPer{id_per}', [AdministratorController::class, 'f_e_persona']);
         Route::post('/update/personal/{e}', [AdministratorController::class, 'f_editEmp']);
         Route::get('/delete/personal/{e}', [AdministratorController::class, 'f_deleteper']);
-        Route::get('CoordAC/inhabilitados', [AdministratorController::class, 'f_inhabilitados']);
+        Route::get('/CoordAC/inhabilitados', [AdministratorController::class, 'f_inhabilitados']);
         Route::post('/habilitar/personal/{e}', [AdministratorController::class, 'f_habilitar']);
         
-        Route::get('CoordAC/puestos/{s}', [AdministratorController::class, 'f_puestos']);
+        Route::get('/CoordAC/puestos/{s}', [AdministratorController::class, 'f_puestos']);
         Route::get('/searchpue', [AdministratorController::class, 'f_searchpue']);
-        Route::get('CoordAC/nuevoPues', [AdministratorController::class, 'f_n_puesto']);
+        Route::get('/CoordAC/nuevoPues', [AdministratorController::class, 'f_n_puesto']);
         Route::post('/regPues', [AdministratorController::class, 'f_regPuesto']);
-        Route::get('CoordAC/editarPues{pu}', [AdministratorController::class, 'f_e_puesto']);
+        Route::get('/CoordAC/editarPues{pu}', [AdministratorController::class, 'f_e_puesto']);
         Route::post('/update/puesto/{pu}', [AdministratorController::class, 'f_editpuesto']);
         Route::get('/delete/puesto/{pu}', [AdministratorController::class, 'f_deletepue']);
         
-        Route::get('CoordAC/lugares/{p}', [AdministratorController::class, 'f_lugares']);
-        Route::get('CoordAC/lugares/{s}/{p}', [AdministratorController::class, 'f_lugar']);
-        Route::get('CoordAC/nuevoLugar', [AdministratorController::class, 'f_n_lugar']);
-        Route::get('CoordAC/editLugar{l}', [AdministratorController::class, 'f_e_lugar']);
+        Route::get('/CoordAC/lugares/{p}', [AdministratorController::class, 'f_lugares']);
+        Route::get('/CoordAC/lugares/{s}/{p}', [AdministratorController::class, 'f_lugar']);
+        Route::get('/CoordAC/nuevoLugar', [AdministratorController::class, 'f_n_lugar']);
+        Route::get('/CoordAC/editLugar{l}', [AdministratorController::class, 'f_e_lugar']);
         Route::post('/regLugar', [AdministratorController::class, 'f_regLugar']);
         Route::post('/update/lugar/{l}', [AdministratorController::class, 'f_editlugar']);
         Route::get('/searchlug', [AdministratorController::class, 'f_searchlug']);
         Route::get('/delete/lugar/{id}', [AdministratorController::class, 'f_deletelug']);
 
-        Route::get('CoordAC/restUsuario/{p}', [AdministratorController::class, 'f_r_usuarios']);
-        Route::get('CoordAC/restUsuario/{search}/{p}', [AdministratorController::class, 'f_r_usuariosB']);
-        Route::get('CoordAC/usuariorestart{u}', [AdministratorController::class, 'f_viewrestart']);
+        Route::get('/CoordAC/restUsuario/{p}', [AdministratorController::class, 'f_r_usuarios']);
+        Route::get('/CoordAC/restUsuario/{search}/{p}', [AdministratorController::class, 'f_r_usuariosB']);
+        Route::get('/CoordAC/usuariorestart{u}', [AdministratorController::class, 'f_viewrestart']);
         Route::get('/searchusu', [AdministratorController::class, 'f_searchusu']);
         Route::get('/restartuser{user}', [AdministratorController::class, 'f_restartuser']);
         
-        Route::get('CoordAC/suspLabores/{p}', [AdministratorController::class, 'f_s_labores']);
-        Route::get('CoordAC/suspLabores/{s}/{p}', [AdministratorController::class, 'f_s_labor']);
+        Route::get('/CoordAC/suspLabores/{p}', [AdministratorController::class, 'f_s_labores']);
+        Route::get('/CoordAC/suspLabores/{s}/{p}', [AdministratorController::class, 'f_s_labor']);
         Route::get('/searchslab', [AdministratorController::class, 'f_searchslab']);
-        Route::get('CoordAC/nuevaFecha', [AdministratorController::class, 'f_n_fecha']);
+        Route::get('/CoordAC/nuevaFecha', [AdministratorController::class, 'f_n_fecha']);
         Route::post('/regFecha', [AdministratorController::class, 'f_regFecha']);
         Route::get('/delete/fecha_inhabil/{id}', [AdministratorController::class, 'f_deletefech']);
         
-        Route::get('CoordAC/inscripciones', [AdministratorController::class, 'f_inscripciones']);
+        Route::get('/CoordAC/inscripciones', [AdministratorController::class, 'f_inscripciones']);
         Route::get('/cac/inscripciones', [AdministratorController::class, 'f_inscrip']);
-        Route::get('CoordAC/inscripA/{d}/{p}', [AdministratorController::class, 'f_inscripA']);
-        Route::get('CoordAC/inscripA/{d}/{p}/{s}', [AdministratorController::class, 'f_inscripAB']);
+        Route::get('/CoordAC/inscripA/{d}/{p}', [AdministratorController::class, 'f_inscripA']);
+        Route::get('/CoordAC/inscripA/{d}/{p}/{s}', [AdministratorController::class, 'f_inscripAB']);
         Route::get('/searchA/{d}', [AdministratorController::class, 'f_searchA']);
-        Route::get('CoordAC/inscripNA/{d}/{p}', [AdministratorController::class, 'f_inscripNA']);
-        Route::get('CoordAC/inscripNA/{d}/{p}/{s}', [AdministratorController::class, 'f_inscripNAB']);
+        Route::get('/CoordAC/inscripNA/{d}/{p}', [AdministratorController::class, 'f_inscripNA']);
+        Route::get('/CoordAC/inscripNA/{d}/{p}/{s}', [AdministratorController::class, 'f_inscripNAB']);
         Route::get('/searchNA/{d}', [AdministratorController::class, 'f_searchNA']);
-        Route::get('CoordAC/inscripPA/{d}/{p}', [AdministratorController::class, 'f_inscripPA']);
-        Route::get('CoordAC/inscripPA/{d}/{p}/{s}', [AdministratorController::class, 'f_inscripPAB']);
+        Route::get('/CoordAC/inscripPA/{d}/{p}', [AdministratorController::class, 'f_inscripPA']);
+        Route::get('/CoordAC/inscripPA/{d}/{p}/{s}', [AdministratorController::class, 'f_inscripPAB']);
         Route::get('/searchPA/{d}', [AdministratorController::class, 'f_searchPA']);
-        Route::get('CoordAC/inscripBJ/{d}/{p}', [AdministratorController::class, 'f_inscripBJ']);
-        Route::get('CoordAC/inscripBJ/{d}/{p}/{s}', [AdministratorController::class, 'f_inscripBJB']);
+        Route::get('/CoordAC/inscripBJ/{d}/{p}', [AdministratorController::class, 'f_inscripBJ']);
+        Route::get('/CoordAC/inscripBJ/{d}/{p}/{s}', [AdministratorController::class, 'f_inscripBJB']);
         Route::get('/searchBJ/{d}', [AdministratorController::class, 'f_searchBJ']);
-        Route::get('CoordAC/detInscrip/{d}/{i}', [AdministratorController::class, 'f_detInscrip']);
+        Route::get('/CoordAC/detInscrip/{d}/{i}', [AdministratorController::class, 'f_detInscrip']);
         Route::get('/aprobar/{i}/{d}', [AdministratorController::class, 'f_aprobar']);
         Route::get('/noaprob/{i}/{d}', [AdministratorController::class, 'f_noaprobar']);
         Route::get('/bajainscrip/{i}/{d}', [AdministratorController::class, 'f_bajaInscrip']);
-        Route::get('CoordAC/impHorario/{d}/{p}', [AdministratorController::class, 'f_horarioGrupos']);
-        Route::get('CoordAC/inscribir/{e}/{d}', [AdministratorController::class, 'f_inscribir']);
-        Route::get('CoordAC/inscrip_fuera_tiempo/{e}/{d}', [AdministratorController::class, 'f_outime']);
+        Route::get('/CoordAC/impHorario/{d}/{p}', [AdministratorController::class, 'f_horarioGrupos']);
+        Route::get('/CoordAC/inscribir/{e}/{d}', [AdministratorController::class, 'f_inscribir']);
+        Route::get('/CoordAC/inscrip_fuera_tiempo/{e}/{d}', [AdministratorController::class, 'f_outime']);
         Route::post('CoordAC/inscribir_outime/{ns}', [AdministratorController::class, 'f_inscrip_outime']);
-        Route::get('CoordAC/register/{e}/{g}', [AdministratorController::class, 'f_register']);
+        Route::get('/CoordAC/register/{e}/{g}', [AdministratorController::class, 'f_register']);
         
-        Route::get('CoordAC/datosGen', [AdministratorController::class, 'f_perfil']);
-        Route::get('CoordAC/editperfil', [AdministratorController::class, 'f_editperfil']);
+        Route::get('/CoordAC/datosGen', [AdministratorController::class, 'f_perfil']);
+        Route::get('/CoordAC/editperfil', [AdministratorController::class, 'f_editperfil']);
         Route::post('/cac/editperf', [AdministratorController::class, 'f_editar']);
-        Route::get('CoordAC/editpasswd', [AdministratorController::class, 'f_passwd']);
+        Route::get('/CoordAC/editpasswd', [AdministratorController::class, 'f_passwd']);
         Route::post('/cac/editpasswd', [AdministratorController::class, 'f_edpasswd']);
 
-        Route::get('CoordAC/horario/{g}', [AdministratorController::class, 'fpdf_imprimir']);
+        Route::get('/CoordAC/horario/{g}', [AdministratorController::class, 'fpdf_imprimir']);
 
         // Route::get('CoordAC/horario/{g}', [AdministratorController::class, 'f_horario']);
 
-        Route::get('CoordAC/imprimir{i}', [AdministratorController::class, 'f_horario']);
-        Route::get('CoordAC/reimprimir_grupo/{g}', [AdministratorController::class, 're_imprimir_grupo']);
+        Route::get('/CoordAC/imprimir{i}', [AdministratorController::class, 'f_horario']);
+        Route::get('/CoordAC/reimprimir_grupo/{g}', [AdministratorController::class, 're_imprimir_grupo']);
         
-        Route::get('CoordAC/actualizar/{ori}/{obj}', [AdministratorController::class, 'f_ediciones']);
-        Route::get('CoordAC/eliminar/{ori}/{obj}', [AdministratorController::class, 'f_eliminaciones']);
+        Route::get('/CoordAC/actualizar/{ori}/{obj}', [AdministratorController::class, 'f_ediciones']);
+        Route::get('/CoordAC/eliminar/{ori}/{obj}', [AdministratorController::class, 'f_eliminaciones']);
 
         Route::post('logoutCAC', [AdministratorController::class, 'logoutCAC']);
 

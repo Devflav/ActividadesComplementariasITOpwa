@@ -4,9 +4,8 @@
 
             <div class="input-group mb-3">
             <label for="" class="form-text">LISTA DE GRUPOS OFERTADOS 
-                    @foreach($pnom as $p) 
-                        <strong> "{{ $p->nombre }}" </strong>
-                    @endforeach </label>
+                        <strong> "{{ $pnom }}" </strong>
+                </label>
                 <label for="" class="col-1"></label>
                 <div class="input-group-append">
                 @php
@@ -34,7 +33,6 @@
                 <thead style="background:#1B396A;">
                         <tr class="text-white">
                             <th width="08%">Clave</th>
-                            <!--<th width="11%">Periodo</th>-->
                             <th width="30%">Actividad</th>
                             <th width="24%">Responsable</th>
                             <th width="16%">Lugar</th>
@@ -48,9 +46,8 @@
                 @foreach($grupos as $g)
                     <tr>
                         <td>{{$g->clave}}</td>
-                        <!--<td>{{$g->periodo}}</td>-->
                         <td>{{$g->actividad}}</td>
-                        <td>{{$g->nomP}} {{$g->paterno}} {{$g->materno}}</td>
+                        <td>{{$g->responsable}} </td>
                         <td>{{$g->lugar}}</td>
                         <td>{{$g->cupo}}</td>
                         <td>{{$g->asistencias}}</td>
@@ -70,66 +67,32 @@
 
         </div>
 
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-                @if($pag == 1)
-                    <li class="page-item disabled">
-                    <a class="page-link" href="">Página 1</a></li>
-                @else
-                    @if($vista == 00)
-                        <li class="page-item">
-                        <a class="page-link" href="{{ url('DivEProf/grupos').'/'.'1' }}">Primera</a></li>
-                        
-                            @if(($pa-2) > 0)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.($pa-2) }}">{{$pa-2}}</a></li>
-                            @endif
-                            @if(($pa-1) > 0)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.($pa-1) }}">{{$pa-1}}</a></li>
-                            @endif
-                            <li class="page-item active">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.($pa) }}">{{$pa}}</a></li>
-                            @if(($pa+1) <= $pag)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.($pa+1) }}">{{$pa+1}}</a></li>
-                            @endif
-                            @if(($pa+2) <= $pag)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.($pa+2) }}">{{$pa+2}}</a></li>
-                            @endif
-                       
-                        <li class="page-item">
-                        <a class="page-link" href="{{ url('DivEProf/grupos').'/'.$pag }}">Última</a></li>
-                    @elseif($vista == 01)
-                        <li class="page-item">
-                        <a class="page-link" href="{{ url('DivEProf/grupos').'/'.$bus.'/'.'1' }}">Primera</a></li>
-
-                        @if(($pa-2) > 0)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.$bus.'/'.($pa-2) }}">{{$pa-2}}</a></li>
-                            @endif
-                            @if(($pa-1) > 0)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.$bus.'/'.($pa-1) }}">{{$pa-1}}</a></li>
-                            @endif
-                            <li class="page-item active">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.$bus.'/'.$pa }}">{{$pa}}</a></li>
-                            @if(($pa+1) <= $pag)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.$bus.'/'.($pa+1) }}">{{$pa+1}}</a></li>
-                            @endif
-                            @if(($pa+2) <= $pag)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/grupos').'/'.$bus.'/'.($pa+2) }}">{{$pa+2}}</a></li>
-                            @endif
-
-                        <li class="page-item">
-                        <a class="page-link" href="{{ url('DivEProf/grupos').'/'.$bus.'/'.$pag }}">Última</a></li>
-                    @endif
-                @endif
-            </ul>
-        </nav>
+        <nav class="navbar navbar-light justify-content-end">
+        <ul class="pagination justify-content-end">
+            @if($grupos->previousPageUrl() != null)
+                <li class="page-item">
+                    <a href="{{ $grupos->previousPageUrl() }}" class="page-link m-1">
+                        Anterior
+                    </a>
+                </li>
+            @else
+                <li class="page-item disabled"> 
+                    <a href="" class="page-link m-1"> Anterior </a>
+                </li>
+            @endif
+            @if($grupos->nextPageUrl() != null)
+                <li class="page-item">
+                    <a href="{{ $grupos->nextPageUrl() }}" class="page-link m-1">
+                        Siguiente
+                    </a>
+                </li>
+            @else
+            <li class="page-item disabled"> 
+                    <a href="" class="page-link m-1"> Siguiente </a>
+                </li>
+            @endif
+        </ul>
+    </nav>
 
         <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#mimodal" id="btn_mimodal">
         </button>

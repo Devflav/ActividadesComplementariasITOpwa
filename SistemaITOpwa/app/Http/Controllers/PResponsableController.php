@@ -88,23 +88,31 @@ class PResponsableController extends Controller
  */
     public function f_gruposB($search, Request $request) {
  
-        $id_per = $request->user()->id_persona;
+        $data = ["%".mb_strtoupper($search)."%", $request->user()->id_persona];
         $tipo = "Ver";
 
-        $grupos = DB::select('SELECT g.id_grupo as id_grupo,
-            g.clave as clave, a.nombre as actividad,
-            l.nombre as lugar, g.asistencias as asistencias,
-            g.cupo as cupo, a.creditos as creditos
-        FROM grupo AS g 
-        JOIN periodo as p ON g.id_periodo = p.id_periodo 
-        JOIN persona as pe ON g.id_persona = pe.id_persona 
-        JOIN actividad as a ON g.id_actividad = a.id_actividad 
-        JOIN lugar as l ON g.id_lugar = l.id_lugar 
-        WHERE p.estado = "Actual" 
-        AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)
-        AND pe.id_persona = '.$id_per.'
-        AND g.clave LIKE "%'.$search.'%" 
-        OR a.nombre LIKE "%'.$search.'%"');
+        $grupos = DB::table('grupo AS g')
+            ->leftJoin('periodo AS p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->leftJoin('actividad AS a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->leftJoin('persona AS pe', 'g.id_persona', '=', 'pe.id_persona')
+            ->leftJoin('lugar AS l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->select('g.id_grupo', 
+                    'g.cupo', 
+                    'g.clave', 
+                    'g.asistencias', 
+                    'a.nombre AS actividad', 
+                    'l.nombre AS lugar',
+                    'a.creditos',
+                    DB::raw('CONCAT(pe.nombre, " ", pe.apePat, " ", pe.apeMat) AS responsable'))
+            ->when($data, function ($query, $data) {
+                return $query->where('p.estado', "Actual")
+                            ->where('g.estado', 1)
+                            ->where('pe.id_persona', $data[1])
+                            ->where('g.clave', 'LIKE', $data[0])
+                            ->orWhere('a.nombre', 'LIKE', $data[0]);
+            });
+            // ->orderBy('g.id_grupo')
+            // ->paginate(10);
 
 
         return view('ProfRes.grupos')
@@ -117,9 +125,9 @@ class PResponsableController extends Controller
     public function f_searchgru(Request $request) { 
         
         
-        $search = mb_strtoupper($request->search);
+        $search = $request->search;
         //return $this->f_gruposB($search);
-        return redirect()->to('ProfR/grupos/'.$search);
+        return redirect()->to('/ProfR/grupos/'.$search);
     }
 /**Retorna a un modal donde muestra el horario del grupo seleccionado */    
     public function f_vhorario($id_gru){
@@ -162,21 +170,21 @@ class PResponsableController extends Controller
         $id_per = $request->user()->id_persona;
 
         $grupos = DB::table('grupo as g')
-        ->join('periodo as pe', 'g.id_periodo', '=', 'pe.id_periodo')
-        ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
-        ->join('persona as p', 'g.id_persona', '=', 'p.id_persona')
-        ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
-        ->select(
-            'g.id_grupo as id_grupo',
-            'g.clave as clave',
-            'a.nombre as actividad',
-            'l.nombre as lugar',
-            'g.asistencias as asistencias',
-            'g.cupo as cupo',
-            'a.creditos as creditos'
-        )
-        ->where('g.id_persona', $id_per)
-        ->get();
+            ->join('periodo as pe', 'g.id_periodo', '=', 'pe.id_periodo')
+            ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->join('persona as p', 'g.id_persona', '=', 'p.id_persona')
+            ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->select(
+                'g.id_grupo as id_grupo',
+                'g.clave as clave',
+                'a.nombre as actividad',
+                'l.nombre as lugar',
+                'g.asistencias as asistencias',
+                'g.cupo as cupo',
+                'a.creditos as creditos'
+            )
+            ->where('g.id_persona', $id_per)
+            ->get();
         
         return view('ProfRes.grupos')
         ->with('grupos', $grupos)
@@ -481,14 +489,14 @@ class PResponsableController extends Controller
 
         $alumnosGrupo = DB::select(
             "SELECT *
-							FROM persona as p
-							INNER JOIN estudiante as e ON p.id_persona = e.id_persona
-							INNER JOIN inscripcion as i ON e.id_estudiante = i.id_estudiante
-							WHERE e.id_estudiante IN (SELECT id_estudiante
-              FROM inscripcion
-              GROUP BY id_grupo) AND i.id_grupo = " .
-                $gpo .
-                " AND i.aprobada  = 1"
+                FROM persona as p
+                INNER JOIN estudiante as e ON p.id_persona = e.id_persona
+                INNER JOIN inscripcion as i ON e.id_estudiante = i.id_estudiante
+                WHERE e.id_estudiante IN (SELECT id_estudiante
+            FROM inscripcion
+            GROUP BY id_grupo) AND i.id_grupo = " .
+            $gpo .
+            " AND i.aprobada  = 1"
         );
 
         $grupo = DB::table('grupo as g')
@@ -585,7 +593,6 @@ class PResponsableController extends Controller
 
         return $pdf->download('lista.pdf');
     }
-
 
     public function f_perfil(Request $request){
 

@@ -39,7 +39,7 @@
                 @else
                     <tr>
                         <td width="05%">{{ $p-> grado }}</td>
-                        <td width="30%">{{ $p-> nombre }} {{ $p-> paterno }} {{ $p-> materno }}</td>
+                        <td width="30%">{{ $p-> empleado }}</td>
                         <td width="25%">{{ $p-> depto }}</td>
                         <td width="10%">{{ $p-> puesto }}</td>
                         <td width="20%">{{ $p-> curp }}</td>
@@ -52,67 +52,32 @@
             </tbody>
             </table>
         </div>
-        <nav aria-label="Page navigation example">
-            <ul class="pagination justify-content-end">
-                @if($pag == 1)
-                    <li class="page-item disabled">
-                    <a class="page-link" href="">Página 1</a></li>
-                @else
-                    @if($vista == 00)
-                        <li class="page-item">
-                        <a class="page-link" href="{{ url('DivEProf/personal').'/'.'1' }}">Primera</a></li>
-                        
-                            @if(($pa-2) > 0)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.($pa-2) }}">{{$pa-2}}</a></li>
-                            @endif
-                            @if(($pa-1) > 0)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.($pa-1) }}">{{$pa-1}}</a></li>
-                            @endif
-                            <li class="page-item active">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.($pa) }}">{{$pa}}</a></li>
-                            @if(($pa+1) <= $pag)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.($pa+1) }}">{{$pa+1}}</a></li>
-                            @endif
-                            @if(($pa+2) <= $pag)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.($pa+2) }}">{{$pa+2}}</a></li>
-                            @endif
-                       
-                        <li class="page-item">
-                        <a class="page-link" href="{{ url('DivEProf/personal').'/'.$pag }}">Última</a></li>
-                    @elseif($vista == 01)
-                        <li class="page-item">
-                        <a class="page-link" href="{{ url('DivEProf/personal').'/'.$bus.'/'.'1' }}">Primera</a></li>
-
-                        @if(($pa-2) > 0)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.$bus.'/'.($pa-2) }}">{{$pa-2}}</a></li>
-                            @endif
-                            @if(($pa-1) > 0)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.$bus.'/'.($pa-1) }}">{{$pa-1}}</a></li>
-                            @endif
-                            <li class="page-item active">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.$bus.'/'.$pa }}">{{$pa}}</a></li>
-                            @if(($pa+1) <= $pag)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.$bus.'/'.($pa+1) }}">{{$pa+1}}</a></li>
-                            @endif
-                            @if(($pa+2) <= $pag)
-                                <li class="page-item">
-                                <a class="page-link" href="{{ url('DivEProf/personal').'/'.$bus.'/'.($pa+2) }}">{{$pa+2}}</a></li>
-                            @endif
-
-                        <li class="page-item">
-                        <a class="page-link" href="{{ url('DivEProf/personal').'/'.$bus.'/'.$pag }}">Última</a></li>
-                    @endif
-                @endif
-            </ul>
-        </nav>
-
+        <nav class="navbar navbar-light justify-content-end">
+        <ul class="pagination justify-content-end">
+            @if($personas->previousPageUrl() != null)
+                <li class="page-item">
+                    <a href="{{ $personas->previousPageUrl() }}" class="page-link m-1">
+                        Anterior
+                    </a>
+                </li>
+            @else
+                <li class="page-item disabled"> 
+                    <a href="" class="page-link m-1"> Anterior </a>
+                </li>
+            @endif
+            @if($personas->nextPageUrl() != null)
+                <li class="page-item">
+                    <a href="{{ $personas->nextPageUrl() }}" class="page-link m-1">
+                        Siguiente
+                    </a>
+                </li>
+            @else
+            <li class="page-item disabled"> 
+                    <a href="" class="page-link m-1"> Siguiente </a>
+                </li>
+            @endif
+        </ul>
+    </nav>
         <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#mimodal" id="btn_mimodal">
         </button>
         <div class="modal fade" id="mimodal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="restablecerLabel" aria-hidden="true">

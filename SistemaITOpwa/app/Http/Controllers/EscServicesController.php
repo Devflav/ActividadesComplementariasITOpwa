@@ -62,34 +62,35 @@ class EscServicesController extends Controller
  */
     public function f_searchEst(Request $request){
 
-        $control = $request->search;
+        $control = "".$request->search."";
         
-        $inscription = DB::select('SELECT pr.nombre AS periodo, i.fecha,
-            a.nombre AS actividad, ev.constancia, ev.id_evaluacion, 
-            g.clave, i.aprobada, pr.id_periodo
-        FROM inscripcion AS i 
-        LEFT JOIN estudiante AS e ON i.id_estudiante = e.id_estudiante 
-        LEFT JOIN evaluacion AS ev ON i.id_inscripcion = ev.id_inscripcion        
-        LEFT JOIN grupo AS g ON i.id_grupo = g.id_grupo
-        LEFT JOIN actividad AS a ON g.id_actividad = a.id_actividad
-        LEFT JOIN periodo AS pr ON g.id_periodo = pr.id_periodo
-        WHERE e.num_control = '.'"'.$control.'"
-        GROUP BY pr.id_periodo, pr.nombre, i.fecha,
-        a.nombre, ev.constancia, ev.id_evaluacion, 
-        g.clave, i.aprobada
-        ORDER BY pr.id_periodo ASC');
+        $inscription = DB::table('inscripcion as i')
+            ->leftJoin('estudiante as e', 'i.id_estudiante', '=', 'e.id_estudiante')
+            ->leftJoin('evaluacion as ev', 'i.id_inscripcion', '=', 'ev.id_inscripcion')
+            ->leftJoin('grupo as g', 'i.id_grupo', '=', 'g.id_grupo')
+            ->leftJoin('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->leftJoin('periodo as pr', 'g.id_periodo', '=', 'pr.id_periodo')
+            ->select('pr.nombre AS periodo', 
+                    'i.fecha', 
+                    'a.nombre AS actividad', 
+                    'ev.constancia', 
+                    'ev.id_evaluacion', 
+                    'g.clave', 
+                    'i.aprobada', 
+                    'pr.id_periodo')
+            ->where('e.num_control', $control)->get();
+            // ->paginate(10);
 
-        $student = DB::select('SELECT p.nombre, p.apePat, p.apeMat, 
-            e.num_control, e.semestre, c.nombre AS carrera
-        FROM estudiante AS e
-        LEFT JOIN persona AS p ON e.id_persona = p.id_persona 
-        LEFT JOIN carrera AS c ON e.id_carrera = c.id_carrera 
-        WHERE e.num_control = '.'"'.$control.'"');
-
-        $cons;
-        foreach($inscription as $i){
-            $cons = $i->constancia;
-        }
+        $student = DB::table('estudiante as e')
+            ->leftJoin('persona as p', 'e.id_persona', '=', 'p.id_persona')
+            ->leftJoin('carrera as c', 'e.id_carrera', '=', 'c.id_carrera')
+            ->select('p.nombre', 
+                    'p.apePat', 
+                    'p.apeMat', 
+                    'e.num_control', 
+                    'e.semestre', 
+                    'c.nombre AS carrera')
+            ->where('e.num_control', $control)->get();
 
         return view('servesc.searchest')
             ->with('search', 1)
@@ -109,30 +110,40 @@ class EscServicesController extends Controller
                 ->update(['constancia' => $proof]);
         }
 
-        $inscription = DB::select('SELECT pr.nombre AS periodo, i.fecha,
-            a.nombre AS actividad, ev.constancia, ev.id_evaluacion, 
-            g.clave, i.aprobada, pr.id_periodo
-        FROM inscripcion AS i 
-        LEFT JOIN estudiante AS e ON i.id_estudiante = e.id_estudiante 
-        LEFT JOIN evaluacion AS ev ON i.id_inscripcion = ev.id_inscripcion        
-        LEFT JOIN grupo AS g ON i.id_grupo = g.id_grupo
-        LEFT JOIN actividad AS a ON g.id_actividad = a.id_actividad
-        LEFT JOIN periodo AS pr ON g.id_periodo = pr.id_periodo
-        WHERE ev.id_evaluacion = '.$ideval.'
-        GROUP BY pr.id_periodo, pr.nombre, i.fecha,
-        a.nombre, ev.constancia, ev.id_evaluacion, 
-        g.clave, i.aprobada
-        ORDER BY pr.id_periodo ASC');
+        $inscription = DB::table('inscripcion as i')
+            ->leftJoin('estudiante as e', 'i.id_estudiante', '=', 'e.id_estudiante')
+            ->leftJoin('evaluacion as ev', 'i.id_inscripcion', '=', 'ev.id_inscripcion')
+            ->leftJoin('grupo as g', 'i.id_grupo', '=', 'g.id_grupo')
+            ->leftJoin('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->leftJoin('periodo as pr', 'g.id_periodo', '=', 'pr.id_periodo')
+            ->select('pr.nombre AS periodo', 
+                    'i.fecha', 
+                    'a.nombre AS actividad', 
+                    'ev.constancia', 
+                    'ev.id_evaluacion', 
+                    'g.clave', 
+                    'i.aprobada', 
+                    'pr.id_periodo')
+            ->when($ideval, function ($query, $ideval) {
+                return $query->where('ev.id_evaluacion', $ideval);
+            })
+            ->groupBy('pr.id_periodo')
+            ->orderBy('pr.id_periodo');
 
-        $student = DB::select('SELECT p.nombre, p.apePat, p.apeMat, 
-            e.num_control, e.semestre, c.nombre AS carrera
-        FROM estudiante AS e
-        LEFT JOIN persona AS p ON e.id_persona = p.id_persona 
-        LEFT JOIN carrera AS c ON e.id_carrera = c.id_carrera 
-        LEFT JOIN inscripcion AS i ON e.id_estudiante = i.id_estudiante
-        LEFT JOIN evaluacion AS ev ON i.id_inscripcion = ev.id_inscripcion
-        WHERE ev.id_evaluacion = '.$ideval);
-
+        $student = DB::table('estudiante as e')
+            ->leftJoin('persona as p', 'e.id_persona', '=', 'p.id_persona')
+            ->leftJoin('carrera as c', 'e.id_carrera', '=', 'c.id_carrera')
+            ->leftJoin('inscripcion as i', 'e.id_estudiante', '=', 'i.id_estudiante')
+            ->leftJoin('evaluacion as ev', 'i.id_inscripcion', '=', 'ev.id_inscripcion')
+            ->select('p.nombre', 
+                    'p.apePat', 
+                    'p.apeMat', 
+                    'e.num_control', 
+                    'e.semestre', 
+                    'c.nombre AS carrera')
+            ->when($ideval, function ($query, $ideval) {
+                return $query->where('ev.id_evaluacion', $ideval);
+            });
         
 
         //$student[0]->num_control;

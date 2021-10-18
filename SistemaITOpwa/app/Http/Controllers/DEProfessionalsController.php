@@ -40,7 +40,7 @@ class DEProfessionalsController extends Controller
         }
         
         return $tipos;
-     }
+    }
 
     public function f_inicio(Request $request) { 
 
@@ -96,138 +96,97 @@ class DEProfessionalsController extends Controller
 /*----------------------------------------------------------------------------------------------------*/
 
     
-public function f_actividades($pagina) { 
+    public function f_actividades($pagina) { 
 
-    $now = date('Y-m-d');
-    $modificar = true;
+        $now = date('Y-m-d');
+        $modificar = true;
 
-    $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
-        ->where('estado', "Actual")->first();
-    if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
-        $modificar = false;
-  
-    $peri = Mperiodo::select('id_periodo', 'nombre')
-    ->where('estado', "Actual")
-           ->get();
+        $roll = Mperiodo::select('id_periodo', 'nombre', 'ini_inscripcion', 'fin_inscripcion')
+            ->where('estado', "Actual")->first();
 
-    $actividad = DB::select('SELECT a.id_actividad, a.clave, 
-            a.nombre, a.creditos, d.nombre AS depto, 
-            t.nombre AS tipo, a.descripcion 
-    FROM actividad AS a
-    LEFT JOIN  departamento AS  d ON  a.id_depto =  d.id_depto
-    LEFT JOIN  tipo AS  t ON  a.id_tipo =  t.id_tipo
-    WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-    ORDER BY a.id_actividad');
+        if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
+            $modificar = false;
 
-    $actividadP = DB::select('SELECT a.id_actividad, a.clave, 
-            a.nombre, a.creditos, d.nombre AS depto, 
-            t.nombre AS tipo, a.descripcion 
-        FROM actividad AS a
-        LEFT JOIN  departamento AS  d ON  a.id_depto =  d.id_depto
-        LEFT JOIN  tipo AS  t ON  a.id_tipo =  t.id_tipo
-        WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        LIMIT '.(($pagina-1)*10).', 10');
-
-    $pag = 0;
-
-        foreach($actividad as $a){
-            $pag = $pag + 1;
-        }
-
-        $pag = ceil($pag / 10);
-
-    return view('DivEProf.actividad.actividades')
-    ->with('actividades', $actividadP)
-    ->with('pnom', $peri)
-    ->with('pag', $pag)
-    ->with('pa', $pagina)
-    ->with('vista', 00)
-    ->with('mod', true)
-    ->with('tipos', $this->tipos()); 
-}
-
-public function f_actividad($search, $pagina) { 
-
-    $now = date('Y-m-d');
-    $modificar = true;
-
-    $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
-        ->where('estado', "Actual")->first();
-    if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
-        $modificar = false;
-  
-        $peri = Mperiodo::select('id_periodo', 'nombre')
-        ->where('estado', "Actual")
-               ->get();
-
-        $actividadt = DB::select('SELECT a.id_actividad, a.clave, 
-                a.nombre, a.creditos, d.nombre AS depto, 
-                t.nombre AS tipo, a.descripcion 
-        FROM actividad AS a
-        LEFT JOIN  departamento AS  d ON  a.id_depto =  d.id_depto
-        LEFT JOIN  tipo AS  t ON  a.id_tipo =  t.id_tipo
-        WHERE a.clave LIKE "%'.$search.'%" OR a.nombre LIKE "%'.$search.'%"
-        AND a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        ORDER BY a.id_actividad ASC');
-
-        $actividad = DB::select('SELECT a.id_actividad, a.clave, 
-                a.nombre, a.creditos, d.nombre AS depto, 
-                t.nombre AS tipo, a.descripcion 
-        FROM actividad AS a
-        LEFT JOIN  departamento AS  d ON  a.id_depto =  d.id_depto
-        LEFT JOIN  tipo AS  t ON  a.id_tipo =  t.id_tipo
-        WHERE a.clave LIKE "%'.$search.'%" OR a.nombre LIKE "%'.$search.'%"
-        AND a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-
-        foreach($actividadt as $a){
-            $pag = $pag + 1;
-        }
-
-        $pag = ceil($pag / 10);
+        $actividades = DB::table('actividad as a')
+            ->leftJoin('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->leftJoin('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
+            ->select('a.id_actividad', 
+                    'a.clave', 
+                    'a.nombre', 
+                    'a.creditos', 
+                    'd.nombre AS depto', 
+                    't.nombre AS tipo', 
+                    'a.descripcion')
+            ->where('a.estado', 1)
+            ->orderBy('a.id_actividad')
+            ->paginate(10);
 
         return view('DivEProf.actividad.actividades')
-        ->with('actividades', $actividad)
-        ->with('pnom', $peri)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 01)
-        ->with('bus', $search)
-        ->with('mod', true)
+        ->with('actividades', $actividades)
+        ->with('pnom', $roll->nombre)
+        ->with('mod', $modificar)
         ->with('tipos', $this->tipos()); 
+    }
+
+    public function f_actividad($search, $pagina) { 
+
+        $now = date('Y-m-d');
+        $modificar = true;
+        $search = "%".mb_strtoupper($search)."%";
+
+        $roll = DB::select('SELECT nombre, inicio, fin_inscripcion FROM periodo WHERE estado = ? LIMIT 1',
+                    ["Actual"]);
+        
+        $periodo = $roll[0]->nombre;
+        
+        if($now < $roll[0]->inicio || $now > $roll[0]->fin_inscripcion)
+            $modificar = false;
+            
+        $actividades = DB::table('actividad as a')
+            ->leftJoin('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->leftJoin('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
+            ->select('a.id_actividad', 
+                    'a.clave', 
+                    'a.nombre', 
+                    'a.creditos', 
+                    'd.nombre AS depto', 
+                    't.nombre AS tipo', 
+                    'a.descripcion')
+            ->when($search, function ($query, $search) {
+                return $query->where('a.clave', 'LIKE', $search)
+                            ->orWhere('a.nombre', 'LIKE', $search)
+                            ->where('a.estado', 1);
+            })
+            ->orderBy('a.id_actividad')
+            ->paginate(10);
+
+            return view('DivEProf.actividad.actividades')
+            ->with('actividades', $actividades)
+            ->with('pnom', $periodo)
+            ->with('mod', $modificar)
+            ->with('tipos', $this->tipos()); 
     }
 
     public function f_searchact(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
-        //return redirect()->to('DivEProf/actividad/'.$search.'/1');
-        return $this->f_actividad($search, 1);   
+        $search = $request->search;
+        return redirect()->to('/DivEProf/actividad/'.$search.'/1');
+        // return $this->f_actividad($search, 1);   
     }
 
     public function f_depto() { 
 
-        $depto = DB::select('SELECT d.id_depto, d.nombre
-            FROM departamento AS d
-            LEFT JOIN actividad AS a ON d.id_depto = a.id_depto
-            WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-            AND d.estado IN(SELECT estado FROM departamento WHERE estado = 1)
-            GROUP BY d.id_depto, d.nombre');    
-
-        $pag = 0;
-
-        foreach($depto as $d){
-            $pag = $pag + 1;
-        }
-
-        $pag = ceil($pag / 10);
+        $depto = DB::table('departamento AS d')
+            ->leftJoin('actividad AS a', 'd.id_depto', '=', 'a.id_depto')
+            ->select('d.id_depto', 'd.nombre')
+            ->where('d.estado', 1)
+            ->where('a.estado', 1)
+            ->orderBy('d.id_depto')
+            ->paginate(10);
 
         return view('DivEProf.actividad.actdepto')
-        ->with('deptos', $depto)
-        ->with('pag', $pag)
-        ->with('pa', 1)
-        ->with('tipos', $this->tipos()); 
+            ->with('deptos', $depto)
+            ->with('tipos', $this->tipos()); 
     }
 
     public function f_actdepto($id_dep, $pagina) { 
@@ -235,48 +194,37 @@ public function f_actividad($search, $pagina) {
         $now = date('Y-m-d');
         $modificar = true;
 
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
+        $roll = Mperiodo::select('inicio', 'fin_inscripcion')
             ->where('estado', "Actual")->first();
-        if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
+        if($now < $roll->inicio || $now > $roll->fin_inscripcion)
             $modificar = false;
 
-        $depto = Mdepartamento::select('nombre', 'id_depto')
-               ->where('id_depto', $id_dep)
-               ->get();
+        $depto = Mdepartamento::select('nombre')
+            ->where('id_depto', $id_dep)
+            ->first();
         
-        $actividad = DB::select('SELECT a.id_actividad, a.clave, 
-                a.nombre, a.creditos, d.nombre AS depto, 
-                t.nombre AS tipo, a.descripcion
-        FROM actividad AS a 
-        LEFT JOIN departamento AS d ON a.id_depto = d.id_depto
-        LEFT JOIN tipo AS t on a.id_tipo = t.id_tipo
-        WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        AND d.id_depto = '.$id_dep);    
-
-        $actividadD = DB::select('SELECT a.id_actividad, a.clave, 
-                a.nombre, a.creditos, d.nombre AS depto, 
-                t.nombre AS tipo, a.descripcion, d.id_depto
-        FROM actividad AS a 
-        LEFT JOIN departamento AS d ON a.id_depto = d.id_depto
-        LEFT JOIN tipo AS t on a.id_tipo = t.id_tipo
-        WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        AND d.id_depto = '.$id_dep.' LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-
-        foreach($actividad as $d){
-            $pag = $pag + 1;
-        }
-
-        $pag = ceil($pag / 10);
+        $actividades = DB::table('actividad as a')
+            ->leftJoin('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->leftJoin('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
+            ->select('a.id_actividad', 
+                    'a.clave', 
+                    'a.nombre', 
+                    'a.creditos', 
+                    'd.nombre AS depto', 
+                    't.nombre AS tipo', 
+                    'a.descripcion')
+            ->when($id_dep, function ($query, $id_dep) {
+                return $query
+                        ->where('a.estado', 1)
+                        ->where('d.id_depto', $id_dep);
+            })
+            ->orderBy('a.id_actividad')
+            ->paginate(10);
 
         return view('DivEProf.actividad.actividades')
-        ->with('actividades', $actividadD)
-        ->with('pnom', $depto)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 10)
-        ->with('mod', true)
+        ->with('actividades', $actividades)
+        ->with('pnom', $depto->nombre)
+        ->with('mod', $modificar)
         ->with('tipos', $this->tipos());  
     }
 
@@ -285,49 +233,39 @@ public function f_actividad($search, $pagina) {
         $now = date('Y-m-d');
         $modificar = true;
 
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
+        $roll = Mperiodo::select('inicio', 'fin_inscripcion')
             ->where('estado', "Actual")->first();
-        if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
+            
+        if($now < $roll->inicio || $now > $roll->fin_inscripcion)
             $modificar = false;
 
-        $tipo = Mtipo::select('nombre', 'id_tipo')
+        $tipo = Mtipo::select('nombre')
                ->where('id_tipo', $id_tip)
-               ->get();
+               ->first();
         
         
-        $actividad = DB::select('SELECT a.id_actividad, a.clave,
-               a.nombre, a.creditos, d.nombre AS depto, 
-               t.nombre AS tipo, a.descripcion
-        FROM actividad AS a 
-        LEFT JOIN departamento AS d ON a.id_depto = d.id_depto
-        LEFT JOIN tipo AS t ON a.id_tipo = t.id_tipo
-        WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        AND t.id_tipo = '.$id_tip);
-
-        $actividadT = DB::select('SELECT a.id_actividad, a.clave,
-                a.nombre, a.creditos, d.nombre AS depto, 
-                t.nombre AS tipo, a.descripcion, t.id_tipo
-        FROM actividad AS a 
-        LEFT JOIN departamento AS d ON a.id_depto = d.id_depto
-        LEFT JOIN tipo AS t ON a.id_tipo = t.id_tipo
-        WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        AND t.id_tipo = '.$id_tip.' LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-
-        foreach($actividad as $d){
-            $pag = $pag + 1;
-        }
-
-        $pag = ceil($pag / 10);
+        $actividades = DB::table('actividad as a')
+            ->leftJoin('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->leftJoin('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
+            ->select('a.id_actividad', 
+                    'a.clave', 
+                    'a.nombre', 
+                    'a.creditos', 
+                    'd.nombre AS depto', 
+                    't.nombre AS tipo', 
+                    'a.descripcion')
+            ->when($id_tip, function ($query, $id_tip) {
+                return $query
+                        ->where('a.estado', 1)
+                        ->where('t.id_tipo', $id_tip);
+            })
+            ->orderBy('a.id_actividad')
+            ->paginate(10);
 
         return view('DivEProf.actividad.actividades')
-        ->with('actividades', $actividadT)
-        ->with('pnom', $tipo)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 11)
-        ->with('mod', true)
+        ->with('actividades', $actividades)
+        ->with('pnom', $tipo->nombre)
+        ->with('mod', $modificar)
         ->with('tipos', $this->tipos());  
     }
 
@@ -365,7 +303,7 @@ public function f_actividad($search, $pagina) {
         'creditos' => $creditos, 'descripcion' => $descrip, 
         'restringida' => $restringida, 'estado' => 1]);
 
-        return redirect()->to('DivEProf/actividades/1');
+        return redirect()->to('/DivEProf/actividades/1');
     }
 
     public function f_e_actividad($id_act) { 
@@ -404,7 +342,7 @@ public function f_actividad($search, $pagina) {
         'creditos' => $creditos, 'descripcion' => $descrip, 
         'estado' => 1]);
 
-        return redirect()->to('DivEProf/actividades/1');
+        return redirect()->to('/DivEProf/actividades/1');
     }
 
     public function f_deleteact($id_delete){
@@ -421,62 +359,39 @@ public function f_actividad($search, $pagina) {
         $now = date('Y-m-d');
         $modificar = true;
 
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
-            ->where('estado', "Actual")->first();
-        if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
-            $modificar = false;
-
-            $gruposP = DB::select('SELECT g.id_grupo, g.cupo, g.clave,
-                g.asistencias, p.nombre AS periodo,
-                a.nombre AS actividad, pe.nombre AS nomP, 
-                pe.apePat AS paterno, pe.apeMat AS materno, 
-                l.nombre AS lugar, d.id_depto
-            FROM grupo AS g 
-            LEFT JOIN periodo AS p ON g.id_periodo = p.id_periodo
-            LEFT JOIN actividad AS a ON g.id_actividad = a.id_actividad
-            LEFT JOIN persona AS pe ON g.id_persona = pe.id_persona
-            LEFT JOIN lugar AS l ON g.id_lugar = l.id_lugar
-            JOIN departamento AS d ON a.id_depto = d.id_depto
-            WHERE p.estado = "Actual"
-            AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)
-            LIMIT '.(($pagina-1)*10).', 10');
-
-            $grupos = DB::select('SELECT g.id_grupo, g.cupo, g.clave,
-                g.asistencias, p.nombre AS periodo,
-                a.nombre AS actividad, pe.nombre AS nomP, 
-                pe.apePat AS paterno, pe.apeMat AS materno, 
-                l.nombre AS lugar
-            FROM grupo AS g 
-            LEFT JOIN periodo AS p ON g.id_periodo = p.id_periodo
-            LEFT JOIN actividad AS a ON g.id_actividad = a.id_actividad
-            LEFT JOIN persona AS pe ON g.id_persona = pe.id_persona
-            LEFT JOIN lugar AS l ON g.id_lugar = l.id_lugar
-            JOIN departamento AS d ON a.id_depto = d.id_depto
-            WHERE p.estado = "Actual"
-            AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)');
-
-
-        $peri = Mperiodo::select('id_periodo', 'nombre')
-        ->where('estado', "Actual")
-               ->get();
+        $periodo = Mperiodo::select('id_periodo', 'nombre', 'inicio', 'fin_inscripcion')
+            ->where('estado', "Actual")
+            ->first();
         
-       $dept = 1;
+        ($now < $periodo->inicio || $now > $periodo->fin_inscripcion)
+            ? $modificar = false : $modificar = true;
 
-       $pag = 0;
-        foreach($grupos as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
-       /** */
+        $grupos = DB::table('grupo AS g')
+            ->leftJoin('periodo AS p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->leftJoin('actividad AS a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->leftJoin('persona AS pe', 'g.id_persona', '=', 'pe.id_persona')
+            ->leftJoin('lugar AS l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->select('g.id_grupo', 
+                    'g.cupo', 
+                    'g.clave', 
+                    'g.asistencias', 
+                    'a.nombre AS actividad', 
+                    'l.nombre AS lugar',
+                    'd.id_depto',
+                    DB::raw('CONCAT(pe.nombre, " ", pe.apePat, " ", pe.apeMat) AS responsable'))
+            ->when(null, function ($query) {
+                return $query->where('p.estado', "Actual")
+                            ->where('g.estado', 1);
+            })
+            ->orderBy('g.id_grupo')
+            ->paginate(10);
 
         return view('DivEProf.grupo.grupos')
-        ->with('grupos', $gruposP)
-        ->with('pnom', $peri)
-        ->with('dept', $dept)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 00)
-        ->with('mod', true)
+        ->with('grupos', $grupos)
+        ->with('pnom', $periodo->nombre)
+        ->with('dept', 1)
+        ->with('mod', $modificar)
         ->with('tipos', $this->tipos());   
     }
 
@@ -484,81 +399,53 @@ public function f_actividad($search, $pagina) {
 
         $now = date('Y-m-d');
         $modificar = true;
+        $search = mb_strtoupper("%".$search."%");
 
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
-            ->where('estado', "Actual")->first();
-        if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
-            $modificar = false;
-
-        $gruposP = DB::select('SELECT g.id_grupo, g.cupo, g.clave,
-            g.asistencias, p.nombre AS periodo,
-            a.nombre AS actividad, pe.nombre AS nomP, 
-            pe.apePat AS paterno, pe.apeMat AS materno, 
-            l.nombre AS lugar, d.id_depto
-        FROM grupo AS g 
-        LEFT JOIN periodo AS p ON g.id_periodo = p.id_periodo
-        LEFT JOIN actividad AS a ON g.id_actividad = a.id_actividad
-        LEFT JOIN persona AS pe ON g.id_persona = pe.id_persona
-        LEFT JOIN lugar AS l ON g.id_lugar = l.id_lugar
-        JOIN departamento AS d ON a.id_depto = d.id_depto
-        WHERE p.estado = "Actual"
-        AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)
-        AND g.clave LIKE "'.$search.'%" 
-        OR a.nombre LIKE "%'.$search.'%"
-        OR pe.nombre LIKE "%'.$search.'%"
-        OR pe.apePat LIKE "%'.$search.'%"
-        AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)');
-
-            $grupos = DB::select('SELECT g.id_grupo, g.cupo, g.clave,
-                g.asistencias, p.nombre AS periodo,
-                a.nombre AS actividad, pe.nombre AS nomP, 
-                pe.apePat AS paterno, pe.apeMat AS materno, 
-                l.nombre AS lugar, d.id_depto
-            FROM grupo AS g 
-            LEFT JOIN periodo AS p ON g.id_periodo = p.id_periodo
-            LEFT JOIN actividad AS a ON g.id_actividad = a.id_actividad
-            LEFT JOIN persona AS pe ON g.id_persona = pe.id_persona
-            LEFT JOIN lugar AS l ON g.id_lugar = l.id_lugar
-            JOIN departamento AS d ON a.id_depto = d.id_depto
-            WHERE p.estado = "Actual"
-            AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)
-            AND g.clave LIKE "'.$search.'%" 
-            OR a.nombre LIKE "%'.$search.'%"
-            OR pe.nombre LIKE "%'.$search.'%"
-            OR pe.apePat LIKE "%'.$search.'%"
-            LIMIT '.(($pagina-1)*10).', 10');
+        $periodo = Mperiodo::select('id_periodo', 'nombre', 'inicio', 'fin_inscripcion')
+            ->where('estado', "Actual")
+            ->first();
         
+        ($now < $periodo->inicio || $now > $periodo->fin_inscripcion)
+            ? $modificar = false : $modificar = true;
 
-        $peri = Mperiodo::select('id_periodo', 'nombre')
-        ->where('estado', "Actual")
-               ->get();
-        
-       $dept = 1;
-
-       $pag = 0;
-        foreach($gruposP as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
-       /** */
+        $grupos = DB::table('grupo AS g')
+            ->leftJoin('periodo AS p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->leftJoin('actividad AS a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->leftJoin('persona AS pe', 'g.id_persona', '=', 'pe.id_persona')
+            ->leftJoin('lugar AS l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->select('g.id_grupo', 
+                    'g.cupo', 
+                    'g.clave', 
+                    'g.asistencias', 
+                    'a.nombre AS actividad', 
+                    'l.nombre AS lugar',
+                    'd.id_depto',
+                    DB::raw('CONCAT(pe.nombre, " ", pe.apePat, " ", pe.apeMat) AS responsable'))
+            ->when($search, function ($query, $search) {
+                return $query->where('p.estado', "Actual")
+                            ->where('g.estado', 1)
+                            ->where('g.clave', 'LIKE', $search)
+                            ->orWhere('a.nombre', 'LIKE', $search)
+                            ->orWhere('pe.nombre', 'LIKE', $search)
+                            ->orWhere('pe.apePat', 'LIKE', $search);
+            })
+            ->orderBy('g.id_grupo')
+            ->paginate(10);
 
         return view('DivEProf.grupo.grupos')
         ->with('grupos', $grupos)
-        ->with('pnom', $peri)
+        ->with('pnom', $periodo->nombre)
         ->with('dept', $dept)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 01)
-        ->with('bus', $search)
-        ->with('mod', true)
+        ->with('mod', $modificar)
         ->with('tipos', $this->tipos());   
     }
 
     public function f_searchgru(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
-        return $this->f_gruposB($search, 1);  
-        //return redirect()->to('DivEProf/grupos/'.$search.'/1');
+        $search = $request->search;
+        // return $this->f_gruposB($search, 1);  
+        return redirect()->to('/DivEProf/grupos/'.$search.'/1');
     }
 
     public function f_n_grupo(Request $request, $id_dep){
@@ -710,7 +597,7 @@ public function f_actividad($search, $pagina) {
                 'hora_fin' => $sabf]);
         }
 
-        return redirect()->to('DivEProf/grupos/1');
+        return redirect()->to('/DivEProf/grupos/1');
     }
     
 
@@ -991,7 +878,7 @@ public function f_actividad($search, $pagina) {
             }
         
 
-        return redirect()->to('DivEProf/grupos/1');
+        return redirect()->to('/DivEProf/grupos/1');
     }
 
     public function f_deletegru($id_delete){
@@ -999,7 +886,7 @@ public function f_actividad($search, $pagina) {
         Mgrupo::where('id_grupo', $id_delete)
             ->update(['estado' => 0]);
 
-        return redirect()->to('DivEProf/grupos/1');
+        return redirect()->to('/DivEProf/grupos/1');
     }
         
         
@@ -1010,42 +897,38 @@ public function f_actividad($search, $pagina) {
         $now = date('Y-m-d');
         $modificar = true;
 
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
+        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion', 'ini_evaluacion')
             ->where('estado', "Actual")->first();
-        if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
+
+        if($now < $roll->ini_inscripcion || $now >= $roll->ini_evaluacion)
             $modificar = false;
+        
+        $outime = 2;
+        $roll->fin_inscripcion < $now ? $outime = true : $outime = false;
 
-            $estudiantesP = DB::select('SELECT e.id_estudiante, e.num_control AS ncontrol,
-                p.nombre, p.apePat, p.apeMat, c.nombre AS carrera, 
-                e.semestre, p.curp, e.id_persona, p.estado
-            FROM persona AS p
-            LEFT JOIN estudiante AS e ON p.id_persona = e.id_persona
-            LEFT JOIN carrera AS c ON e.id_carrera = c.id_carrera
-            WHERE p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-            AND p.tipo = "Estudiante"');
-
-            $estudiantes = DB::select('SELECT e.id_estudiante, e.num_control AS ncontrol,
-                p.nombre, p.apePat, p.apeMat, c.nombre AS carrera, 
-                e.semestre, p.curp, e.id_persona, p.estado
-            FROM persona AS p
-            LEFT JOIN estudiante AS e ON p.id_persona = e.id_persona
-            LEFT JOIN carrera AS c ON e.id_carrera = c.id_carrera
-            WHERE p.tipo = "Estudiante"
-            AND p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-            LIMIT '.(($pagina-1)*10).', 10');
-
-            $pag = 0;
-            foreach($estudiantesP as $g){
-                $pag = $pag + 1;
-            }
-            $pag = ceil($pag / 10);
+        $estudiantes = DB::table('persona AS p')
+            ->join('estudiante AS e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('carrera AS c', 'e.id_carrera', '=', 'c.id_carrera')
+            ->join('departamento as d', 'c.id_depto', '=', 'd.id_depto')
+            ->select('e.id_estudiante', 
+                    'e.num_control', 
+                    'c.nombre AS carrera', 
+                    'e.semestre', 
+                    'p.curp', 
+                    'p.estado', 
+                    'e.id_persona', 
+                    'd.id_depto',
+                    DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS estudiante'))
+            ->when(null, function ($query) {
+                return $query->where('p.estado', 1)
+                            ->where('p.tipo', "Estudiante");
+            })
+            ->orderBy('e.semestre')
+            ->paginate(10);
 
         return view('DivEProf.estudiante.estudiantes')
         ->with('estudiantes', $estudiantes)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 00)
-        ->with('mod', true)
+        ->with('mod', $modificar)
         ->with('tipos', $this->tipos());   
     }
 
@@ -1053,59 +936,50 @@ public function f_actividad($search, $pagina) {
         
         $now = date('Y-m-d');
         $modificar = true;
-
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
-            ->where('estado', "Actual")->first();
-        if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
+        $search = mb_strtoupper("%".$search."%");
+        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion', 'ini_evaluacion')
+        ->where('estado', "Actual")->first();
+        
+        if($now < $roll->ini_inscripcion || $now >= $roll->ini_evaluacion)
             $modificar = false;
+        
+        $outime = 2;
+        $roll->fin_inscripcion < $now ? $outime = true : $outime = false;
 
-            $estudiantesP = DB::select('SELECT e.id_estudiante, e.num_control AS ncontrol,
-                p.nombre, p.apePat, p.apeMat, c.nombre AS carrera, 
-                e.semestre, p.curp, e.id_persona, p.estado
-            FROM persona AS p
-            LEFT JOIN estudiante AS e ON p.id_persona = e.id_persona
-            LEFT JOIN carrera AS c ON e.id_carrera = c.id_carrera
-            WHERE p.tipo = "Estudiante"
-            AND p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-            AND e.num_control LIKE "%'.$search.'%" 
-           
-            OR c.nombre LIKE "%'.$search.'%"');
-            // OR p.nombre LIKE "%'.$search.'%"
-            // OR p.apePat LIKE "%'.$search.'%"
-            $estudiantes = DB::select('SELECT e.id_estudiante, e.num_control AS ncontrol,
-                p.nombre, p.apePat, p.apeMat, c.nombre AS carrera, 
-                e.semestre, p.curp, e.id_persona, p.estado
-            FROM persona AS p
-            LEFT JOIN estudiante AS e ON p.id_persona = e.id_persona
-            LEFT JOIN carrera AS c ON e.id_carrera = c.id_carrera
-            WHERE p.tipo = "Estudiante"
-            AND p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-            AND e.num_control LIKE "%'.$search.'%" 
-
-            OR c.nombre LIKE "%'.$search.'%"
-            LIMIT '.(($pagina-1)*10).', 10');
-
-            $pag = 0;
-            foreach($estudiantesP as $g){
-                $pag = $pag + 1;
-            }
-            $pag = ceil($pag / 10);
+        $estudiantes = DB::table('persona AS p')
+            ->join('estudiante AS e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('carrera AS c', 'e.id_carrera', '=', 'c.id_carrera')
+            ->join('departamento as d', 'c.id_depto', '=', 'd.id_depto')
+            ->select('e.id_estudiante', 
+                    'e.num_control', 
+                    'c.nombre AS carrera', 
+                    'e.semestre', 
+                    'p.curp', 
+                    'p.estado', 
+                    'e.id_persona', 
+                    'd.id_depto',
+                    DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS estudiante'))
+            ->when($search, function ($query, $search) {
+                return $query->where('p.tipo', "Estudiante")
+                            ->where('e.num_control', 'LIKE', $search)
+                            ->orWhere('p.nombre', 'LIKE', $search)
+                            ->orWhere('c.nombre', 'LIKE', $search)
+                            ->where('p.estado', 1);
+            })
+            ->orderBy('e.semestre')
+            ->paginate(10);
 
         return view('DivEProf.estudiante.estudiantes')
         ->with('estudiantes', $estudiantes)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 01)
-        ->with('bus', $search)
-        ->with('mod', true)
+        ->with('mod', $modificar)
         ->with('tipos', $this->tipos());   
     }
 
     public function f_searchest(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
-        return $this->f_estudiantesB($search, 1);   
-        //return redirect()->to('DivEProf/estudiantes/'.$search.'/1');
+        $search = $request->search;
+        // return $this->f_estudiantesB($search, 1);   
+        return redirect()->to('/DivEProf/estudiantes/'.$search.'/1');
     }
             
     public function f_n_estudiante() { 
@@ -1114,13 +988,13 @@ public function f_actividad($search, $pagina) {
             ->where('estado', 1)->get();
 
         $semestres = ['1', '2', '3', '4', '5', '6', '7', '8', 
-        '9', '10','11', '12'];
+            '9', '10','11', '12'];
 
             return view('DivEProf.estudiante.nuevo')
             ->with('carreras', $carreras)
             ->with('semestres', $semestres)
             ->with('tipos', $this->tipos());   
-        }
+    }
 
     public function f_regEst(Request $request){
 
@@ -1211,19 +1085,29 @@ public function f_actividad($search, $pagina) {
 
     public function f_carreras($search) { 
 
-        if($search == "0"){
-            $carreras = DB::select('SELECT c.id_carrera, 
-                        c.nombre, d.nombre AS depto
-            FROM carrera AS c
-            LEFT JOIN departamento AS d ON c.id_depto = d.id_depto
-            WHERE c.estado = 1');
+        $search = mb_strtoupper("%".$search."%");
+
+        if($search == "%0%"){
+            $carreras = DB::table('carrera as c')
+                ->join('departamento as d', 'c.id_depto', '=', 'd.id_depto')
+                ->select('c.id_carrera',
+                        'c.nombre',
+                        'd.nombre AS depto')
+                ->where('c.estado', 1)
+                ->orderBy('c.id_carrera')
+                ->paginate(10); 
         }else{
-            $carreras = DB::select('SELECT c.id_carrera, 
-                    c.nombre, d.nombre AS depto
-            FROM carrera AS c
-            LEFT JOIN departamento AS d ON c.id_depto = d.id_depto
-            WHERE c.estado = 1
-            AND c.nombre LIKE "%'.$search.'%"');
+            $carreras = DB::table('carrera as c')
+            ->join('departamento as d', 'c.id_depto', '=', 'd.id_depto')
+            ->select('c.id_carrera',
+                    'c.nombre',
+                    'd.nombre AS depto')
+            ->when($search, function ($query, $search) {
+                return $query->where('c.nombre', 'LIKE', $search)
+                            ->where('c.estado', 1);
+            })
+            ->orderBy('c.id_carrera')
+            ->paginate(10); 
         }
 
         return view('DivEProf.carrera.carreras')
@@ -1233,9 +1117,9 @@ public function f_actividad($search, $pagina) {
 
     public function f_searchcar(Request $request) { 
 
-        $search = mb_strtoupper($request->buscar);
-        return $this->f_carreras($search);
-        //return redirect()->to('DivEProf/carreras/'.$search);
+        $search = $request->buscar;
+        // return $this->f_carreras($search);
+        return redirect()->to('/DivEProf/carreras/'.$search);
     }
 
     public function f_n_carrera() { 
@@ -1264,7 +1148,7 @@ public function f_actividad($search, $pagina) {
         Mcarrera::create(['id_depto' => $depto, 'nombre' => $carrera, 
         'estado' => 1]);
 
-        return redirect()->to('DivEProf/carreras/0');
+        return redirect()->to('/DivEProf/carreras/0');
     }
 
 
@@ -1272,18 +1156,28 @@ public function f_actividad($search, $pagina) {
 
     public function f_critEva($search) {
         
-        if($search == "0"){
-            $critEval = DB::select('SELECT id_crit_eval,
-                nombre, descripcion
-                FROM criterios_evaluacion
-                WHERE estado = 1');
+        $search = mb_strtoupper("%".$search."%");
+
+        if($search == "%0%"){
+            $critEval = DB::table('criterios_evaluacion')
+                ->select('id_crit_eval',
+                        'nombre',
+                        'descripcion')
+                ->where('estado', 1)
+                ->orderBy('id_crit_eval')
+                ->paginate(10);
         }
         else{
-            $critEval = DB::select('SELECT id_crit_eval,
-                nombre, descripcion
-                FROM criterios_evaluacion
-                WHERE estado = 1
-                AND nombre LIKE "%'.$search.'%"');
+            $critEval = DB::table('criterios_evaluacion')
+                ->select('id_crit_eval',
+                        'nombre',
+                        'descripcion')
+                ->when($search, function ($query, $search) {
+                    return $query->where('nombre', 'LIKE', $search)
+                            ->where('estado', 1);
+                })
+                ->orderBy('id_crit_eval')
+                ->paginate(10);
         }
         
         return view('DivEProf.critEval.c_evaluacion')
@@ -1293,9 +1187,9 @@ public function f_actividad($search, $pagina) {
 
     public function f_searchcrit(Request $request) { 
 
-        $search = mb_strtoupper($request->buscar);
-        return $this->f_critEva($search);
-        //return redirect()->to('DivEProf/critEvaluacion/'.$search);
+        $search = $request->buscar;
+        // return $this->f_critEva($search);
+        return redirect()->to('/DivEProf/critEvaluacion/'.$search);
     }
 
     public function f_n_critEva() { 
@@ -1311,80 +1205,52 @@ public function f_actividad($search, $pagina) {
         Mcriterios_evaluacion::create(['nombre' => $nombre,
         'descripcion' => $descrip, 'estado' => 1]);
 
-        return redirect()->to('DivEProf/critEvaluacion/0');
+        return redirect()->to('/DivEProf/critEvaluacion/0');
     }
 
 /*----------------------------------------------------------------------------------------------------*/
 
     public function f_departamentos($pagina){
 
- 
-            $departamentos = DB::select('SELECT d.id_depto, d.nombre AS depto, 
-            g.nombre AS grado, p.nombre, p.apePat, p.apeMat
-            FROM departamento AS d 
-            LEFT JOIN persona AS p ON d.id_persona = p.id_persona
-            LEFT JOIN empleado AS e ON e.id_persona = p.id_persona
-            LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-            WHERE d.estado = 1
-            LIMIT '.(($pagina-1)*10).', 10');
-
-            $departamentosT = DB::select('SELECT d.id_depto, d.nombre AS depto, 
-            g.nombre AS grado, p.nombre, p.apePat, p.apeMat
-            FROM departamento AS d 
-            LEFT JOIN persona AS p ON d.id_persona = p.id_persona
-            LEFT JOIN empleado AS e ON e.id_persona = p.id_persona
-            LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-            WHERE d.estado = 1');
-        
-        $pag = 0;
-        foreach($departamentosT as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $departamentos = DB::table('departamento as d')
+            ->leftJoin('persona as p', 'd.id_persona', '=', 'p.id_persona')
+            ->leftJoin('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->leftJoin('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->select('d.id_depto', 
+                    'd.nombre as depto', 
+                    'g.nombre as grado', 
+                    DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS jefe'))
+            ->where('d.estado', 1)
+            ->orderBy('d.id_depto')
+            ->paginate(10);
 
         return view('DivEProf.depto.departamentos')
-        ->with('departamentos', $departamentos)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 00)
-        ->with('tipos', $this->tipos());   
+            ->with('departamentos', $departamentos)
+            ->with('tipos', $this->tipos());   
     }
 
     public function f_departamento($search, $pagina){
 
+        $search = mb_strtoupper("%".$search."%");
         
-            $departamentosT = DB::select('SELECT d.id_depto, d.nombre AS depto, 
-            g.nombre AS grado, p.nombre, p.apePat, p.apeMat
-            FROM departamento AS d 
-            LEFT JOIN persona AS p ON d.id_persona = p.id_persona
-            LEFT JOIN empleado AS e ON e.id_persona = p.id_persona
-            LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-            WHERE d.estado = 1
-            AND d.nombre LIKE "%'.$search.'%"');
-        
-            $departamentos = DB::select('SELECT d.id_depto, d.nombre AS depto, 
-            g.nombre AS grado, p.nombre, p.apePat, p.apeMat
-            FROM departamento AS d 
-            LEFT JOIN persona AS p ON d.id_persona = p.id_persona
-            LEFT JOIN empleado AS e ON e.id_persona = p.id_persona
-            LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-            WHERE d.estado = 1
-            AND d.nombre LIKE "%'.$search.'%" 
-            LIMIT '.(($pagina-1)*10).', 10');
-        
-        $pag = 0;
-        foreach($departamentosT as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $departamentos = DB::table('departamento as d')
+            ->leftJoin('persona as p', 'd.id_persona', '=', 'p.id_persona')
+            ->leftJoin('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->leftJoin('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->select('d.id_depto', 
+                    'd.nombre as depto', 
+                    'g.nombre as grado', 
+                    DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS jefe'))
+            ->when($search, function ($query, $search) {
+                return $query->where('d.nombre', 'LIKE', $search)
+                        ->where('d.estado', 1);
+            })
+            ->orderBy('d.id_depto')
+            ->paginate(10);
 
         return view('DivEProf.depto.departamentos')
-        ->with('departamentos', $departamentos)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 01)
-        ->with('bus', $search)
-        ->with('tipos', $this->tipos());   
+            ->with('departamentos', $departamentos)
+            ->with('tipos', $this->tipos());   
     }
 
     public function f_searchdpt(Request $request) { 
@@ -1416,65 +1282,45 @@ public function f_actividad($search, $pagina) {
 
         Mdepartamento::create(['id_persona' => $jefe, 'nombre' => $nombre, 'estado' => 1]);
 
-        return redirect()->to('DivEProf/departamentos/1');
+        return redirect()->to('/DivEProf/departamentos/1');
     }
     
 /*----------------------------------------------------------------------------------------------------*/
 
     public function f_grados($pagina) {
 
-
-        $grados = DB::select('SELECT id_grado, nombre, significado
-            FROM grado
-            WHERE estado = 1
-            LIMIT '.(($pagina-1)*10).', 10');
-
-        $gradosT = DB::select('SELECT id_grado, nombre, significado
-            FROM grado
-            WHERE estado = 1');
-
-        $pag = 0;
-        foreach($gradosT as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $grados = DB::table('grado')
+            ->select('id_grado',
+                    'nombre',
+                    'significado')
+            ->where('estado', 1)
+            ->orderBy('id_grado')
+            ->paginate(10);
 
         return view('DivEProf.grado.grados')
-        ->with('grados', $grados)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 00)
-        ->with('tipos', $this->tipos());   
+            ->with('grados', $grados)
+            ->with('tipos', $this->tipos());   
     }
 
     public function f_grado($search, $pagina) {
 
+        $search = mb_strtoupper("%".$search."%");
 
-        $gradosT = DB::select('SELECT id_grado, nombre, significado
-            FROM grado
-            WHERE estado = 1
-            AND nombre LIKE "%'.$search.'%"');
+        $grados = DB::table('grado')
+        ->select('id_grado',
+                'nombre',
+                'significado')
+        ->when($search, function ($query, $search) {
+            return $query->where('nombre', 'LIKE', $search)
+                    ->where('estado', 1);
+        })
+        ->orderBy('id_grado')
+        ->paginate(10);
 
-        $grados = DB::select('SELECT id_grado, nombre, significado
-            FROM grado
-            WHERE estado = 1
-            AND nombre LIKE "%'.$search.'%" 
-            LIMIT '.(($pagina-1)*10).', 10');
-
-    $pag = 0;
-    foreach($gradosT as $g){
-        $pag = $pag + 1;
+        return view('DivEProf.grado.grados')
+            ->with('grados', $grados)
+            ->with('tipos', $this->tipos());   
     }
-    $pag = ceil($pag / 10);
-
-    return view('DivEProf.grado.grados')
-    ->with('grados', $grados)
-    ->with('pag', $pag)
-    ->with('pa', $pagina)
-    ->with('vista', 01)
-    ->with('bus', $search)
-    ->with('tipos', $this->tipos());   
-}
 
     public function f_searchgra(Request $request) { 
 
@@ -1497,78 +1343,53 @@ public function f_actividad($search, $pagina) {
         Mgrado::create(['nombre' => $nombre, 
         'significado' => $sig, 'estado' => 1]);
 
-        return redirect()->to('DivEProf/grados/1');
+        return redirect()->to('/DivEProf/grados/1');
     }
         
 /*----------------------------------------------------------------------------------------------------*/
 
     public function f_periodos($pagina) {
 
-        $periodosT = DB::select('SELECT id_periodo, 
-                nombre, inicio, fin, estado
-                FROM periodo
-                WHERE condicion = 1
-                ORDER BY id_periodo');
-
-        $periodos = DB::select('SELECT id_periodo, 
-        nombre, inicio, fin, estado
-        FROM periodo
-        WHERE condicion = 1 
-        ORDER BY id_periodo
-        LIMIT '.(($pagina-1)*10).', 10');
-
-        
-        $pag = 0;
-        foreach($periodosT as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $periodos = DB::table('periodo')
+            ->select('id_periodo',
+                    'nombre',
+                    'inicio',
+                    'fin',
+                    'estado')
+            ->where('condicion', 1)
+            ->orderBy('id_periodo')
+            ->paginate(10);
 
         return view('DivEProf.periodo.periodos')
             ->with('periodos', $periodos)
-            ->with('pag', $pag)
-            ->with('pa', $pagina)
-            ->with('vista', 00)
             ->with('tipos', $this->tipos());   
     }
 
     public function f_periodo($search, $pagina) {
 
-        $periodosT = DB::select('SELECT id_periodo, 
-            nombre, inicio, fin, estado
-            FROM periodo
-            WHERE condicion = 1
-            AND nombre LIKE "%'.$search.'%" 
-            ORDER BY id_periodo');
+        $search = mb_strtoupper("%".$search."%");
 
-        $periodos = DB::select('SELECT id_periodo, 
-            nombre, inicio, fin, estado
-            FROM periodo
-            WHERE condicion = 1
-            AND nombre LIKE "%'.$search.'%" 
-            ORDER BY id_periodo
-            LIMIT '.(($pagina-1)*10).', 10');
-
-        
-
-        $pag = 0;
-        foreach($periodosT as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $periodos = DB::table('periodo')
+            ->select('id_periodo',
+                    'nombre',
+                    'inicio',
+                    'fin',
+                    'estado')
+            ->when($search, function ($query, $search) {
+                return $query->where('nombre', 'LIKE', $search)
+                        ->where('condicion', 1);
+            })
+            ->orderBy('id_periodo')
+            ->paginate(10);
 
         return view('DivEProf.periodo.periodos')
             ->with('periodos', $periodos)
-            ->with('pag', $pag)
-            ->with('pa', $pagina)
-            ->with('vista', 01)
-            ->with('bus', $search)
             ->with('tipos', $this->tipos());   
     }
 
     public function f_searchperi(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
+        $search = $request->search;
         return $this->f_periodo($search, 1); 
         //return redirect()->to('DivEProf/periodos/'.$search.'/1');
     }
@@ -1675,7 +1496,7 @@ public function f_actividad($search, $pagina) {
                     'logo_ito' => $ito, 'logo_anio' => $encabezado, 
                     'estado' => "Siguiente"]);
 
-                    return redirect()->to('DivEProf/periodos/1');
+                    return redirect()->to('/DivEProf/periodos/1');
                 }else{
                     if(!$mi && !$me && !$mc){
                         if($inicio < $iniIns && $finIns < $iniEval && $finEval < $iniCons && $finCons < $fin){
@@ -1697,7 +1518,7 @@ public function f_actividad($search, $pagina) {
                             'logo_ito' => $ito, 'logo_anio' => $encabezado, 
                             'estado' => "Siguiente"]);
                             
-                            return redirect()->to('DivEProf/periodos/1');
+                            return redirect()->to('/DivEProf/periodos/1');
 
                         }else{
 
@@ -1725,7 +1546,7 @@ public function f_actividad($search, $pagina) {
                             'logo_ito' => $ito, 'logo_anio' => $encabezado, 
                             'estado' => "Siguiente"]);
 
-                            return redirect()->to('DivEProf/periodos/1');
+                            return redirect()->to('/DivEProf/periodos/1');
 
                         }elseif(!$mc && $finIns < $iniCons && $finCons < $fin){
                             
@@ -1745,7 +1566,7 @@ public function f_actividad($search, $pagina) {
                             'logo_ito' => $ito, 'logo_anio' => $encabezado, 
                             'estado' => "Siguiente"]);
 
-                            return redirect()->to('DivEProf/periodos/1');
+                            return redirect()->to('/DivEProf/periodos/1');
 
                         }else{
 
@@ -1764,7 +1585,7 @@ public function f_actividad($search, $pagina) {
                             'logo_ito' => $ito, 'logo_anio' => $encabezado, 
                             'estado' => "Siguiente"]);
 
-                            return redirect()->to('DivEProf/periodos/1');
+                            return redirect()->to('/DivEProf/periodos/1');
 
                         }
                     }elseif(!$me && $inicio < $iniEval){
@@ -1786,7 +1607,7 @@ public function f_actividad($search, $pagina) {
                             'logo_ito' => $ito, 'logo_anio' => $encabezado, 
                             'estado' => "Siguiente"]);
 
-                            return redirect()->to('DivEProf/periodos/1');
+                            return redirect()->to('/DivEProf/periodos/1');
 
                         }else{
                             
@@ -1805,7 +1626,7 @@ public function f_actividad($search, $pagina) {
                             'logo_ito' => $ito, 'logo_anio' => $encabezado, 
                             'estado' => "Siguiente"]);
 
-                            return redirect()->to('DivEProf/periodos/1');
+                            return redirect()->to('/DivEProf/periodos/1');
 
                         }
                     }elseif(!$mc && $inicio < $iniCons && $finCons < $fin){
@@ -1825,7 +1646,7 @@ public function f_actividad($search, $pagina) {
                         'logo_ito' => $ito, 'logo_anio' => $encabezado, 
                         'estado' => "Siguiente"]);
 
-                        return redirect()->to('DivEProf/periodos/1');
+                        return redirect()->to('/DivEProf/periodos/1');
 
                     }else{
 
@@ -1858,101 +1679,64 @@ public function f_actividad($search, $pagina) {
 
     public function f_personal($pagina) {
 
-        $personasT = DB::select('SELECT p.id_persona, p.nombre, p.apePat AS paterno, 
-                p.apeMat AS materno, p.curp AS curp, 
-                d.nombre AS depto, g.nombre AS grado,
-                pu.nombre AS puesto, p.estado
-        FROM persona AS p 
-        LEFT JOIN empleado AS e ON p.id_persona = e.id_persona
-        LEFT JOIN departamento AS d ON e.id_depto = d.id_depto
-        LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-        LEFT JOIN puesto AS pu ON e.id_puesto = pu.id_puesto
-        WHERE p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-        AND p.tipo = "Empleado" ');
-
-        $personas = DB::select('SELECT p.id_persona, p.nombre, p.apePat AS paterno, 
-                p.apeMat AS materno, p.curp AS curp, 
-                d.nombre AS depto, g.nombre AS grado,
-                pu.nombre AS puesto, p.estado
-        FROM persona AS p 
-        LEFT JOIN empleado AS e ON p.id_persona = e.id_persona
-        LEFT JOIN departamento AS d ON e.id_depto = d.id_depto
-        LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-        LEFT JOIN puesto AS pu ON e.id_puesto = pu.id_puesto
-        WHERE p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-        AND p.tipo = "Empleado" 
-        LIMIT '.(($pagina-1)*10).', 10');
-        
-        $pag = 0;
-            foreach($personasT as $g){
-                $pag = $pag + 1;
-            }
-            $pag = ceil($pag / 10);
-
+        $empleados = DB::table('persona as p')
+            ->leftJoin('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->leftJoin('departamento as d', 'e.id_depto', '=', 'd.id_depto')
+            ->leftJoin('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->leftJoin('puesto as pu', 'e.id_puesto', '=', 'pu.id_puesto')
+            ->select('p.id_persona', 
+                    'p.estado', 
+                    'p.curp', 
+                    'd.nombre as depto', 
+                    'g.nombre as grado', 
+                    'pu.nombre as puesto', 
+                    DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS empleado'))
+            ->when(null, function ($query) {
+                return $query->where('p.tipo', "Empleado")
+                            ->where('p.estado', 1);
+            })
+            ->orderBy('p.id_persona')
+            ->paginate(10);
 
         return view('DivEProf.persona.personas')
-        ->with('personas', $personas)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 00)
-        ->with('tipos', $this->tipos());   
+            ->with('personas', $empleados)
+            ->with('tipos', $this->tipos());   
     }
 
     public function f_personalB($search, $pagina) {
 
-        $personasT = DB::select('SELECT p.id_persona, p.nombre, p.apePat AS paterno, 
-                p.apeMat AS materno, p.curp AS curp, 
-                d.nombre AS depto, g.nombre AS grado,
-                pu.nombre AS puesto, p.estado
-        FROM persona AS p 
-        LEFT JOIN empleado AS e ON p.id_persona = e.id_persona
-        LEFT JOIN departamento AS d ON e.id_depto = d.id_depto
-        LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-        LEFT JOIN puesto AS pu ON e.id_puesto = pu.id_puesto
-        WHERE p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-        AND p.tipo IN(SELECT tipo FROM persona WHERE tipo = "Empleado")
-        AND p.nombre LIKE "%'.$search.'%" 
-        OR p.nombre LIKE "%'.$search.'%"
-        OR p.apePat LIKE "%'.$search.'%"
-        OR d.nombre LIKE "%'.$search.'%"
-        ' );
+        $search = mb_strtoupper("%".$search."%");
 
-
-        $personas = DB::select('SELECT p.id_persona, p.nombre, p.apePat AS paterno, 
-                p.apeMat AS materno, p.curp AS curp, 
-                d.nombre AS depto, g.nombre AS grado,
-                pu.nombre AS puesto, p.estado
-        FROM persona AS p 
-        LEFT JOIN empleado AS e ON p.id_persona = e.id_persona
-        LEFT JOIN departamento AS d ON e.id_depto = d.id_depto
-        LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-        LEFT JOIN puesto AS pu ON e.id_puesto = pu.id_puesto
-        WHERE p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-        AND p.tipo IN(SELECT tipo FROM persona WHERE tipo = "Empleado")
-        AND p.nombre LIKE "%'.$search.'%"
-        OR p.nombre LIKE "%'.$search.'%"
-        OR p.apePat LIKE "%'.$search.'%"
-        OR d.nombre LIKE "%'.$search.'%" 
-        LIMIT '.(($pagina-1)*10).', 10');
-        
-        $pag = 0;
-        foreach($personasT as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $empleados = DB::table('persona as p')
+            ->leftJoin('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->leftJoin('departamento as d', 'e.id_depto', '=', 'd.id_depto')
+            ->leftJoin('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->leftJoin('puesto as pu', 'e.id_puesto', '=', 'pu.id_puesto')
+            ->select('p.id_persona',
+                    'p.estado', 
+                    'p.curp', 
+                    'd.nombre as depto', 
+                    'g.nombre as grado', 
+                    'pu.nombre as puesto', 
+                    DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS empleado'))
+            ->when($search, function ($query,$search) {
+                return $query->where('p.tipo', "Empleado")
+                            ->where('p.estado', 1)
+                            ->where('p.nombre', 'LIKE', $search)
+                            ->orWhere('p.apePat', 'LIKE', $search)
+                            ->orWhere('p.apeMat', 'LIKE', $search);
+            })
+            ->orderBy('p.id_persona')
+            ->paginate(10);
 
         return view('DivEProf.persona.personas')
-        ->with('personas', $personas)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 01)
-        ->with('bus', $search)
-        ->with('tipos', $this->tipos());   
+            ->with('personas', $empleados)
+            ->with('tipos', $this->tipos());   
     }
 
     public function f_searchpers(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
+        $search = $request->search;
         return $this->f_personalB($search, 1); 
         //return redirect()->to('DivEProf/personal/'.$search.'/1');
     }
@@ -2006,7 +1790,7 @@ public function f_actividad($search, $pagina) {
             'nombre' => $nomUser, 'usuario' => $curp, 'password' => $contraseña,
             'fecha_registro' => $hoy, 'edo_sesion' => 0, 'estado' => 1]);
 
-            return redirect()->to('DivEProf/personal/1');
+            return redirect()->to('/DivEProf/personal/1');
         }
     }
 
@@ -2064,7 +1848,7 @@ public function f_actividad($search, $pagina) {
         'usuario' => $curp]);
 
 
-        return redirect()->to('DivEProf/personal/1');
+        return redirect()->to('/DivEProf/personal/1');
     }
 
     public function f_deleteper($id_delete){
@@ -2072,24 +1856,34 @@ public function f_actividad($search, $pagina) {
         Mpersona::where('id_persona', $id_delete)
             ->update(['estado' => 0]);
 
-        return redirect()->to('DivEProf/personal/1');
+        return redirect()->to('/DivEProf/personal/1');
     }
 
 /*----------------------------------------------------------------------------------------------------*/
 
     public function f_puestos($search) {
 
-        if($search == "0"){
-            $puestos = DB::select('SELECT id_puesto,
-                nombre, descripcion
-                FROM puesto
-                WHERE estado = 1'); 
+        $search = mb_strtoupper("%".$search."%");
+        
+        if($search == "%0%"){
+            $puestos = DB::table('puesto')
+                ->select('id_puesto',
+                        'nombre',
+                        'descripcion')
+                ->where('estado', 1)
+                ->orderBy('id_puesto')
+                ->paginate(10); 
         }else{
-            $puestos = DB::select('SELECT id_puesto,
-                nombre, descripcion
-                FROM puesto
-                WHERE estado = 1
-                AND nombre LIKE "%'.$search.'%" '); 
+            $puestos = DB::table('puesto')
+                ->select('id_puesto',
+                        'nombre',
+                        'descripcion')
+                ->when($search, function ($query, $search) {
+                    return $query->where('nombre', 'LIKE', $search)
+                            ->where('estado', 1);
+                })
+                ->orderBy('id_puesto')
+                ->paginate(10); 
         }
 
         return view('DivEProf.puesto.puestos')
@@ -2099,79 +1893,53 @@ public function f_actividad($search, $pagina) {
 
     public function f_searchpue(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
-        //return $this->f_puestos($search); 
-        return redirect()->to('DivEProf/puestos/'.$search);
+        $search = $request->search;
+        return $this->f_puestos($search); 
+        // return redirect()->to('DivEProf/puestos/'.$search);
     }
 
 /*----------------------------------------------------------------------------------------------------*/
 
     
-/*----------------------------------------------------------------------------------------------------*/
-
     public function f_s_labores($pagina) { 
 
-        $fechasT = DB::select('SELECT id_fecha, fecha, motivo
-                FROM fechas_inhabiles
-                WHERE estado = 1');
-
-        $fechas = DB::select('SELECT id_fecha, fecha, motivo
-                FROM fechas_inhabiles
-                WHERE estado = 1
-                LIMIT '.(($pagina-1)*10).', 10');
-                //AND p.nombre LIKE "%'.$search.'%" OR u.usuario LIKE "%'.$search.'%"
-
-        $pag = 0;
-        foreach($fechasT as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $fechas = DB::table('fechas_inhabiles')
+            ->select('id_fecha',
+                    'fecha',
+                    'motivo')
+            ->where('estado', 1)
+            ->orderBy('id_fecha')
+            ->paginate(10);
         
         return view('DivEProf.suspencion.sus_labores')
         ->with('fechas', $fechas)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 00)
         ->with('tipos', $this->tipos()); 
     }
 
     public function f_s_labor($search, $pagina) { 
 
-        $fechasT = DB::select('SELECT id_fecha, fecha, motivo
-                FROM fechas_inhabiles
-                WHERE estado IN(SELECT estado FROM fechas_inhabiles WHERE estado = 1)
-                AND fecha LIKE "%'.$search.'" 
-                OR motivo LIKE "%'.$search.'%" ');
-                //AND p.nombre LIKE "%'.$search.'%" OR u.usuario LIKE "%'.$search.'%"
-
-        $fechas = DB::select('SELECT id_fecha, fecha, motivo
-                FROM fechas_inhabiles
-                WHERE estado IN(SELECT estado FROM fechas_inhabiles WHERE estado = 1)
-                AND fecha LIKE "%'.$search.'" 
-                OR motivo LIKE "%'.$search.'%" 
-                LIMIT '.(($pagina-1)*10).', 10');
-
-
+        $search = mb_strtoupper("%".$search."%");
         
-
-        $pag = 0;
-        foreach($fechasT as $g){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $fechas = DB::table('fechas_inhabiles')
+            ->select('id_fecha',
+                    'fecha',
+                    'motivo')
+            ->when($search, function ($query, $search) {
+                return $query->where('estado', 1)
+                        ->where('fecha', 'LIKE', $search)
+                        ->orWhere('motivo', 'LIKE', $search);
+            })
+            ->orderBy('id_fecha')
+            ->paginate(10);
         
         return view('DivEProf.suspencion.sus_labores')
-        ->with('fechas', $fechas)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('bus', $search)
-        ->with('vista', 01)
-        ->with('tipos', $this->tipos()); 
+            ->with('fechas', $fechas)
+            ->with('tipos', $this->tipos()); 
     }
 
     public function f_searchslab(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
+        $search = $request->search;
         return $this->f_s_labor($search, 1); 
         //return redirect()->to('DivEProf/suspLabores/'.$search.'/1');
     }
@@ -2188,16 +1956,13 @@ public function f_actividad($search, $pagina) {
         $fechfin = $request->fechafin;
         $motivo = mb_strtoupper($request->motivo);
         $end = false;
-
-
- //return date('Y-m-d', strtotime('tomorrow', strtotime($fecha)));       
   
         if($fechfin == '' || $fecha == $fechfin)  {
 
             Mfechas_inhabiles::create(['fecha' => $fecha,
             'motivo' => $motivo, 'estado' => 1]);
         
-            return redirect()->to('DivEProf/suspLabores/1');
+            return redirect()->to('/DivEProf/suspLabores/1');
         }
         elseif($fecha > $fechfin) {
             ?>
@@ -2221,7 +1986,7 @@ public function f_actividad($search, $pagina) {
                     Mfechas_inhabiles::create(['fecha' => $fnew,
                     'motivo' => $motivo, 'estado' => 1]);
                     $end = true;
-                    return redirect()->to('DivEProf/suspLabores/1');
+                    return redirect()->to('/DivEProf/suspLabores/1');
                 }
             }
         }
@@ -2232,60 +1997,40 @@ public function f_actividad($search, $pagina) {
 
     public function f_lugar($search, $pagina) {
 
-        $lugares = DB::select('SELECT id_lugar, nombre
-            FROM lugar
-            WHERE estado = 1
-            AND nombre LIKE "%%'.$search.'%" 
-            LIMIT '.(($pagina-1)*10).', 10');
-
-        $lugaresT = DB::select('SELECT id_lugar, nombre
-            FROM lugar
-            WHERE estado = 1
-            AND nombre LIKE "%%'.$search.'%" ');
-
-        $pag = 0;
-            foreach($lugaresT as $g){
-                $pag = $pag + 1;
-            }
-        $pag = ceil($pag / 10);
+        $search = mb_strtoupper("%".$search."%");
+        
+        $lugares = DB::table('lugar')
+            ->select('id_lugar',
+                    'nombre')
+            ->when($search, function ($query, $search) {
+                return $query->where('nombre', 'LIKE', $search)
+                        ->where('estado', 1);
+            })
+            ->orderBy('id_lugar')
+            ->paginate(10);
 
         return view('DivEProf.lugares.lugares')
-        ->with('lugares', $lugares)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 01)
-        ->with('bus', $search)
-        ->with('tipos', $this->tipos());   
+            ->with('lugares', $lugares)
+            ->with('tipos', $this->tipos());   
     }
 
     public function f_lugares($pagina) {
 
-        $lugares = DB::select('SELECT id_lugar, nombre
-            FROM lugar
-            WHERE estado = 1
-            LIMIT '.(($pagina-1)*10).', 10');
-        
-        $lugaresT = DB::select('SELECT id_lugar, nombre
-            FROM lugar
-            WHERE estado = 1');
-
-        $pag = 0;
-            foreach($lugaresT as $g){
-                $pag = $pag + 1;
-            }
-        $pag = ceil($pag / 10);
+        $lugares = DB::table('lugar')
+            ->select('id_lugar',
+                    'nombre')
+            ->where('estado', 1)
+            ->orderBy('id_lugar')
+            ->paginate(10);
 
         return view('DivEProf.lugares.lugares')
         ->with('lugares', $lugares)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 00)
         ->with('tipos', $this->tipos());   
     }
 
     public function f_searchlug(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
+        $search = $request->search;
         return $this->f_lugar($search, 1);   
         //return redirect()->to('DivEProf/lugares/'.$search.'/1');
     }
@@ -2302,7 +2047,7 @@ public function f_actividad($search, $pagina) {
 
         Mlugar::create(['nombre' => $nombre, 'estado' => 1]);
 
-        return redirect()->to('DivEProf/lugares/1');
+        return redirect()->to('/DivEProf/lugares/1');
     }
 
 /************************************************************************************************** */

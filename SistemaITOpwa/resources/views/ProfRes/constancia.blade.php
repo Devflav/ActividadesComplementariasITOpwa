@@ -97,9 +97,9 @@
 
 
 <style>
- .copia{
-     font-size: 10px;
- }
+    .copia{
+        font-size: 10px;
+    }
     body {
         margin: 0 1rem 0 1rem;
     }
@@ -115,8 +115,6 @@
         font-size: 17px;
         display: flex;
         justify-content: center;
-
-
     }
 
     .header {

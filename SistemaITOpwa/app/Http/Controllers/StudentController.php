@@ -37,19 +37,18 @@ class StudentController extends Controller
   /**Verifica si el estudiante está inscrito en alguna actividad complementaria */
      public function inscrito($id_per){
   
-        //$id_per = $request->user()->id_persona;
-        
-        $inscription = DB::select('SELECT i.aprobada
-        FROM inscripcion AS i
-        LEFT JOIN estudiante AS e ON i.id_estudiante = e.id_estudiante
-        LEFT JOIN persona AS p ON e.id_persona = p.id_persona
-        LEFT JOIN grupo AS g ON i.id_grupo = g.id_grupo
-        LEFT JOIN periodo AS pr ON g.id_periodo = pr.id_periodo
-        WHERE i.id_estudiante  IN(SELECT es.id_estudiante
-                                   FROM estudiante AS es
-                                   WHERE es.id_persona = '.$id_per.')
-        AND pr.estado = "Actual"
-        ');
+      $estudiante = Mestudiante::select('id_estudiante')->where('id_persona', $id_per)->first();
+
+      $inscription = DB::table('inscripcion as i')
+         ->leftJoin('estudiante as e', 'i.id_estudiante', '=', 'e.id_estudiante')
+         ->leftJoin('persona as p', 'e.id_persona', '=', 'p.id_persona')
+         ->leftJoin('grupo as g', 'i.id_grupo', '=', 'g.id_grupo')
+         ->leftJoin('periodo as pr', 'g.id_periodo', '=', 'pr.id_periodo')
+         ->select('i.aprobada')
+         ->where('i.id_estudiante', $estudiante->id_estudiante)
+         ->where('pr.estado', "Actual")->get();
+         // ->orderBy('a.id_actividad');
+         // ->paginate(10);
   
         $inscrito = false;
   
@@ -101,18 +100,18 @@ class StudentController extends Controller
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
               ->where('estado', "Actual")->first();
   
-        //if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
   
-           $car = DB::select('SELECT c.id_carrera, c.nombre
-           FROM actividad AS a 
-           LEFT JOIN departamento AS d ON a.id_depto = d.id_depto
-           LEFT JOIN carrera AS c ON d.id_depto = c.id_depto
-           LEFT JOIN grupo AS g ON a.id_actividad = g.id_actividad
-           LEFT JOIN periodo AS p ON g.id_periodo = p.id_periodo
-           WHERE a.restringida = 0
-           AND p.estado = "Actual"
-           AND c.estado = 1
-           GROUP BY c.id_carrera, c.nombre');
+         $car = DB::select('SELECT c.id_carrera, c.nombre
+            FROM actividad AS a 
+            LEFT JOIN departamento AS d ON a.id_depto = d.id_depto
+            LEFT JOIN carrera AS c ON d.id_depto = c.id_depto
+            LEFT JOIN grupo AS g ON a.id_actividad = g.id_actividad
+            LEFT JOIN periodo AS p ON g.id_periodo = p.id_periodo
+            WHERE a.restringida = 0
+            AND p.estado = "Actual"
+            AND c.estado = 1
+            GROUP BY c.id_carrera, c.nombre');
   
            $inscrito = $this->inscrito($request->user()->id_persona);
   
@@ -125,12 +124,12 @@ class StudentController extends Controller
                  ->with('v', 00)
                  ->with('tipos', $this->tipos());
            }
-        // }else{
+        }else{
   
-        //    return view('estudiante.inscrito')
-        //          ->with('v', 11)
-        //          ->with('tipos', $this->tipos());         
-        // }
+           return view('estudiante.inscrito')
+                 ->with('v', 11)
+                 ->with('tipos', $this->tipos());         
+        }
         
      }
   /**Retorna a la vista del listado de actividades con las actividades ofertadas por la 
@@ -142,8 +141,8 @@ class StudentController extends Controller
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
               ->where('estado', "Actual")->first();
   
-        //if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
-           
+        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+         //   
            $id_per = $request->user()->id_persona;
   
            $carrera = DB::table('carrera as c')
@@ -187,12 +186,12 @@ class StudentController extends Controller
                  ->with('v', 00)
                  ->with('tipos', $this->tipos());    
            }
-        // }else{
+        }else{
   
-        //    return view('estudiante.inscrito')
-        //          ->with('v', 11)
-        //          ->with('tipos', $this->tipos());         
-        // }
+           return view('estudiante.inscrito')
+                 ->with('v', 11)
+                 ->with('tipos', $this->tipos());         
+        }
      }
   /**Retorna a la vista del listado de actividades complementarias filtradas po el tipo
    * de actividad seleccionado en el menú
@@ -203,7 +202,7 @@ class StudentController extends Controller
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
               ->where('estado', "Actual")->first();
   
-        //if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
   
            $tact = Mtipo::select('nombre')
            ->where('id_tipo', $tipo)
@@ -233,12 +232,12 @@ class StudentController extends Controller
                  ->with('v', 00)
                  ->with('tipos', $this->tipos());
            }
-        // }else{
+        }else{
   
-        //    return view('estudiante.inscrito')
-        //          ->with('v', 11)
-        //          ->with('tipos', $this->tipos());         
-        // }
+           return view('estudiante.inscrito')
+                 ->with('v', 11)
+                 ->with('tipos', $this->tipos());         
+        }
   
      }
   /**Retorna a la vista del listado de actividades con las actividades ofertadas por las 
@@ -251,7 +250,7 @@ class StudentController extends Controller
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
               ->where('estado', "Actual")->first();
   
-        //if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
   
            $cact = Mcarrera::select('nombre')
                  ->where('id_carrera', $id_car)
@@ -282,12 +281,12 @@ class StudentController extends Controller
                  ->with('v', 00)
                  ->with('tipos', $this->tipos());
            }
-        // }else{
+        }else{
   
-        //    return view('estudiante.inscrito')
-        //          ->with('v', 11)
-        //          ->with('tipos', $this->tipos());         
-        // }
+           return view('estudiante.inscrito')
+                 ->with('v', 11)
+                 ->with('tipos', $this->tipos());         
+        }
   
      }
   /**Retorna a la vista donde se muestran los datos generales de la actividad

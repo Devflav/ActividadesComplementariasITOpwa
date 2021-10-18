@@ -59,8 +59,9 @@ class JDepartmentController extends Controller
 
         $now = date('Y-m-d');
         $roll = Mperiodo::select('ini_inscripcion')
-        ->where('estado', "Actual")->first();
+            ->where('estado', "Actual")->first();
         $modificar = true;
+
         if($now > $roll->ini_inscripcion)
             $modificar = false;
 
@@ -70,83 +71,60 @@ class JDepartmentController extends Controller
             ->where('id_persona', $request->user()->id_persona)
             ->first();
 
-        $actividadt = DB::select('SELECT a.id_actividad, a.clave, a.nombre, a.creditos,
-                d.nombre as depto, t.nombre as tipo, a.descripcion
-            FROM actividad AS a
-        JOIN tipo as t ON a.id_tipo = t.id_tipo
-        JOIN departamento as d ON a.id_depto = d.id_depto
-        JOIN persona as p ON d.id_persona = p.id_persona
-        WHERE p.id_persona = '.$id_per.'
-        AND a.estado IN(SELECT estado FROM actividad WHERE estado = 1)');
-
-        $actividad = DB::select('SELECT a.id_actividad, a.clave, a.nombre, a.creditos,
-                d.nombre as depto, t.nombre as tipo, a.descripcion
-            FROM actividad AS a
-        JOIN tipo as t ON a.id_tipo = t.id_tipo
-        JOIN departamento as d ON a.id_depto = d.id_depto
-        JOIN persona as p ON d.id_persona = p.id_persona
-        WHERE p.id_persona = '.$id_per.'
-        AND a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-
-        foreach($actividadt as $a){
-            $pag = $pag + 1;
-        }
-
-        $pag = ceil($pag / 10);
+        $actividades = DB::table('actividad as a')
+            ->leftJoin('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->leftJoin('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
+            ->leftJoin('persona as p', 'd.id_persona', '=', 'p.id_persona')
+            ->select('a.id_actividad', 
+                    'a.clave', 
+                    'a.nombre', 
+                    'a.creditos', 
+                    'd.nombre AS depto', 
+                    't.nombre AS tipo', 
+                    'a.descripcion')
+            ->when($id_per, function ($query, $id_per) {
+                return $query->where('p.id_persona', $id_per)
+                            ->where('a.estado', 1);
+            })
+            ->orderBy('a.id_actividad')
+            ->paginate(10);
 
         return view('jDepto.actividad.actividades')
-        ->with('actividades', $actividad)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 00)
+        ->with('actividades', $actividades)
         ->with('pnom', $depto)
-        ->with('mod', true);  
+        ->with('mod', $modificar);  
     }
 
     public function f_deptoA($search, $pagina, $user) { 
 
-        $id_per = $user;
+        $data = [mb_strtoupper("%".$search."%"), $user];
 
         $depto = Mdepartamento::select('nombre')
             ->where('id_persona', $request->user()->id_persona)
             ->first();
 
-        $actividadt = DB::select('SELECT a.id_actividad, a.clave, a.nombre, a.creditos,
-                d.nombre as depto, t.nombre as tipo, a.descripcion
-            FROM actividad AS a
-            JOIN tipo as t ON a.id_tipo = t.id_tipo
-        JOIN departamento as d ON a.id_depto = d.id_depto
-        JOIN persona as p ON d.id_persona = p.id_persona
-        WHERE p.id_persona = '.$id_per.'
-        AND a.clave LIKE "%'.$search.'%" OR a.nombre LIKE "%'.$search.'%"
-        AND a.estado IN(SELECT estado FROM actividad WHERE estado = 1)');
-
-        $actividad = DB::select('SELECT a.id_actividad, a.clave, a.nombre, a.creditos,
-                d.nombre as depto, t.nombre as tipo, a.descripcion
-            FROM actividad AS a
-            JOIN tipo as t ON a.id_tipo = t.id_tipo
-        JOIN departamento as d ON a.id_depto = d.id_depto
-        JOIN persona as p ON d.id_persona = p.id_persona
-        WHERE p.id_persona = '.$id_per.'
-        AND a.clave LIKE "%'.$search.'%" OR a.nombre LIKE "%'.$search.'%"
-        AND a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-        foreach($actividadt as $a){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $actividades = DB::table('actividad as a')
+            ->leftJoin('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->leftJoin('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
+            ->leftJoin('persona as p', 'd.id_persona', '=', 'p.id_persona')
+            ->select('a.id_actividad', 
+                    'a.clave', 
+                    'a.nombre', 
+                    'a.creditos', 
+                    'd.nombre AS depto', 
+                    't.nombre AS tipo', 
+                    'a.descripcion')
+            ->when($data, function ($query, $data) {
+                return $query->where('p.id_persona', $data[1])
+                            ->orWhere('a.nombre', 'LIKE', $data[0])
+                            ->orWhere('a.clave', 'LIKE', $data[0])
+                            ->where('a.estado', 1);
+            })
+            ->orderBy('a.id_actividad')
+            ->paginate(10);
 
         return view('jDepto.actividad.actividades')
-        ->with('actividades', $actividad)
-        ->with('pag', $pag)
-        ->with('pa', $pagina)
-        ->with('vista', 01)
-        ->with('bus', $search)
+        ->with('actividades', $actividades)
         ->with('pnom', $depto);  
     }
 /**Realiza el request del buscador de actividades y redirige a la función
@@ -154,7 +132,7 @@ class JDepartmentController extends Controller
  */
     public function f_searchact(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
+        $search = $request->search;
         $per = $request->user()->id_persona;
         //return redirect()->to('JDepto/actividad/'.$search.'/1');  
         return $this->f_deptoA($search, 1, $per); 
@@ -168,7 +146,7 @@ class JDepartmentController extends Controller
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
             ->where('estado', "Actual")->first();
 
-        // if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
 
             $id_per = $request->user()->id_persona;
 
@@ -186,10 +164,10 @@ class JDepartmentController extends Controller
             ->with('depto', $depto)
             ->with('tipos', $tipos)
             ->with('periodo', $periodo);
-        // }else{
-        //     return view('jDepto.procesos')
-        //        ->with('v', 11);
-        // }
+        }else{
+            return view('jDepto.procesos')
+               ->with('v', 11);
+        }
 
     }
 /**Realiza el request del formulario para el registro de una nueva actividad
@@ -229,7 +207,7 @@ class JDepartmentController extends Controller
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
         ->where('estado', "Actual")->first();
 
-        // if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
         
             $id_per = $request->user()->id_persona;
 
@@ -258,10 +236,10 @@ class JDepartmentController extends Controller
             ->with('depto', $depto)
             ->with('tipos', $tipos)
             ->with('periodo', $periodo);
-        // }else{
-        //     return view('jDepto.procesos')
-        //     ->with('v', 11);
-        // }
+        }else{
+            return view('jDepto.procesos')
+            ->with('v', 11);
+        }
             
         
     }
@@ -305,47 +283,31 @@ class JDepartmentController extends Controller
             ->where('id_persona', $request->user()->id_persona)
             ->first();
 
-        $grupost = DB::select('SELECT g.id_grupo, g.cupo, g.clave, 
-            g.asistencias, a.nombre as actividad, 
-            pe.nombre as nomP, pe.apePat as paterno, 
-            pe.apeMat as materno, l.nombre as lugar
-                FROM grupo AS g
-        JOIN periodo as p ON g.id_periodo = p.id_periodo
-        JOIN persona as pe ON g.id_persona = pe.id_persona
-        JOIN lugar as l ON g.id_lugar = l.id_lugar
-        JOIN actividad as a ON g.id_actividad = a.id_actividad
-        JOIN departamento as d ON a.id_depto = d.id_depto
-        WHERE p.estado = "Actual"
-        AND d.id_persona = '.$id_per.'
-        AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)');
-
-        $grupos = DB::select('SELECT g.id_grupo, g.cupo, g.clave, 
-            g.asistencias, a.nombre as actividad, 
-            pe.nombre as nomP, pe.apePat as paterno, 
-            pe.apeMat as materno, l.nombre as lugar
-                FROM grupo AS g
-                JOIN periodo as p ON g.id_periodo = p.id_periodo
-        JOIN persona as pe ON g.id_persona = pe.id_persona
-        JOIN lugar as l ON g.id_lugar = l.id_lugar
-        JOIN actividad as a ON g.id_actividad = a.id_actividad
-        JOIN departamento as d ON a.id_depto = d.id_depto
-        WHERE p.estado = "Actual"
-        AND d.id_persona = '.$id_per.'
-        AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)
-        LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-        foreach($grupost as $a){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $grupos = DB::table('grupo AS g')
+            ->leftJoin('periodo AS p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->leftJoin('actividad AS a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->leftJoin('persona AS pe', 'g.id_persona', '=', 'pe.id_persona')
+            ->leftJoin('lugar AS l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->select('g.id_grupo', 
+                    'g.cupo', 
+                    'g.clave', 
+                    'g.asistencias', 
+                    'a.nombre AS actividad', 
+                    'l.nombre AS lugar',
+                    'd.id_depto',
+                    DB::raw('CONCAT(pe.nombre, " ", pe.apePat, " ", pe.apeMat) AS responsable'))
+            ->when($id_per, function ($query, $id_per) {
+                return $query->where('p.estado', "Actual")
+                            ->where('g.estado', 1)
+                            ->where('d.id_persona', $id_per);
+            })
+            ->orderBy('g.id_grupo')
+            ->paginate(10);
 
         return view('jDepto.grupo.grupos')
             ->with('grupos', $grupos)
             ->with('pnom', $depto)
-            ->with('pag', $pag)
-            ->with('pa', $pagina)
-            ->with('vista', 00)
             ->with('mod', true);   
     }
 /**Retorna a la vista del listado de grupos de ese departamento pero con
@@ -356,61 +318,45 @@ class JDepartmentController extends Controller
 
         $now = date('Y-m-d');
         $roll = Mperiodo::select('ini_inscripcion')
-        ->where('estado', "Actual")->first();
+            ->where('estado', "Actual")->first();
         $modificar = true;
+
         if($now > $roll->ini_inscripcion)
             $modificar = false;
             
-        $id_per = $request->user()->id_persona;
+        $data = [mb_strtoupper("%".$search."%"), $request->user()->id_persona];
 
         $depto = Mdepartamento::select('nombre')
-            ->where('id_persona', $request->user()->id_persona)
+            ->where('id_persona', $data[1])
             ->first();
 
-        $grupost = DB::select('SELECT g.id_grupo, g.cupo, g.clave, 
-            g.asistencias, a.nombre as actividad, 
-            pe.nombre as nomP, pe.apePat as paterno, 
-            pe.apeMat as materno, l.nombre as lugar
-                FROM grupo AS g
-        JOIN periodo as p ON g.id_periodo = p.id_periodo
-        JOIN persona as pe ON g.id_persona = pe.id_persona
-        JOIN lugar as l ON g.id_lugar = l.id_lugar
-        JOIN actividad as a ON g.id_actividad = a.id_actividad
-        JOIN departamento as d ON a.id_depto = d.id_depto
-        WHERE p.estado = "Actual"
-        AND d.id_persona = '.$id_per.'
-        AND g.clave LIKE "%'.$search.'%" OR a.nombre LIKE "%'.$search.'%"
-        AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)');
-
-        $grupos = DB::select('SELECT g.id_grupo, g.cupo, g.clave, 
-            g.asistencias, a.nombre as actividad, 
-            pe.nombre as nomP, pe.apePat as paterno, 
-            pe.apeMat as materno, l.nombre as lugar
-                FROM grupo AS g
-        JOIN periodo as p ON g.id_periodo = p.id_periodo
-        JOIN persona as pe ON g.id_persona = pe.id_persona
-        JOIN lugar as l ON g.id_lugar = l.id_lugar
-        JOIN actividad as a ON g.id_actividad = a.id_actividad
-        JOIN departamento as d ON a.id_depto = d.id_depto
-        WHERE p.estado = "Actual"
-        AND d.id_persona = '.$id_per.'
-        AND g.clave LIKE "%'.$search.'%" OR a.nombre LIKE "%'.$search.'%"
-        AND g.estado IN(SELECT estado FROM grupo WHERE estado = 1)
-        LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-        foreach($grupost as $a){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $grupos = DB::table('grupo AS g')
+            ->leftJoin('periodo AS p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->leftJoin('actividad AS a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->leftJoin('persona AS pe', 'g.id_persona', '=', 'pe.id_persona')
+            ->leftJoin('lugar AS l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->select('g.id_grupo', 
+                    'g.cupo', 
+                    'g.clave', 
+                    'g.asistencias', 
+                    'a.nombre AS actividad', 
+                    'l.nombre AS lugar',
+                    'd.id_depto',
+                    DB::raw('CONCAT(pe.nombre, " ", pe.apePat, " ", pe.apeMat) AS responsable'))
+            ->when($data, function ($query, $data) {
+                return $query->where('p.estado', "Actual")
+                            ->where('g.estado', 1)
+                            ->where('d.id_persona', $data[1])
+                            ->where('g.clave', 'LIKE', $data[0])
+                            ->orWhere('a.nombre', 'LIKE', $data[0]);
+            })
+            ->orderBy('g.id_grupo')
+            ->paginate(10);
 
         return view('jDepto.grupo.grupos')
             ->with('grupos', $grupos)
             ->with('pnom', $depto)
-            ->with('pag', $pag)
-            ->with('pa', $pagina)
-            ->with('vista', 01)
-            ->with('bus', $search)
             ->with('mod', true);
     }
 /**Realiza el request del buscador de grupos y redirige a la función
@@ -418,7 +364,7 @@ class JDepartmentController extends Controller
  */
     public function f_searchgrupo(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
+        $search = $request->search;
         return $this->f_grupo($search, 1);
         //return redirect()->to('JDepto/grupo/'.$search.'/1');   
     }
@@ -429,8 +375,8 @@ class JDepartmentController extends Controller
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
         ->where('estado', "Actual")->first();
 
-        // if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
-        
+        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+        // 
             $id_per = $request->user()->id_persona;
 
             $periodo = Mperiodo::select('nombre')
@@ -438,19 +384,20 @@ class JDepartmentController extends Controller
                 ->first();
 
             $actividad = DB::table('actividad as a')
-            ->join('empleado as e', 'a.id_depto', '=', 'e.id_depto')
-            ->join('persona as per', 'e.id_persona', '=', 'per.id_persona')
-            ->join('departamento as d', 'e.id_depto', '=', 'd.id_depto')
-            ->join('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
-            ->join('periodo as p', 'a.id_periodo', '=', 'p.id_periodo')
-            ->select('a.id_actividad', 'a.clave',
-                'a.nombre', 'a.creditos',
-                'd.nombre as depto', 't.nombre as tipo',
-                'a.descripcion')
-            ->where('per.id_persona', $id_per)
-            ->where('p.estado', "Actual")
-            ->groupby('clave', 'id_actividad', 'nombre', 'creditos', 'depto', 't.nombre', 'descripcion')
-            ->get();
+                ->join('empleado as e', 'a.id_depto', '=', 'e.id_depto')
+                ->join('persona as per', 'e.id_persona', '=', 'per.id_persona')
+                ->join('departamento as d', 'e.id_depto', '=', 'd.id_depto')
+                ->join('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
+                ->join('periodo as p', 'a.id_periodo', '=', 'p.id_periodo')
+                ->select('a.id_actividad', 'a.clave',
+                    'a.nombre', 'a.creditos',
+                    'd.nombre as depto', 't.nombre as tipo',
+                    'a.descripcion')
+                ->where('per.id_persona', $id_per)
+                ->where('p.estado', "Actual")
+                ->groupby('clave', 'id_actividad', 'nombre', 'creditos', 'depto', 
+                    't.nombre', 'descripcion')
+                ->get();
 
             $persona = DB::select(
                 'SELECT p.id_persona, g.nombre AS grado, p.nombre, p.apePat, p.apeMat
@@ -468,10 +415,10 @@ class JDepartmentController extends Controller
             ->with('actividades', $actividad)
             ->with('personas', $persona)
             ->with('lugares', $lugar);
-        // }else{
-        //     return view('jDepto.procesos')
-        //     ->with('v', 00);
-        // }
+        }else{
+            return view('jDepto.procesos')
+            ->with('v', 00);
+        }
         
     }  
 /**Realiza el request del formulario de registro de nuevo grupo, valida
@@ -555,7 +502,7 @@ class JDepartmentController extends Controller
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
         ->where('estado', "Actual")->first();
 
-        // if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
         
             $id_per = $request->user()->id_persona;
 
@@ -654,10 +601,10 @@ class JDepartmentController extends Controller
                     ->with('lugares', $lugar)
                     ->with('hlun', $h1)->with('hmar', $h2)->with('hmie', $h3)
                     ->with('hjue', $h4)->with('hvie', $h5)->with('hsab', $h6);
-        // }else{
-        //     return view('jDepto.procesos')
-        //     ->with('v', 00);
-        // }
+        }else{
+            return view('jDepto.procesos')
+            ->with('v', 00);
+        }
         
     }
 /**Realiza el request de la edición del grupo, valida los datos y registra
@@ -859,10 +806,10 @@ class JDepartmentController extends Controller
                 ->get();
 
         return view('jDepto.perfil')->with('persona', $persona)
-        ->with('depto', $depto)
-        ->with('puestos', $puesto)
-        ->with('grados', $grados)
-        ->with('editar', 0);
+            ->with('depto', $depto)
+            ->with('puestos', $puesto)
+            ->with('grados', $grados)
+            ->with('editar', 0);
     }
 
     public function f_editperfil(Request $request){
@@ -877,23 +824,23 @@ class JDepartmentController extends Controller
         $grados = Mgrado::get();
 
         $persona = DB::table('persona as p')
-        ->join('empleado as e', 'p.id_persona', '=', 'e.id_persona')
-        ->join('departamento as d', 'e.id_depto', '=', 'd.id_depto')
-        ->join('grado as g', 'e.id_grado', '=', 'g.id_grado')
-        ->join('puesto as pu', 'e.id_puesto', '=', 'pu.id_puesto')
-        ->select('p.id_persona', 'p.nombre', 
-                'p.apePat as paterno', 'p.apeMat as materno',
-                'p.curp', 'd.nombre as depto', 'g.nombre as grado',
-                'pu.nombre as puesto',
-                'e.id_grado', 'pu.nombre as puesto')
-        ->where('p.id_persona', $id_per)
-                ->get();
+            ->join('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('departamento as d', 'e.id_depto', '=', 'd.id_depto')
+            ->join('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->join('puesto as pu', 'e.id_puesto', '=', 'pu.id_puesto')
+            ->select('p.id_persona', 'p.nombre', 
+                    'p.apePat as paterno', 'p.apeMat as materno',
+                    'p.curp', 'd.nombre as depto', 'g.nombre as grado',
+                    'pu.nombre as puesto',
+                    'e.id_grado', 'pu.nombre as puesto')
+            ->where('p.id_persona', $id_per)
+                    ->get();
 
         return view('jDepto.perfil')->with('persona', $persona)
-        ->with('depto', $depto)
-        ->with('puestos', $puesto)
-        ->with('grados', $grados)
-        ->with('editar', 1);
+            ->with('depto', $depto)
+            ->with('puestos', $puesto)
+            ->with('grados', $grados)
+            ->with('editar', 1);
     }
 
     public function f_updatePerfil(Request $request){
@@ -989,41 +936,28 @@ class JDepartmentController extends Controller
             ->where('id_persona', $request->user()->id_persona)
             ->first();
 
-        $personat = DB::select('SELECT p.id_persona, p.nombre, 
-        p.apePat AS paterno, p.apeMat AS materno, 
-        p.curp, g.nombre AS grado, pu.nombre AS puesto
-        FROM persona AS p 
-            JOIN empleado AS e ON p.id_persona = e.id_persona 
-            JOIN departamento AS d ON e.id_depto = d.id_depto 
-            JOIN grado AS g ON e.id_grado = g.id_grado
-            JOIN puesto AS pu ON e.id_puesto = pu.id_puesto
-            WHERE e.id_depto = '.$depto->id_depto.'
-            AND p.estado IN(SELECT estado FROM persona WHERE estado = 1)');
-
-        $persona = DB::select('SELECT p.id_persona, p.nombre, 
-        p.apePat AS paterno, p.apeMat AS materno, 
-        p.curp, g.nombre AS grado, pu.nombre AS puesto
-        FROM persona AS p 
-            JOIN empleado AS e ON p.id_persona = e.id_persona 
-            JOIN departamento AS d ON e.id_depto = d.id_depto 
-            JOIN grado AS g ON e.id_grado = g.id_grado
-            JOIN puesto AS pu ON e.id_puesto = pu.id_puesto
-            WHERE e.id_depto = '.$depto->id_depto.'
-            AND p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-            LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-        foreach($personat as $a){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $empleados = DB::table('persona as p')
+            ->leftJoin('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->leftJoin('departamento as d', 'e.id_depto', '=', 'd.id_depto')
+            ->leftJoin('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->leftJoin('puesto as pu', 'e.id_puesto', '=', 'pu.id_puesto')
+            ->select('p.id_persona',
+                    'p.estado', 
+                    'p.curp', 
+                    'd.nombre as depto', 
+                    'g.nombre as grado', 
+                    'pu.nombre as puesto', 
+                    DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS empleado'))
+            ->when($depto, function ($query,$depto) {
+                return $query->where('e.id_depto', $depto->id_depto)
+                            ->where('p.estado', 1);
+            })
+            ->orderBy('p.id_persona')
+            ->paginate(10);
 
         return view('jDepto.persona.personas')
-            ->with('personas', $persona)
-            ->with('pnom', $depto)
-            ->with('pag', $pag)
-            ->with('pa', $pagina)
-            ->with('vista', 00);   
+            ->with('personas', $empleados)
+            ->with('pnom', $depto);   
     }
 
     public function f_personalB($search, $pagina, $user) {
@@ -1034,49 +968,38 @@ class JDepartmentController extends Controller
             ->where('id_persona', $user)
             ->first();
 
-        $personat = DB::select('SELECT p.id_persona, p.nombre, 
-        p.apePat AS paterno, p.apeMat AS materno, 
-        p.curp, g.nombre AS grado, pu.nombre AS puesto
-        FROM persona AS p 
-            JOIN empleado AS e ON p.id_persona = e.id_persona 
-            JOIN departamento AS d ON e.id_depto = d.id_depto 
-            JOIN grado AS g ON e.id_grado = g.id_grado
-            JOIN puesto AS pu ON e.id_puesto = pu.id_puesto
-            WHERE e.id_depto = '.$depto->id_depto.'             
-            AND p.nombre LIKE "%'.$search.'%" OR p.apePat LIKE "%'.$search.'%"
-            AND p.estado IN(SELECT estado FROM persona WHERE estado = 1)');
-
-        $persona = DB::select('SELECT p.id_persona, p.nombre, 
-        p.apePat AS paterno, p.apeMat AS materno, 
-        p.curp, g.nombre AS grado, pu.nombre AS puesto
-        FROM persona AS p 
-            JOIN empleado AS e ON p.id_persona = e.id_persona 
-            JOIN departamento AS d ON e.id_depto = d.id_depto 
-            JOIN grado AS g ON e.id_grado = g.id_grado
-            JOIN puesto AS pu ON e.id_puesto = pu.id_puesto
-            WHERE e.id_depto= '.$depto->id_depto.'
-            AND p.nombre LIKE "%'.$search.'%" OR p.apePat LIKE "%'.$search.'%"
-            AND p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-            LIMIT '.(($pagina-1)*10).', 10');
-
-        $pag = 0;
-        foreach($personat as $a){
-            $pag = $pag + 1;
-        }
-        $pag = ceil($pag / 10);
+        $data = [mb_strtoupper("%".$search."%"), $depto->id_depto];
+        
+        $empleados = DB::table('persona as p')
+            ->leftJoin('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->leftJoin('departamento as d', 'e.id_depto', '=', 'd.id_depto')
+            ->leftJoin('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->leftJoin('puesto as pu', 'e.id_puesto', '=', 'pu.id_puesto')
+            ->select('p.id_persona',
+                    'p.estado', 
+                    'p.curp', 
+                    'd.nombre as depto', 
+                    'g.nombre as grado', 
+                    'pu.nombre as puesto', 
+                    DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS empleado'))
+            ->when($data, function ($query,$data) {
+                return $query->where('e.id_depto', $data[1])
+                            ->where('p.estado', 1)
+                            ->where('p.nombre', 'LIKE', $data[0])
+                            ->orWhere('p.apePat', 'LIKE', $data[0])
+                            ->orWhere('p.apeMat', 'LIKE', $search[0]);
+            })
+            ->orderBy('p.id_persona')
+            ->paginate(10);
 
         return view('jDepto.persona.personas')
-            ->with('personas', $persona)
-            ->with('pnom', $depto)
-            ->with('pag', $pag)
-            ->with('pa', $pagina)
-            ->with('bus', $search)
-            ->with('vista', 01);   
+            ->with('personas', $empleados)
+            ->with('pnom', $depto);   
     }
 
     public function f_searchper(Request $request) { 
 
-        $search = mb_strtoupper($request->search);
+        $search = $request->search;
         return $this->f_personalB($search, 1, $request->user()->id_persona);
         //return redirect()->to('JDepto/personal/'.$search.'/1');   
     }
@@ -1144,16 +1067,16 @@ class JDepartmentController extends Controller
         $grados = Mgrado::get();
 
         $persona = DB::table('persona as p')
-        ->join('empleado as e', 'p.id_persona', '=', 'e.id_persona')
-        ->join('grado as g', 'e.id_grado', '=', 'g.id_grado')
-        ->join('puesto as pu', 'e.id_puesto', '=', 'pu.id_puesto')
-        ->select('p.id_persona', 'p.nombre', 
-                'p.apePat as paterno', 'p.apeMat as materno',
-                'p.curp', 'g.nombre as grado',
-                'pu.nombre as puesto',
-                'e.id_grado')
-        ->where('p.id_persona', $id_per)
-                ->get();
+            ->join('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->join('puesto as pu', 'e.id_puesto', '=', 'pu.id_puesto')
+            ->select('p.id_persona', 'p.nombre', 
+                    'p.apePat as paterno', 'p.apeMat as materno',
+                    'p.curp', 'g.nombre as grado',
+                    'pu.nombre as puesto',
+                    'e.id_grado')
+            ->where('p.id_persona', $id_per)
+            ->get();
 
         return view('jDepto.persona.editar')
             ->with('persona', $persona)
@@ -1172,15 +1095,15 @@ class JDepartmentController extends Controller
         $nomUser = $nombre.' '.$apePat.' '.$apeMat;
 
         Mpersona::where('id_persona', $id_emp)
-        ->update(['nombre' => $nombre, 'apePat' => $apePat,
-        'apeMat' => $apeMat, 'curp' => $curp]);
+            ->update(['nombre' => $nombre, 'apePat' => $apePat,
+            'apeMat' => $apeMat, 'curp' => $curp]);
 
         Mempleado::where('id_persona', $id_emp)
-        ->update(['id_grado' => $grado]);
+            ->update(['id_grado' => $grado]);
 
         Musers::where('id_persona', $id_emp)
-        ->update(['nombre' => $nomUser, 
-            'usuario' => $curp]);
+            ->update(['nombre' => $nomUser, 
+                'usuario' => $curp]);
 
         return redirect()->to('JDepto/personal/1');
     }
@@ -1220,18 +1143,24 @@ class JDepartmentController extends Controller
         $pnom = Mperiodo::select('nombre')->where('estado', "Actual")->first();
 
         $grupos = DB::table('grupo as g')
-        ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
-        ->join('persona as pe', 'g.id_persona', '=', 'pe.id_persona')
-        ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
-        ->join('empleado as e', 'a.id_depto', '=', 'e.id_depto')
-        ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
-        ->select('g.id_grupo as id_grupo', 'g.cupo as cupo', 'g.clave as clave',
-        'g.asistencias as asistencias', 'p.nombre as periodo',
-        'a.nombre as actividad', 'pe.nombre as nomP', 'pe.apePat as paterno',
-        'pe.apeMat as materno', 'l.nombre as lugar')
-        ->where('e.id_persona', $id_per)
-        ->where('p.estado', "Actual")
-        ->get();
+            ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->join('persona as pe', 'g.id_persona', '=', 'pe.id_persona')
+            ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->join('empleado as e', 'a.id_depto', '=', 'e.id_depto')
+            ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->select('g.id_grupo as id_grupo', 
+                'g.cupo as cupo', 
+                'g.clave as clave',
+                'g.asistencias as asistencias', 
+                'p.nombre as periodo',
+                'a.nombre as actividad', 
+                'pe.nombre as nomP', 
+                'pe.apePat as paterno',
+                'pe.apeMat as materno', 
+                'l.nombre as lugar')
+            ->where('e.id_persona', $id_per)
+            ->where('p.estado', "Actual")
+            ->get();
 
         return view('jDepto.grupo.constancia')
         ->with('grupos', $grupos)
@@ -1418,29 +1347,35 @@ class JDepartmentController extends Controller
 
     public function f_estudianteHist(Request $request){
 
-        $control = $request->search;
+        $control = "".$request->search."";
         
-        $inscription = DB::select('SELECT pr.nombre AS periodo, i.fecha,
-            a.nombre AS actividad, ev.constancia, ev.id_evaluacion, 
-            g.clave, i.aprobada, pr.id_periodo
-        FROM inscripcion AS i 
-        LEFT JOIN estudiante AS e ON i.id_estudiante = e.id_estudiante 
-        LEFT JOIN evaluacion AS ev ON i.id_inscripcion = ev.id_inscripcion        
-        LEFT JOIN grupo AS g ON i.id_grupo = g.id_grupo
-        LEFT JOIN actividad AS a ON g.id_actividad = a.id_actividad
-        LEFT JOIN periodo AS pr ON g.id_periodo = pr.id_periodo
-        WHERE e.num_control = '.'"'.$control.'"
-        GROUP BY pr.id_periodo, pr.nombre, i.fecha,
-        a.nombre, ev.constancia, ev.id_evaluacion, 
-        g.clave, i.aprobada
-        ORDER BY pr.id_periodo');
+        $inscription = DB::table('inscripcion as i')
+            ->leftJoin('estudiante as e', 'i.id_estudiante', '=', 'e.id_estudiante')
+            ->leftJoin('evaluacion as ev', 'i.id_inscripcion', '=', 'ev.id_inscripcion')
+            ->leftJoin('grupo as g', 'i.id_grupo', '=', 'g.id_grupo')
+            ->leftJoin('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->leftJoin('periodo as pr', 'g.id_periodo', '=', 'pr.id_periodo')
+            ->select('pr.nombre AS periodo', 
+                    'i.fecha', 
+                    'a.nombre AS actividad', 
+                    'ev.constancia', 
+                    'ev.id_evaluacion', 
+                    'g.clave', 
+                    'i.aprobada', 
+                    'pr.id_periodo')
+            ->where('e.num_control', $control)->get();
+            // ->paginate(10);
 
-        $student = DB::select('SELECT p.nombre, p.apePat, p.apeMat, 
-            e.num_control, e.semestre, c.nombre AS carrera
-        FROM estudiante AS e
-        LEFT JOIN persona AS p ON e.id_persona = p.id_persona 
-        LEFT JOIN carrera AS c ON e.id_carrera = c.id_carrera 
-        WHERE e.num_control = '.'"'.$control.'"');
+        $student = DB::table('estudiante as e')
+            ->leftJoin('persona as p', 'e.id_persona', '=', 'p.id_persona')
+            ->leftJoin('carrera as c', 'e.id_carrera', '=', 'c.id_carrera')
+            ->select('p.nombre', 
+                    'p.apePat', 
+                    'p.apeMat', 
+                    'e.num_control', 
+                    'e.semestre', 
+                    'c.nombre AS carrera')
+            ->where('e.num_control', $control)->get();
 
         return view('jDepto.histestudiante')
             ->with('search', 1)

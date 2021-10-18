@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Sep 07, 2021 at 06:30 PM
+-- Generation Time: Oct 18, 2021 at 09:37 PM
 -- Server version: 5.7.33
 -- PHP Version: 7.4.19
 
@@ -7162,7 +7162,7 @@ INSERT INTO `inscripcion` (`id_inscripcion`, `id_estudiante`, `id_grupo`, `fecha
 (254, 5130, 5, '2019-08-31', 4),
 (255, 5138, 287, '2021-02-08', 3),
 (257, 7, 291, '2021-02-23', 1),
-(258, 5142, 282, '2021-02-23', 0),
+(258, 5142, 282, '2021-02-23', 1),
 (259, 5130, 289, '2021-04-22', 1),
 (260, 5138, 295, '2021-04-22', 0),
 (261, 5140, 293, '2021-04-28', 3),
@@ -7312,10 +7312,11 @@ CREATE TABLE `periodo` (
 
 INSERT INTO `periodo` (`id_periodo`, `nombre`, `inicio`, `fin`, `ini_inscripcion`, `fin_inscripcion`, `ini_evaluacion`, `fin_evaluacion`, `ini_gconstancias`, `fin_gconstancias`, `logo_gob`, `logo_tecnm`, `logo_ito`, `logo_anio`, `estado`, `condicion`) VALUES
 (1, 'AGO-DIC/2019', '2019-07-29', '2019-12-23', '2019-09-10', '2019-09-15', '2019-12-09', '2019-12-13', '2019-12-16', '2019-12-20', '', '', '', '', 'Finalizado', 1),
-(15, 'ENE-JUN/2020', '2020-01-27', '2020-08-01', '2020-02-17', '2020-02-21', '2020-06-30', '2020-07-26', '2020-07-27', '2020-07-31', '/images/ac_ito/Sep.png', '/images/ac_ito/TecNM.png', '/images/ac_ito/logoITO.png', '/images/ac_ito/cabeHorario.png', 'Anterior', 1),
+(15, 'ENE-JUN/2020', '2020-01-27', '2020-08-01', '2020-02-17', '2020-02-21', '2020-06-30', '2020-07-26', '2020-07-27', '2020-07-31', '/images/ac_ito/Sep.png', '/images/ac_ito/TecNM.png', '/images/ac_ito/logoITO.png', '/images/ac_ito/cabeHorario.png', 'Finalizado', 1),
 (16, 'AGO-DIC/2020', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '0000-00-00', '', '', '', '', 'Espera', 1),
-(17, 'SEPTIEMBRE 2020- ENERO 2021', '2020-09-21', '2021-01-26', '2020-10-19', '2020-10-23', '2021-01-25', '2021-02-05', '2021-02-08', '2021-02-12', '/images/ac_ito/Sep.png', '/images/ac_ito/TecNM.png', '/images/ac_ito/logoITO.png', '/images/ac_ito/cabeHorario.png', 'Actual', 1),
-(18, 'SEPTIEMBRE 2021 - ENERO 2022', '2021-09-20', '2022-01-26', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '', NULL, 'Siguiente', 1);
+(17, 'SEPTIEMBRE 2020- ENERO 2021', '2020-09-21', '2021-01-26', '2020-10-19', '2020-10-23', '2021-01-25', '2021-02-05', '2021-02-08', '2021-02-12', '/images/ac_ito/Sep.png', '/images/ac_ito/TecNM.png', '/images/ac_ito/logoITO.png', '/images/ac_ito/cabeHorario.png', 'Anterior', 1),
+(18, 'SEPTIEMBRE 2021 - ENERO 2022', '2021-09-20', '2022-01-26', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', '', NULL, 'Espera', 1),
+(19, 'SEPTIEMBRE 2021 - ENERO 2022', '2021-09-20', '2022-01-26', NULL, NULL, NULL, NULL, NULL, NULL, '/images/ac_ito/Sep.png', '/images/ac_ito/TecNM.png', '/images/ac_ito/logoITO.png', '/images/ac_ito/cabeHorario.png', 'Actual', 1);
 
 -- --------------------------------------------------------
 
@@ -18209,7 +18210,7 @@ ALTER TABLE `nivel_desempenio`
 -- AUTO_INCREMENT for table `periodo`
 --
 ALTER TABLE `periodo`
-  MODIFY `id_periodo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_periodo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `persona`
@@ -18278,7 +18279,8 @@ ALTER TABLE `empleado`
 -- Constraints for table `estudiante`
 --
 ALTER TABLE `estudiante`
-  ADD CONSTRAINT `estudiante_ibfk_2` FOREIGN KEY (`id_carrera`) REFERENCES `carrera` (`id_carrera`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `estudiante_ibfk_2` FOREIGN KEY (`id_carrera`) REFERENCES `carrera` (`id_carrera`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `estudiante_ibfk_3` FOREIGN KEY (`id_persona`) REFERENCES `persona` (`id_persona`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `eval_valor`
