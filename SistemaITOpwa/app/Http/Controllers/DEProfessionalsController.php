@@ -27,7 +27,7 @@ use DB;     use Mail;       use URL;
 class DEProfessionalsController extends Controller
 {
     public function _construct() { 
-        $this->middleware('auth');
+        $this->middleware('divisionep');
       }
 
     public function tipos(){
@@ -134,12 +134,12 @@ class DEProfessionalsController extends Controller
         $modificar = true;
         $search = "%".mb_strtoupper($search)."%";
 
-        $roll = DB::select('SELECT nombre, inicio, fin_inscripcion FROM periodo WHERE estado = ? LIMIT 1',
-                    ["Actual"]);
+        $roll = Mperiodo::where('estado', "Actual")
+            ->first();
         
-        $periodo = $roll[0]->nombre;
+        $periodo = $roll->nombre;
         
-        if($now < $roll[0]->inicio || $now > $roll[0]->fin_inscripcion)
+        if($now < $roll->inicio || $now > $roll->fin_inscripcion)
             $modificar = false;
             
         $actividades = DB::table('actividad as a')
@@ -478,43 +478,6 @@ class DEProfessionalsController extends Controller
         /*if($request->ajax()){
             return $persona->pluck("nombre", "id_persona");
         }*/
-
-        $lugar = Mlugar::get();
-
-        $deptos = Mdepartamento::get();
-
-        return view('DivEProf.grupo.nuevo')
-        ->with('periodos', $periodo)
-        ->with('actividades', $actividad)
-        ->with('personas', $persona)
-        ->with('lugares', $lugar)
-        ->with('deptos', $deptos)
-        ->with('tipos', $this->tipos());
-    }
-
-    public function f_n_g_d($id_dep){
-
-        $periodo = Mperiodo::select('id_periodo', 'nombre')
-        ->where('estado', "Actual")
-        ->get();
-
-        $actividad = DB::select('SELECT a.id_actividad, a.clave, 
-                a.nombre, a.creditos, d.nombre AS depto,  
-                t.nombre AS tipo, a.descripcion 
-        FROM actividad AS a
-        LEFT JOIN  departamento AS  d ON  a.id_depto =  d.id_depto
-        LEFT JOIN  tipo AS  t ON  a.id_tipo =  t.id_tipo
-        WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1) '); 
-                /*IN (SELECT id_periodo
-                FROM periodo
-                WHERE estado = "Actual")');*/
-
-        $persona = DB::table('persona AS p')
-        ->join('empleado AS e', 'p.id_persona', '=', 'e.id_persona')
-        ->select('p.id_persona', 'p.nombre', 'p.apePat', 'p.apeMat')
-        ->where('e.id_depto', $id_dep)
-        ->where('p.estado', 1)
-        ->get();
 
         $lugar = Mlugar::get();
 

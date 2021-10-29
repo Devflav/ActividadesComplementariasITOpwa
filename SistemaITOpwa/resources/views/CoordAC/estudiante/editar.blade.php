@@ -16,8 +16,8 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="nControl">* Número de Control:</label>
-					<input type="text" class="form-control" value="{{ $e->ncontrol }}" 
-						pattern="[0-9]{8}|C{1}[0-9]{8}|B{1}[0-9]{8}" name="nControl" required>
+					<input type="text" class="form-control" value="{{ $e->num_control }}" 
+						pattern="[0-9]{8}|C{1}[0-9]{8}|B{1}[0-9]{8}" name="num_control" required>
 					<div class="valid-feedback">Valido</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
@@ -48,7 +48,7 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="carrera">* Carrera:</label>
-					<select class="form-control" id="carrera" name="carrera" required> 
+					<select class="form-control" id="carrera" name="id_carrera" required> 
 						<option value="{{ $e->id_carrera }}"> {{ $e->carrera }} </option>
 						@foreach($carreras as $c)
 							<option value="{{$c->id_carrera}}" require> {{ $c->nombre }} </option>
@@ -96,12 +96,12 @@
                     <div class="col-sm">
                         <button type="button" data-toggle="modal" data-target="#edit" 
 							class="btn btn-outline-primary"> 
-                            Registrar
+                            Guardar
                         </button>
                     </div>
                     <br>
                     <div class="col-sm">
-                        <a href="{{ URL::previous() }}" class="btn btn-outline-danger"> 
+                        <a href="{{ url('/CoordAC/estudiantes/1') }}" class="btn btn-outline-danger"> 
                             Cancelar 
                         </a> 
                     </div>
@@ -134,5 +134,15 @@
 			</div>
         </form>
     </div>
+
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

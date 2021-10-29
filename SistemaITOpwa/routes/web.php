@@ -57,7 +57,7 @@ use App\Http\Controllers\EscServicesController;
 Route::group(['middleware' => 'auth'], function() {
 /*-------------------------------------------------------------------------------------------------------------------------------*/
 //Rutas de la Coordinación de Actividades Complementarias
-    Route::group([], function()    {
+    Route::group(['middleware' => 'administrador'], function()    {
         //'prefix' => 'CoordAC',
         Route::get('/CoordAC', [AdministratorController::class, 'f_inicio']);
 
@@ -69,16 +69,14 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('/CoordAC/actdep/{d}/{p}', [AdministratorController::class, 'f_actdepto']);
         Route::get('/CoordAC/nuevaAct', [AdministratorController::class, 'f_n_actividad']);
         Route::post('/regAct', [AdministratorController::class, 'f_regAct']);
-        Route::get('/CoordAC/editarAct{a}', [AdministratorController::class, 'f_e_actividad']);
+        Route::get('/CoordAC/editarAct/{a}', [AdministratorController::class, 'f_e_actividad']);
         Route::get('/update/actividad/{a}', [AdministratorController::class, 'f_editAct']);
-        //Route::get('CoordAC/eliminar/actividad/{a}', [AdministratorController::class, 'f_eliminaciones']);
         Route::get('/delete/actividad/{a}', [AdministratorController::class, 'f_deleteact']);
         
         Route::get('/CoordAC/grupos/{p}', [AdministratorController::class, 'f_grupos']);
         Route::get('/CoordAC/grupos/{s}/{p}', [AdministratorController::class, 'f_gruposB']);
         Route::get('/searchgru', [AdministratorController::class, 'f_searchgru']);
         Route::get('/CoordAC/nuevoGrupo/{d}', [AdministratorController::class, 'f_n_grupo']);
-        Route::get('/nuevoGrupo{d}', [AdministratorController::class, 'f_n_g_d']);
         Route::post('/regGrupo', [AdministratorController::class, 'f_regGrupo']);
         Route::get('/CoordAC/editarGru/{g}/{d}', [AdministratorController::class, 'f_e_grupo']);
         Route::post('/update/grupo/{g}', [AdministratorController::class, 'f_editGrupo']);
@@ -213,9 +211,6 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('/cac/editpasswd', [AdministratorController::class, 'f_edpasswd']);
 
         Route::get('/CoordAC/horario/{g}', [AdministratorController::class, 'fpdf_imprimir']);
-
-        // Route::get('CoordAC/horario/{g}', [AdministratorController::class, 'f_horario']);
-
         Route::get('/CoordAC/imprimir{i}', [AdministratorController::class, 'f_horario']);
         Route::get('/CoordAC/reimprimir_grupo/{g}', [AdministratorController::class, 're_imprimir_grupo']);
         
@@ -226,7 +221,7 @@ Route::group(['middleware' => 'auth'], function() {
 
     });
 
-    Route::group([], function()     {
+    Route::group(['middleware' => 'divisionep'], function()     {
         //'prefix' => 'CoordAC',
         Route::get('DivEProf', [DEProfessionalsController::class, 'f_inicio']);
 
@@ -247,7 +242,6 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('DivEProf/grupos/{s}/{p}', [DEProfessionalsController::class, 'f_gruposB']);
         Route::get('DivEProf/searchgru', [DEProfessionalsController::class, 'f_searchgru']);
         Route::get('DivEProf/nuevoGrupo/{d}', [DEProfessionalsController::class, 'f_n_grupo']);
-        Route::get('DivEProf/nuevoGrupo{d}', [DEProfessionalsController::class, 'f_n_g_d']);
         Route::post('DivEProf/regGrupo', [DEProfessionalsController::class, 'f_regGrupo']);
         Route::get('DivEProf/editarGru/{g}/{d}', [DEProfessionalsController::class, 'f_e_grupo']);
         Route::post('DivEProf/update/grupo/{g}', [DEProfessionalsController::class, 'f_editGrupo']);
@@ -329,7 +323,7 @@ Route::group(['middleware' => 'auth'], function() {
 
     /*-------------------------------------------------------------------------------------------------------------------------------*/
     //Rutas de Jefes de Departamento
-    Route::group([], function()     {
+    Route::group(['middleware' => 'jefedepto'], function()     {
 
         Route::get('JDepto/genConst{n_control}', [JDepartmentController::class, 'downloadConstancia']);
         Route::get('JDepto/criterioPdf{n_control}', [PResponsableController::class, 'criterioPdf']);
@@ -383,7 +377,7 @@ Route::group(['middleware' => 'auth'], function() {
     
     /*-------------------------------------------------------------------------------------------------------------------------------*/
     //Rutas de Responsables de Actividad
-    Route::group([], function()    {
+    Route::group(['middleware' => 'profesorr'], function()    {
 
         Route::get('ProfR/genConst{n_control}', [PResponsableController::class, 'downloadConstancia']);
         Route::get('ProfR/criterioPdf{n_control}', [PResponsableController::class, 'criterioPdf']);
@@ -413,7 +407,7 @@ Route::group(['middleware' => 'auth'], function() {
 
     /*-------------------------------------------------------------------------------------------------------------------------------*/
     //Rutas de Estudiante
-    Route::group([], function()    {
+    Route::group(['middleware' => 'estudiante'], function()    {
         //'prefix' => 'Est', 
         Route::get('Est', [StudentController::class, 'f_inicio']);
         Route::get('Est/micarrera', [StudentController::class, 'f_micarrera']);
@@ -432,13 +426,15 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('Est/lineamiento', [StudentController::class, 'f_lineamiento']);
         Route::get('/solicitudins{id}', [StudentController::class, 'f_solicitudIns']);
         
+        Route::get('Est/imprimir/horario/{i}', [StudentController::class, 'f_horario_e']);
+        
         Route::post('logoutE', [StudentController::class, 'logoutE']);
 
     });
 
     /*-------------------------------------------------------------------------------------------------------------------------------*/
     //Rutas de Coordinadores de Carrera
-    Route::group([], function()    {
+    Route::group(['middleware' => 'coordinador'], function()    {
 
         Route::get('CoordC', [CAcademicController::class, 'f_inicio']);
         Route::get('CoordC/estudiante', [CAcademicController::class, 'search']);
@@ -455,7 +451,7 @@ Route::group(['middleware' => 'auth'], function() {
 
     /*-------------------------------------------------------------------------------------------------------------------------------*/
     //Rutas de Servicios Escolares
-    Route::group([], function()    {
+    Route::group(['middleware' => 'escolares'], function()    {
 
         Route::get('ServEsc', [EscServicesController::class, 'f_inicio']);
         Route::get('ServEsc/estudiante', [EscServicesController::class, 'f_search']);

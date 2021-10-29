@@ -41,6 +41,40 @@
    
         </div>
 
+        <div id="divNav" class="row">
+        <div class="col">
+            <label for="" class="navTotal">
+                Total: {{ $personas->total() }}
+            </label>
+        </div>
+        <div class="col">
+            <nav class="navbar navbar-light justify-content-end">
+                <ul class="pagination justify-content-end">
+                    <li class="{{ ($personas->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $personas->url(1) }}" class="page-link">
+                            1
+                        </a>
+                    </li>    
+                    <li class="{{ ($personas->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $personas->previousPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-left-square"></i>
+                        </a>
+                    </li>    
+                    <li class="{{ ($personas->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $personas->nextPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-right-square"></i>
+                        </a>
+                    </li> 
+                    <li class="{{ ($personas->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $personas->url($personas->lastPage()) }}" class="page-link">
+                            {{ $personas->lastPage() }}
+                        </a>
+                    </li> 
+                </ul>
+            </nav>
+        </div>
+    </div>
+
         <div class="container-fluid">
             <div class="form-group">
                 <div class="col-sm"></div>

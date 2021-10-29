@@ -13,9 +13,9 @@ class Mperiodo extends Model
   
     protected $fillable = [
       'id_periodo', 'nombre', 'inicio', 'fin',
-      'ini_inscripcion', 'fin_inscripcion', 'ini_evaluacion',
-      'fin_evaluacion', 'ini_gconstancias', 'fin_gconstancias',
-      'logo_gob', 'logo_tecnm', 'logo_ito', 'logo_anio',
-      'estado', 'condicion'
+      'ini_inscripcion', 'fin_inscripcion', 
+      'ini_evaluacion', 'fin_evaluacion', 
+      'ini_gconstancias', 'fin_gconstancias',
+      'cabecera', 'pie','estado', 'condicion'
     ];
 }

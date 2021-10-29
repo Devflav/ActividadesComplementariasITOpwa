@@ -64,32 +64,39 @@
         </table>
     </div>
 
-    <nav class="navbar navbar-light justify-content-end">
-        <ul class="pagination justify-content-end">
-            @if($periodos->previousPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $periodos->previousPageUrl() }}" class="page-link m-1">
-                        Anterior
-                    </a>
-                </li>
-            @else
-                <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Anterior </a>
-                </li>
-            @endif
-            @if($periodos->nextPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $periodos->nextPageUrl() }}" class="page-link m-1">
-                        Siguiente
-                    </a>
-                </li>
-            @else
-            <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Siguiente </a>
-                </li>
-            @endif
-        </ul>
-    </nav>
+    <div id="divNav" class="row">
+        <div class="col">
+            <label for="" class="navTotal">
+                Total: {{ $periodos->total() }}
+            </label>
+        </div>
+        <div class="col">
+            <nav class="navbar navbar-light justify-content-end">
+                <ul class="pagination justify-content-end">
+                    <li class="{{ ($periodos->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $periodos->url(1) }}" class="page-link">
+                            1
+                        </a>
+                    </li>    
+                    <li class="{{ ($periodos->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $periodos->previousPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-left-square"></i>
+                        </a>
+                    </li>    
+                    <li class="{{ ($periodos->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $periodos->nextPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-right-square"></i>
+                        </a>
+                    </li> 
+                    <li class="{{ ($periodos->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $periodos->url($periodos->lastPage()) }}" class="page-link">
+                            {{ $periodos->lastPage() }}
+                        </a>
+                    </li> 
+                </ul>
+            </nav>
+        </div>
+    </div>
 
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#mimodal" id="btn_mimodal">
     </button>

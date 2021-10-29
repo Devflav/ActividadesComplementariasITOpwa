@@ -38,11 +38,10 @@
             <thead style="background:#1B396A; width: 100%; height: 50px;">
                 <tr class="text-white">
                             <th width="05%">Clave</th>
-                            <th width="20%">Nombre</th>
+                            <th width="30%">Nombre</th>
                             <th width="05%">Créditos</th>
-                            <th width="25%">Departamento</th>
+                            <th width="40%">Departamento</th>
                             <th width="10%">Tipo</th>
-                            <th width="20%">Descripción</th>
                             <th width="10%">Opciones</th>
                     </tr>
                 </thead>
@@ -54,11 +53,10 @@
                     <td><center>{{$a->creditos}}</center></td>
                     <td>{{$a->depto}}</td>
                     <td>{{$a->tipo}}</td>
-                    <td>{{$a->descripcion}}</td>
                     <td>
                     @if($mod)
                         <center>
-                        <a href="{{ url('CoordAC/editarAct').$a->id_actividad }}" 
+                        <a href="{{ url('CoordAC/editarAct').'/'.$a->id_actividad }}" 
                             class="btn btn-outline-primary btn-sm" title="Editar">
                             <i class="fa fa-fw fa-edit"></i>
                         </a>
@@ -78,32 +76,39 @@
         </table>
     </div>
 
-    <nav class="navbar navbar-light justify-content-end">
-        <ul class="pagination justify-content-end">
-            @if($actividades->previousPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $actividades->previousPageUrl() }}" class="page-link m-1">
-                        Anterior
-                    </a>
-                </li>
-            @else
-                <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Anterior </a>
-                </li>
-            @endif
-            @if($actividades->nextPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $actividades->nextPageUrl() }}" class="page-link m-1">
-                        Siguiente
-                    </a>
-                </li>
-            @else
-            <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Siguiente </a>
-                </li>
-            @endif
-        </ul>
-    </nav>
+    <div id="divNav" class="row">
+        <div class="col">
+            <label for="" class="navTotal">
+                Total: {{ $actividades->total() }}
+            </label>
+        </div>
+        <div class="col">
+            <nav class="navbar navbar-light justify-content-end">
+                <ul class="pagination justify-content-end">
+                    <li class="{{ ($actividades->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $actividades->url(1) }}" class="page-link">
+                            1
+                        </a>
+                    </li>    
+                    <li class="{{ ($actividades->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $actividades->previousPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-left-square"></i>
+                        </a>
+                    </li>    
+                    <li class="{{ ($actividades->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $actividades->nextPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-right-square"></i>
+                        </a>
+                    </li> 
+                    <li class="{{ ($actividades->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $actividades->url($actividades->lastPage()) }}" class="page-link">
+                            {{ $actividades->lastPage() }}
+                        </a>
+                    </li> 
+                </ul>
+            </nav>
+        </div>
+    </div>
 
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#mimodal" id="btn_mimodal">
     </button>

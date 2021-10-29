@@ -7,42 +7,42 @@
 				<div class="card-header"> Datos del Estudiante </div>
 					<div class="card-body">
 						@foreach($estudiante as $e)
-						<div class="row">
-							<div class="form-group col">
+						<div class="form-group">
+							<div class="col-sm">
 								<label for="nControl">Número de Control:</label>
 								<input type="text" class="form-control" value="{{ $e->num_control }}" disabled>
 
 							</div>
 
-							<div class="form-group col">
+							<div class="col-sm">
 								<label for="nombre">Nombre (s):</label>
 								<input type="text" class="form-control" value="{{ $e->nombre }}" disabled>
 							
 							</div>
 						</div>
 
-						<div class="row">
-							<div class="form-group col">
+						<div class="form-group">
+							<div class="col-sm">
 								<label for="apePat">Apallido Paterno:</label>
 								<input type="text" class="form-control" value="{{ $e->apePat }}" disabled>
 
 							</div>
 
-							<div class="form-group col">
+							<div class="col-sm">
 								<label for="apeMat">Apellido Materno:</label>
 								<input type="text" class="form-control" value="{{ $e->apeMat }}" disabled>
 
 							</div>
 						</div>
 
-						<div class="row">
-							<div class="form-group col">
+						<div class="form-group">
+							<div class="col-sm">
 								<label for="carrera">Carrera:</label>
 								<input type="text" class="form-control" value="{{ $e->carrera }}" disabled>
 
 							</div>
 
-							<div class="form-group col">
+							<div class="col-sm">
 								<label for="semestre">Semestre:</label>
 								<input type="text" class="form-control" value="{{ $e->semestre }}" disabled>
 							</div>
@@ -53,28 +53,28 @@
 				<div class="card-header"> Datos de la Actividad </div>
                     <div class="card-body">
 						@foreach($actividad as $a)
-						<div class="row">
-							<div class="form-group col">
+						<div class="form-group">
+							<div class="col-sm">
 								<label for="nControl">Clave Grupo:</label>
 								<input type="text" class="form-control" value="{{ $a->grupo }}" disabled>
 
 							</div>
 
-							<div class="form-group col">
+							<div class="col-sm">
 								<label for="nombre">Actividad:</label>
 								<input type="text" class="form-control" value="{{ $a->actividad }}" disabled>
 							
 							</div>
 						</div>
 
-						<div class="row">
-							<div class="form-group col">
+						<div class="form-group">
+							<div class="col-sm">
 								<label for="apePat">Departamento:</label>
 								<input type="text" class="form-control" value="{{ $a->depto }}" disabled>
 
 							</div>
 
-							<div class="form-group col">
+							<div class="col-sm">
                                 <label for="apeMat">Restringida:</label>
                                 @if($a->restringida == '1')
 								    <input type="text" class="form-control" value="Restringida" disabled>
@@ -84,14 +84,14 @@
 							</div>
                         </div>
                         
-                        <div class="row">
-							<div class="form-group col">
+                        <div class="form-group">
+							<div class="col-sm">
                                     <label for="">Horario:</label>
 							</div>
                         </div>
-                        <div class="row">
+                        <div class="form-group">
                             @foreach($horario as $h)
-							<div class="form-group col">
+							<div class="col-sm">
                                 <center>
                                 @if($h->id_dia == '1')    
                                     <label for="apePat">Lunes</label><br>
@@ -121,19 +121,51 @@
                     </div>
                 </div>
                 @if($a->aprobada == '1')    
-                    <center> 
-						<a href="{{ URL::previous() }}" class="btn btn-outline-primary"> Regresar </a> 
-                        <button class="btn btn-outline-danger" data-toggle="modal" data-target="#baja"> Dar de Baja </button> 
-                    </center>
+                    <div class="container">
+                        <div class="form-group">
+                            <div class="col-sm"></div>
+                            <div class="col-sm">
+                                <a href="{{ URL::previous() }}" class="btn btn-outline-primary">
+                                    Regresar 
+                                </a> 
+                            </div>
+                            <div class="col-sm">
+                                <button class="btn btn-outline-danger" data-toggle="modal" data-target="#baja"> 
+                                    Dar de Baja 
+                                </button>
+                            </div>
+                            <div class="col-sm"></div>
+                        </div>
+                    </div>
                 @elseif($a->aprobada == '0')
-                    <center> 
-                        <button class="btn btn-outline-primary" data-toggle="modal" data-target="#aprobar"> Aprobar</button> 
-                        <button class="btn btn-outline-danger" data-toggle="modal" data-target="#noaprobar"> No Aprobar </button> 
-					</center>
+                    <div class="container">
+                        <div class="form-group">
+                            <div class="col-sm"></div>
+                            <div class="col-sm">
+                                <button class="btn btn-outline-primary" data-toggle="modal" data-target="#aprobar"> 
+                                    Aprobar
+                                </button> 
+                            </div>
+                            <div class="col-sm">
+                                <button class="btn btn-outline-danger" data-toggle="modal" data-target="#noaprobar"> 
+                                    No Aprobar 
+                                </button> 
+                            </div>
+                            <div class="col-sm"></div>
+                        </div>
+                    </div>
 				@elseif($a->aprobada == '2' || $a->aprobada == '3')
-                    <center> 
-						<a href="{{ URL::previous() }}" class="btn btn-outline-primary"> Regresar </a> 
-					</center>
+                    <div class="container">
+                        <div class="form-group">
+                            <div class="col-sm"></div>
+                            <div class="col-sm">
+                                <a href="{{ URL::previous() }}" class="btn btn-outline-primary"> 
+                                    Regresar 
+                                </a> 
+                            </div>
+                            <div class="col-sm"></div>
+                        </div>
+                    </div>
                 @endif
 			@endforeach
 			</div>

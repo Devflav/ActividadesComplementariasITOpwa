@@ -11,11 +11,11 @@
             @csrf
             <div class="form-group">
                 <div class="col-sm-3">
-					<label for="nomGrado">* Grado:</label>
+					<label for="nombre">* Grado:</label>
 					<input type="text" class="form-control text-uppercase" 
 					placeholder="Escribe el grado" pattern="{[A-Z][a-z]+}+ *" 
 					title="ING"
-					name="nomGrado" required>
+					name="nombre" required>
 					<div class="valid-feedback">Valido.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>	
                 </div>
@@ -57,5 +57,14 @@
             </div>
         </form>
     </div>
+    @if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

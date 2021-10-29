@@ -36,8 +36,9 @@
 				<div class="form-group">
 					<div class="col-sm"></div>
 					<div class="col-sm">
-						<button type="submit" class="btn btn-outline-primary"> 
-							Registrar
+						<button type="button" data-toggle="modal" data-target="#edit" 
+							class="btn btn-outline-primary"> 
+							Guardar 
 						</button>
 					</div>
 					<div class="col-sm">
@@ -74,5 +75,14 @@
 			</div>
 		</form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

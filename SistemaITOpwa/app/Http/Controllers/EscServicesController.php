@@ -17,7 +17,7 @@ use App\Models\Mdepartamento;
 
 class EscServicesController extends Controller
 {
-    public function _construct() { $this->middleware('auth');  }
+    public function _construct() { $this->middleware('escolares');  }
 /**Retorna la vista de inicio de la sesión, con un saludo y el proceso que
  * se está llevando a cabo en el sistema (Inscripción, Evalucación, 
  * Generación de constancias)
@@ -27,21 +27,22 @@ class EscServicesController extends Controller
         $now = date_create('America/Mexico_City')->format('H');
 
         $today = date("Y-m-d");
-        $dates = DB::select('SELECT ini_inscripcion, ini_evaluacion, ini_gconstancias,
-                fin_inscripcion, fin_evaluacion, fin_gconstancias
-                FROM periodo WHERE estado = "Actual"');
-        $processes = 00;
-        $endprocess = 00;
-        foreach($dates as $d){
-            if($today >= $d->ini_inscripcion && $today <= $d->fin_inscripcion){
-                $processes = 01;
-                $endprocess = $d->fin_inscripcion;}
-            elseif($today >= $d->ini_evaluacion && $today <= $d->fin_evaluacion){
-                $processes = 10;
-                $endprocess = $d->fin_evaluacion;}
-            elseif($today >= $d->ini_gconstancias && $today <= $d->fin_gconstancias){
-                $processes = 11;
-                $endprocess = $d->fin_gconstancias;}
+        $dates = Mperiodo::where('estado', "Actual")
+            ->first();
+
+        $processes = 00;    $endprocess = 00;
+
+        if($today >= $dates->ini_inscripcion && $today <= $dates->fin_inscripcion){
+            $processes = 01;
+            $endprocess = $dates->fin_inscripcion;
+        
+        } elseif($today >= $dates->ini_evaluacion && $today <= $dates->fin_evaluacion){
+            $processes = 10;
+            $endprocess = $dates->fin_evaluacion;
+        
+        } elseif($today >= $dates->ini_gconstancias && $today <= $dates->fin_gconstancias){
+            $processes = 11;
+            $endprocess = $dates->fin_gconstancias;
         }
 
         return view('servesc.inicio')

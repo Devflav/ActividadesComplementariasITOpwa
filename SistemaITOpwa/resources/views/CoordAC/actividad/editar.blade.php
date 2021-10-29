@@ -41,7 +41,7 @@
 				</div>
 				<div class="col-sm">
 					<label for="apeMat">* Departamento:</label>
-					<select class="form-control" id="carrera" name="depto" required> 
+					<select class="form-control" id="carrera" name="id_depto" required> 
 						<option value="{{ $a->id_depto }}"> {{ $a->depto }} </option>
 						@foreach($deptos as $d)
 							<option value="{{$d->id_depto}}" require> {{ $d->nombre }} </option>
@@ -54,7 +54,7 @@
 			<div class="form-group">
 				<div class="col-sm">
 					<label for="carrera">* Tipo de actividad:</label>
-					<select class="form-control" id="carrera" name="tipo" required> 
+					<select class="form-control" id="carrera" name="id_tipo" required> 
 						<option value="{{ $a->id_tipo }}"> {{ $a->tipo }} </option>
 						@foreach($tipos as $t)
 							<option value="{{$t->id_tipo}}" require> {{ $t->nombre }} </option>
@@ -64,6 +64,20 @@
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 				<div class="col-sm">
+					<label for="carrera">* Restringida:</label>
+					<select class="form-control" id="restric" name="restringida" required> 
+						<option value="{{ $a->restringida }}"> 
+							@if($a->restringida)
+								SI Restringida
+							@else
+								NO Restringida
+							@endif 
+						</option>
+						<option value="1" require> <strong>SI</strong> Restringida </option>
+						<option value="0" require> <strong>NO</strong> Restringida </option>
+					</select>
+					<div class="valid-feedback">Valido.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 			</div>
 			<div class="form-group">
@@ -80,7 +94,13 @@
 			</div>
 			<div class="container">
 				<div class="form-group">
-					<div class="col-sm"></div>
+					<div class="col-sm">
+						<a onclick="eliminar('{{ url('/CoordAC/eliminar/actividad').'/'.$a->id_actividad }}')" 
+							class="btn btn-outline-danger"> 
+							Eliminar 
+						</a> 
+					</div>
+					<br>
 					<div class="col-sm">
 						<button type="button" data-toggle="modal" data-target="#edit" 
 							class="btn btn-outline-primary"> 
@@ -93,7 +113,6 @@
 							Cancelar 
 						</a> 
 					</div>
-					<div class="col-sm"></div>
 				</div>
 			</div>
 		@endforeach
@@ -124,6 +143,16 @@
 			</div>
 		</form>
 	</div>
+
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 	<button type="button" class="btn btn-primary d-none" data-toggle="modal" 
 		data-target="#mimodal" id="btn_mimodal">
 	</button>

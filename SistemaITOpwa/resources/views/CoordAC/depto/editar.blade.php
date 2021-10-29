@@ -31,7 +31,7 @@
 				</div>
 				<div class="col-sm">
 					<label for="newjefe"> Nuevo Jefe de Departamento:</label>
-					<select class="form-control" id="newjefe" name="newjefe"> 
+					<select class="form-control" id="newjefe" name="id_persona"> 
 						<option value="" >Selecciona el nuevo Jefe</option>
 						@foreach($jefes as $j)
 							<option value="{{$j->id_persona }}" required> {{ $j->grado }} {{ $j->nombre }} {{ $j->apePat }} {{ $j->apeMat }}</option>
@@ -89,5 +89,14 @@
 			</div>
 		</form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

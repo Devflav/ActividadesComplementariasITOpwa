@@ -14,7 +14,7 @@ use App\Models\Mdepartamento;
 
 class CAcademicController extends Controller
 {
-    public function _construct() { $this->middleware('auth');  }
+    public function _construct() { $this->middleware('coordinador');  }
 /**Retorna la vista de inicio de la sesión, con un saludo y el proceso que
  * se está llevando a cabo en el sistema (Inscripción, Evalucación, 
  * Generación de constancias)

@@ -34,7 +34,10 @@
                     <td>{{$p->usuario}}</td>
                     <td>
                         <center>
-                            <a class="btn btn-outline-primary btn-sm text-primary" onclick="usurest('{{ url('CoordAC/usuariorestart').$p->id_persona }}')"><i class="fa fa-fw fa-history"></i></a>
+                            <a class="btn btn-outline-primary btn-sm text-primary" 
+                                onclick="usurest('{{ url('/CoordAC/usuariorestart').$p->id_persona }}')">
+                                <i class="fa fa-fw fa-history"></i>
+                            </a>
                         </center> 
                     </td>
                 </tr>
@@ -69,18 +72,14 @@
             @endif
         </ul>
     </nav>
-</div>
 
-<script>
-    const usurest = (_url) =>{
-        $.ajax(_url) .done(function(respuesta) {
-            let _html = $(respuesta).find("#restablecer").html();
-            $("#restablecer").html(_html);
-            $("#btn_restablecer").click()
-        }).fail(function(error) {
-            console.log('Error', error);
-        });
-    }
-</script>
+    <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#restablecer" 
+        id="btn_restablecer">
+    </button>
+    <div class="modal fade" id="restablecer" data-backdrop="static" data-keyboard="false" 
+        tabindex="-1" aria-labelledby="restablecerLabel" aria-hidden="true">
+    </div>
+
+</div>
 
 @endsection

@@ -22,7 +22,7 @@
 			<div class="form-group">
 				<div class="col-sm">
 					<label for="semestre"><strong>*</strong> Inicio de Semestre:</label>
-					<select name="mesi" id="mesi" class="form-control">
+					<select name="mes_ini" id="mes_ini" class="form-control">
 						<option value="">Mes de inicio</option>
 						@foreach($mes as $m)
 							<option value="{{ $m }}"> {{ $m }} </option>
@@ -31,7 +31,7 @@
 				</div>
 				<div class="col-sm">
 					<label for="semestre" class="invisible"><strong>*</strong> Inicio de Semestre:</label>
-					<select name="anioi" id="anioi" class="form-control">
+					<select name="anio_ini" id="anio_ini" class="form-control">
 						<option value="">Año de inicio</option>
 						@foreach($año as $a)
 							<option value="{{ $a }}"> {{ $a }} </option>
@@ -40,7 +40,7 @@
 				</div>
 				<div class="col-sm">
 					<label for="semestre"><strong>*</strong> Fin de Semestre:</label><br>
-					<select name="mesf" id="mesf" class="form-control">
+					<select name="mes_fin" id="mes_fin" class="form-control">
 						<option value="">Mes de fin</option>
 						@foreach($mes as $m)
 							<option value="{{ $m }}"> {{ $m }} </option>
@@ -49,7 +49,7 @@
 				</div>
 				<div class="col-sm">
 					<label for="semestre" class="invisible"><strong>*</strong> Fin de Semestre:</label><br>
-					<select name="aniof" id="aniof" class="form-control">
+					<select name="anio_fin" id="anio_fin" class="form-control">
 						<option value="">Año de fin</option>
 						@foreach($año as $a)
 							<option value="{{ $a }}"> {{ $a }} </option>
@@ -59,97 +59,75 @@
 			</div>
 			<div class="form-group">
 				<div class="col-sm">
-					<label for="iniPeri"><strong>*</strong> Inicio de periodo:</label>
+					<label for="inicio"><strong>*</strong> Inicio de periodo:</label>
 					<input type="date" class="form-control" title="Selecciona el inicio del periodo." 
-						id="iniPeri" name="iniPeri" required>
+						id="inicio" name="inicio" required>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 				<div class="col-sm">
-					<label for="finPeri"><strong>*</strong> Fin de periodo:</label>
-					<input type="date" class="form-control" id="finPeri" name="finPeri" required>
-					<div class="valid-feedback">Valid.</div>
-					<div class="invalid-feedback">Por favor rellena el campo.</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="col-sm">
-					<label for="iniIns"> Inicio de inscripciones:</label>
-					<input type="date" class="form-control" id="iniIns" name="iniIns">
-					<div class="valid-feedback">Valid.</div>
-					<div class="invalid-feedback">Por favor rellena el campo.</div>
-				</div>
-				<div class="col-sm">
-					<label for="finIns"> Fin de inscripciones:</label>
-					<input type="date" class="form-control" id="finIns" name="finIns">
+					<label for="fin"><strong>*</strong> Fin de periodo:</label>
+					<input type="date" class="form-control" id="fin" name="fin" required>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<div class="col-sm">
-					<label for="iniEval"> Inicio de evaluaciones:</label>
-					<input type="date" class="form-control" id="iniEval" name="iniEval">
+					<label for="ini_inscripcion"> Inicio de inscripciones:</label>
+					<input type="date" class="form-control" id="ini_inscripcion" name="ini_inscripcion">
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 				<div class="col-sm">
-					<label for="finEval"> Fin de evaluaciones:</label>
-					<input type="date" class="form-control" id="finEval" name="finEval">
-					<div class="valid-feedback">Valid.</div>
-					<div class="invalid-feedback">Por favor rellena el campo.</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="col-sm">
-					<label for="iniGcons"> Inicio de G. constancias:</label>
-					<input type="date" class="form-control" id="iniGcons" name="iniGcons">
-					<div class="valid-feedback">Valid.</div>
-					<div class="invalid-feedback">Por favor rellena el campo.</div>
-				</div>
-				<div class="col-sm">
-					<label for="finGcons"> Fin de G. constancias:</label>
-					<input type="date" class="form-control" id="finGcons" name="finGcons">
+					<label for="fin_inscripcion"> Fin de inscripciones:</label>
+					<input type="date" class="form-control" id="fin_inscripcion" name="fin_inscripcion">
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<div class="col-sm">
-					<label for="logoSep"> Logo Gobierno:</label>
+					<label for="ini_evaluacion"> Inicio de evaluaciones:</label>
+					<input type="date" class="form-control" id="ini_evaluacion" name="ini_evaluacion">
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
+				</div>
+				<div class="col-sm">
+					<label for="fin_evaluacion"> Fin de evaluaciones:</label>
+					<input type="date" class="form-control" id="fin_evaluacion" name="fin_evaluacion">
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm">
+					<label for="ini_gconstancias"> Inicio de G. constancias:</label>
+					<input type="date" class="form-control" id="ini_gconstancias" name="ini_gconstancias">
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
+				</div>
+				<div class="col-sm">
+					<label for="fin_gconstancias"> Fin de G. constancias:</label>
+					<input type="date" class="form-control" id="fin_gconstancias" name="fin_gconstancias">
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm">
+					<label for="logoIto"> Cabecera de constancias:</label>
 					<div class="custom-file col">
-						<input type="file" class="custom-file-input" id="Gob" name="gobierno">
-						<label class="custom-file-label" id="logS" name="logS" for="customFile">
-							Selecciona el archivo
-						</label>
-					</div>
-					<div class="valid-feedback">Valid.</div>
-					<div class="invalid-feedback">Por favor rellena el campo.</div>
-				</div>
-				<div class="col-sm">
-					<label for="logoTecNM"> Logo Tecnológico Nacional de México:</label>
-					<div class="custom-file col">
-						<input type="file" class="custom-file-input" id="TecNM" name="tecnmlog">
-						<label class="custom-file-label" id="logt" for="customFile">Selecciona el archivo</label>
-					</div>
-					<div class="valid-feedback">Valid.</div>
-					<div class="invalid-feedback">Por favor rellena el campo.</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="col-sm">
-					<label for="logoIto"> Logo Instituto Tecnológico de Oaxaca:</label>
-					<div class="custom-file col">
-						<input type="file" class="custom-file-input" id="Ito" name="itolog">
+						<input type="file" class="custom-file-input" id="Ito" name="cabecera">
 						<label class="custom-file-label" id="logI" for="customFile">Selecciona el archivo</label>
 					</div>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 				<div class="col-sm">
-					<label for="logoEnca"> Logo Año (Encabezado):</label>
+					<label for="logoEnca"> Pie de pagina de constancias:</label>
 					<div class="custom-file col">
-						<input type="file" class="custom-file-input" id="Enca" name="encabezado">
+						<input type="file" class="custom-file-input" id="Enca" name="pie">
 						<label class="custom-file-label" id="logE" name="logE" for="customFile">Selecciona el archivo</label>
 					</div>
 					<div class="valid-feedback">Valid.</div>
@@ -178,6 +156,15 @@
 				</div>
 			</div>
 		</form>
+		@if ($errors->any())
+			@foreach ($errors->all() as $error)
+				<div class="row">
+					<div class="alert alert-danger">
+						{{ $error }}
+					</div>
+				</div>
+			@endforeach
+		@endif
     </div>
 </div>
 @endsection

@@ -32,7 +32,10 @@ class PublicController extends Controller {
 
         $semestres = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
-        return view('presentacionAC.registro', ['carreras' => $carreras, 'semestres' => $semestres]);
+        return view('presentacionAC.registro', 
+            ['carreras' => $carreras, 
+            'semestres' => $semestres,
+            'back' => null]);
     }
 
 /**Realiza el request del formalario del registro, valida los
@@ -40,29 +43,31 @@ class PublicController extends Controller {
  */
     public function nuevo_registro(Request $request)  {
 
+        $data = $request->all();
+
         $messages = [
             'required' => 'El campo :attribute es requierido.',
             'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
             'max' => 'El campo :attribute se excede en longitud.',
             'unique' => 'El campo :attribute ya se ha registrado.',
-            'email' => 'El dominio valido para el e-mail es: @itoaxaca.edu.mx'
+            'email' => 'El dominio valido para el e-mail es: @itoaxaca.edu.mx',
+            'ends_with' => 'El dominio valido para el e-mail es: @itoaxaca.edu.mx'
         ];
-      
+        
         $validation = \Validator::make($request->all(), [
             'num_control' => 'required|unique:estudiante|min:8|max:9',
             'nombre' => 'required|min:3|max:30',
             'apePat' => 'required|min:3|max:20',
             'apeMat' => 'required|min:3|max:20',
             'id_carrera' => 'required',
-            'email' => 'required|email|unique:estudiante|min:13|max:50',
-            'curp' => 'nullable|unique:persona|min:18|max:18'
+            'email' => 'required|email|unique:estudiante|ends_with:@itoaxaca.edu.mx|min:24|max:25',
+            'curp' => 'nullable|unique:persona|size:18'
         ], $messages);      
-          
+
         if ($validation->fails())  {
             return redirect()->back()->withInput()->withErrors($validation->errors());
         }
-      
-        $data = $request->all();
+
         $hoy = date("Y-m-d");
         $nomUser = mb_strtoupper($data['nombre'].' '.$data['apePat'].' '.$data['apeMat']);
         $contraseña = bcrypt($data['num_control']);

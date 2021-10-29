@@ -32,11 +32,10 @@
             <table class="table table-hover table-responsive" id="students">
                 <thead style="background:#1B396A;">
                 <tr class="text-white">
-                    <th width="09%">Número Control</th>
-                    <th width="28%">Estudiante</th>
-                    <th width="20%">Carrera</th>
+                    <th width="14%">Número Control</th>
+                    <th width="35%">Estudiante</th>
+                    <th width="28%">Carrera</th>
                     <th width="09%">Semestre</th>
-                    <th width="20%">CURP</th>
                     <th width="06%">Opciones</th>
                     <th width="08%"></th>
                 </tr>
@@ -52,7 +51,6 @@
                         <td>{{$e->estudiante}}</td>
                         <td>{{$e->carrera}}</td>
                         <td><center>{{$e->semestre}}</center></td>
-                        <td>{{$e->curp}}</td>
                         <td>
                             @if($mod)
                                 <a href="{{ url('CoordAC/inscribir').'/'.$e->id_persona.'/'.$e->id_depto }}" 
@@ -76,32 +74,39 @@
         </table> 
     </div>
 
-    <nav class="navbar navbar-light justify-content-end">
-        <ul class="pagination justify-content-end">
-            @if($estudiantes->previousPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $estudiantes->previousPageUrl() }}" class="page-link m-1">
-                        Anterior
-                    </a>
-                </li>
-            @else
-                <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Anterior </a>
-                </li>
-            @endif
-            @if($estudiantes->nextPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $estudiantes->nextPageUrl() }}" class="page-link m-1">
-                        Siguiente
-                    </a>
-                </li>
-            @else
-            <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Siguiente </a>
-                </li>
-            @endif
-        </ul>
-    </nav>
+    <div id="divNav" class="row">
+        <div class="col">
+            <label for="" class="navTotal">
+                Total: {{ $estudiantes->total() }}
+            </label>
+        </div>
+        <div class="col">
+            <nav class="navbar navbar-light justify-content-end">
+                <ul class="pagination justify-content-end">
+                    <li class="{{ ($estudiantes->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $estudiantes->url(1) }}" class="page-link">
+                            1
+                        </a>
+                    </li>    
+                    <li class="{{ ($estudiantes->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $estudiantes->previousPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-left-square"></i>
+                        </a>
+                    </li>    
+                    <li class="{{ ($estudiantes->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $estudiantes->nextPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-right-square"></i>
+                        </a>
+                    </li> 
+                    <li class="{{ ($estudiantes->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $estudiantes->url($estudiantes->lastPage()) }}" class="page-link">
+                            {{ $estudiantes->lastPage() }}
+                        </a>
+                    </li> 
+                </ul>
+            </nav>
+        </div>
+    </div>
 
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" 
         data-target="#mimodal" id="btn_mimodal">

@@ -111,11 +111,11 @@
 						<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
 							<a class="dropdown-item text-primary" href="{{ url('DivEProf/datosGen') }}"><i class="fa fa-fw fa-lg  fa-cog"></i>Mi perfil</a>
 							
-							<a class="dropdown-item text-primary" href="{{ url('logoutCAC') }}" onclick="event.preventDefault(); $('#logout-form').submit();">
+							<a class="dropdown-item text-primary" href="{{ url('logoutDEP') }}" onclick="event.preventDefault(); $('#logout-form').submit();">
 								<strong><i class="fa fa-fw fa-lg  fa-sign-out"></i> Cerrar sesión </strong>
 							</a>
 							
-							<form id="logout-form" action="{{ url('logoutCAC') }}" method="POST" style="display: none;">
+							<form id="logout-form" action="{{ url('logoutDEP') }}" method="POST" style="display: none;">
 								@csrf
 							</form>
 						</div>

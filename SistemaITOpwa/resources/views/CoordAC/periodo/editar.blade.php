@@ -31,98 +31,77 @@
 			<div class="form-group">
 				<div class="col-sm">
 					<label for="iniPeri"> Inicio de periodo:</label>
-					<input type="date" class="form-control" name="iniPeri" value="{{ $p->inicio}}" disabled>
+					<input type="date" class="form-control" name="inicio" value="{{ $p->inicio}}" readonly>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 				<div class="col-sm">
 					<label for="finPeri"> Fin de periodo:</label>
-					<input type="date" class="form-control" name="finPeri" value="{{ $p->fin }}" disabled>
+					<input type="date" class="form-control" name="fin" value="{{ $p->fin }}" readonly>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<div class="col-sm">
-					<label for="iniIns">* Inicio de inscripciones:</label>
-					<input type="date" class="form-control" name="iniIns" value="{{ $p-> ini_inscripcion }}" >
+					<label for="ini_inscripcion">* Inicio de inscripciones:</label>
+					<input type="date" class="form-control" name="ini_inscripcion" value="{{ $p-> ini_inscripcion }}" >
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 				<div class="col-sm">
-					<label for="finIns">* Fin de inscripciones:</label>
-					<input type="date" class="form-control" name="finIns" value="{{ $p-> fin_inscripcion }}" >
-					<div class="valid-feedback">Valid.</div>
-					<div class="invalid-feedback">Por favor rellena el campo.</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="col-sm">
-					<label for="iniEval">* Inicio de evaluaciones:</label>
-					<input type="date" class="form-control" name="iniEval" value="{{ $p-> ini_evaluacion }}" >
-					<div class="valid-feedback">Valid.</div>
-					<div class="invalid-feedback">Por favor rellena el campo.</div>
-				</div>
-				<div class="col-sm">
-					<label for="finEval">* Fin de evaluaciones:</label>
-					<input type="date" class="form-control" name="finEval" value="{{ $p-> fin_evaluacion }}" >
+					<label for="fin_inscripcion">* Fin de inscripciones:</label>
+					<input type="date" class="form-control" name="fin_inscripcion" value="{{ $p-> fin_inscripcion }}" >
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<div class="col-sm">
-					<label for="iniGcons">* Inicio de G. constancias:</label>
-					<input type="date" class="form-control" name="iniGcons" value="{{ $p->ini_gconstancias }}" >
+					<label for="ini_evaluacion">* Inicio de evaluaciones:</label>
+					<input type="date" class="form-control" name="ini_evaluacion" value="{{ $p-> ini_evaluacion }}" >
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 				<div class="col-sm">
-					<label for="finGcons">* Fin de G. constancias:</label>
-					<input type="date" class="form-control" name="finGcons" value="{{ $p->fin_gconstancias }}" >
+					<label for="fin_evaluacion">* Fin de evaluaciones:</label>
+					<input type="date" class="form-control" name="fin_evaluacion" value="{{ $p-> fin_evaluacion }}" >
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 			</div>
 			<div class="form-group">
 				<div class="col-sm">
-					<label for="logoSep"> Logo Gobierno:</label>
+					<label for="ini_gconstancias">* Inicio de G. constancias:</label>
+					<input type="date" class="form-control" name="ini_gconstancias" value="{{ $p->ini_gconstancias }}" >
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
+				</div>
+				<div class="col-sm">
+					<label for="fin_gconstancias">* Fin de G. constancias:</label>
+					<input type="date" class="form-control" name="fin_gconstancias" value="{{ $p->fin_gconstancias }}" >
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm">
+					<label for="logoIto"> Cabecera de constancias:</label>
 					<br>
-					<img id="logoGob" src="{{ $p->logo_gob }}" width="90%" class="img-thumbnail">
+					<img id="logoIto" src="{{ $p->logo_ito }}" width="100%" class="img-thumbnail float-right">
 					<br><br>
 					<div class="custom-file col">
-						<input type="file" class="custom-file-input" id="Gob" name="newgobierno">
-						<label class="custom-file-label" id="logS" name="logS" for="customFile">Selecciona el archivo</label>
-					</div>
-				</div>
-				<div class="col-sm">
-					<label for="logoTecNM"> Logo Tecnológico Nacional de México:</label>
-					<br>
-					<img id="logoTecNM" src="{{ $p->logo_tecnm }}" width="45%" class="img-thumbnail float-right">
-					<div class="custom-file col">
-						<input type="file" class="custom-file-input" id="TecNM" name="newtecnmlog">
-						<label class="custom-file-label" id="logt" for="customFile">Selecciona el archivo</label>
-					</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="col-sm">
-					<label for="logoIto"> Logo Instituto Tecnológico de Oaxaca:</label>
-					<br>
-					<img id="logoIto" src="{{ $p->logo_ito }}" width="30%" class="img-thumbnail float-right">
-					<br><br>
-					<div class="custom-file col">
-						<input type="file" class="custom-file-input" id="Ito" name="newitolog">
+						<input type="file" class="custom-file-input" id="Ito" name="cabecera">
 						<label class="custom-file-label" id="logI" for="customFile">Selecciona el archivo</label>
 					</div>
 				</div>
 				<div class="col-sm">
-					<label for="logoEnca"> Logo Año (Encabezado):</label>
+					<label for="logoEnca"> Pie de pagina de constancias:</label>
 					<br>
 					<img id="logoEnca" src="{{ $p->logo_anio }}" width="100%" class="img-thumbnail">
 					<br><br>
 					<div class="custom-file col">
-						<input type="file" class="custom-file-input" id="Enca" name="newencabezado">
+						<input type="file" class="custom-file-input" id="Enca" name="pie">
 						<label class="custom-file-label" id="logE" name="logE" for="customFile">Selecciona el archivo</label>
 					</div>
 				</div>
@@ -176,5 +155,14 @@
 			</div>
 		</form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

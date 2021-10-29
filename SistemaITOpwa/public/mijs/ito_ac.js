@@ -62,7 +62,7 @@ const horario = (_url) =>{
 		$("#btn_dw").click()
 	});
 }
-
+ 
 const selusu = (_url) =>{
 	$.ajax(_url) .done(function(respuesta) {
 		let _html = $(respuesta).find("#selusuario").html();
@@ -112,30 +112,16 @@ $(function(){
 });
 
 $(function(){
-	$("#logoEnca").on("change", function() {
+	$("#cabecera").on("change", function() {
 		var fileName = $(this).val().split("\\").pop();
 		$(this).siblings("logE").addClass("selected").html(fileName);
 	});
 });
 
 $(function(){
-	$("#logoSep").on("change", function() {
+	$("#pie").on("change", function() {
 		var fileName = $(this).val().split("\\").pop();
 		$(this).siblings("#logS").addClass("selected").html(fileName);
-	});
-});
-
-$(function(){
-	$("#logoTecNM").on("change", function() {
-		var fileName = $(this).val().split("\\").pop();
-		$(this).siblings("#logT").addClass("selected").html(fileName);
-	});
-});
-
-$(function(){
-	$("#logoIto").on("change", function() {
-		var fileName = $(this).val().split("\\").pop();
-		$(this).siblings("#logI").addClass("selected").html(fileName);
 	});
 });
 
@@ -162,5 +148,15 @@ function deptosIns(){
 	$.get('/CoordAC/inscrip_fuera_tiempo/' + num + '/' + dpt, function(depto){
 		let departamentos = $(depto);
 		$("#groups").html(departamentos.find("#groups").html())
+	});
+}
+
+const usurest = (_url) =>{
+	$.ajax(_url) .done(function(respuesta) {
+		let _html = $(respuesta).find("#restablecer").html();
+		$("#restablecer").html(_html);
+		$("#btn_restablecer").click()
+	}).fail(function(error) {
+		console.log('Error', error);
 	});
 }

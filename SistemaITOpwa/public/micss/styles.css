@@ -139,38 +139,38 @@
 
 /* ------------------------------ Styles for images ------------------------------ */
   #tecMexico{
-	width: 14%;
-	height: 8%;
-	margin-left:10%;
-    }
+    width: 14%;
+    height: 8%;
+    margin-left:10%;
+  }
 
     #logo{
-        width: 9%;
-        height: 8%;
-        margin-left:10%;
+      width: 9%;
+      height: 8%;
+      margin-left:10%;
     }
 
     #sep{
-        width: 25%;
-        height: 8%;
-        margin-left:10%;
+      width: 25%;
+      height: 8%;
+      margin-left:10%;
     }
 
 /* ------------------------------ Other styles ------------------------------ */
     #sesion{
 
-        margin-left: 5%;
+      margin-left: 5%;
     }
 
     #mitexto{
-
-        vertical-align: text-top;
+      vertical-align: text-top;
     }
 
     #divTable {
-        overflow-y: scroll;
-        width: 100%;
-        height: 320px;
+      overflow-y: scroll;
+      margin-bottom: 5px;
+      width: 100%;
+      height: 320px;
     }
 
     #divTable > a{
@@ -178,14 +178,24 @@
     }
 
     #divTable > table {
-        width: 100%;
-        background-color: transparent;
+      width: 100%;
+      background-color: transparent;
     }
 
     #divTable > thead{
         
-        background-position-x: center;
-        background-position-y: static;
-        
-        width: 100%;
+      background-position-x: center;
+      background-position-y: static;
+      width: 100%;
+    }
+
+    #divNav{
+      align-items: baseline;
+      margin: 10px 0px 0px 10px;
+    }
+
+    .navTotal{
+      font-weight: bold;
+      font-size: 14px;
+      color: #1B396A;
     }

@@ -21,13 +21,18 @@
             @endif
             </div>
             <div class="modal-footer">
-                @if($modal)
-                  <a href="{{ url('').$miurl }}" class="btn btn-outline-danger">Editar</a>
-                @else
-                  <a href="{{ url('').$miurl }}" class="btn btn-outline-danger">Eliminar</a>
-                @endif
-                <label for="" class="col-1"></label>
-                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cerrar</button>
+              <div class="form-group">
+                <div class="col-sm">
+                  @if($modal)
+                    <a href="{{ url('').$miurl }}" class="btn btn-outline-danger">Editar</a>
+                  @else
+                    <a href="{{ url('').$miurl }}" class="btn btn-outline-danger">Eliminar</a>
+                  @endif
+                </div>
+                <div class="col-sm">
+                  <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cerrar</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

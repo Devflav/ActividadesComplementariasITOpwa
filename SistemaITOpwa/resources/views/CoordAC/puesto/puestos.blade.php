@@ -30,9 +30,10 @@
                 </tr>
             </thead>
             <tbody style="width: 100%">
+            <?php $num = (($puestos->currentPage() -1 )*10) + 1; ?> 
             @foreach($puestos as $p)
                 <tr>
-                    <td>{{$p->id_puesto}}</td>
+                    <td>{{$num}}</td>
                     <td>{{$p->nombre}}</td>
                     <td>{{$p->descripcion}}</td>
                     <td>
@@ -41,37 +42,45 @@
                         </a>
                     </td>
                 </tr>
+            <?php $num++; ?>
             @endforeach
             </tbody>
         </table>
     </div>
 
-    <nav class="navbar navbar-light justify-content-end">
-        <ul class="pagination justify-content-end">
-            @if($puestos->previousPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $puestos->previousPageUrl() }}" class="page-link m-1">
-                        Anterior
-                    </a>
-                </li>
-            @else
-                <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Anterior </a>
-                </li>
-            @endif
-            @if($puestos->nextPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $puestos->nextPageUrl() }}" class="page-link m-1">
-                        Siguiente
-                    </a>
-                </li>
-            @else
-            <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Siguiente </a>
-                </li>
-            @endif
-        </ul>
-    </nav>
+    <div id="divNav" class="row">
+        <div class="col">
+            <label for="" class="navTotal">
+                Total: {{ $puestos->total() }}
+            </label>
+        </div>
+        <div class="col">
+            <nav class="navbar navbar-light justify-content-end">
+                <ul class="pagination justify-content-end">
+                    <li class="{{ ($puestos->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $puestos->url(1) }}" class="page-link">
+                            1
+                        </a>
+                    </li>    
+                    <li class="{{ ($puestos->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $puestos->previousPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-left-square"></i>
+                        </a>
+                    </li>    
+                    <li class="{{ ($puestos->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $puestos->nextPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-right-square"></i>
+                        </a>
+                    </li> 
+                    <li class="{{ ($puestos->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $puestos->url($puestos->lastPage()) }}" class="page-link">
+                            {{ $puestos->lastPage() }}
+                        </a>
+                    </li> 
+                </ul>
+            </nav>
+        </div>
+    </div>
 
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" 
         data-target="#mimodal" id="btn_mimodal">

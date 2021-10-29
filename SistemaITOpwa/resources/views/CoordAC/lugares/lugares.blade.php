@@ -46,32 +46,39 @@
         </table>
     </div>
 
-    <nav class="navbar navbar-light justify-content-end">
-        <ul class="pagination justify-content-end">
-            @if($lugares->previousPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $lugares->previousPageUrl() }}" class="page-link m-1">
-                        Anterior
-                    </a>
-                </li>
-            @else
-                <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Anterior </a>
-                </li>
-            @endif
-            @if($lugares->nextPageUrl() != null)
-                <li class="page-item">
-                    <a href="{{ $lugares->nextPageUrl() }}" class="page-link m-1">
-                        Siguiente
-                    </a>
-                </li>
-            @else
-            <li class="page-item disabled"> 
-                    <a href="" class="page-link m-1"> Siguiente </a>
-                </li>
-            @endif
-        </ul>
-    </nav>
+    <div id="divNav" class="row">
+        <div class="col">
+            <label for="" class="navTotal">
+                Total: {{ $lugares->total() }}
+            </label>
+        </div>
+        <div class="col">
+            <nav class="navbar navbar-light justify-content-end">
+                <ul class="pagination justify-content-end">
+                    <li class="{{ ($lugares->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $lugares->url(1) }}" class="page-link">
+                            1
+                        </a>
+                    </li>    
+                    <li class="{{ ($lugares->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $lugares->previousPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-left-square"></i>
+                        </a>
+                    </li>    
+                    <li class="{{ ($lugares->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $lugares->nextPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-right-square"></i>
+                        </a>
+                    </li> 
+                    <li class="{{ ($lugares->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $lugares->url($lugares->lastPage()) }}" class="page-link">
+                            {{ $lugares->lastPage() }}
+                        </a>
+                    </li> 
+                </ul>
+            </nav>
+        </div>
+    </div>
 
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" 
         data-target="#mimodal" id="btn_mimodal">

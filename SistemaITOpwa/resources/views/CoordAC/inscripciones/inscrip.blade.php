@@ -197,32 +197,39 @@
             </table>
         </div>
     
-        <nav class="navbar navbar-light justify-content-end">
-            <ul class="pagination justify-content-end">
-                @if($inscrip->previousPageUrl() != null)
-                    <li class="page-item">
-                        <a href="{{ $inscrip->previousPageUrl() }}" class="page-link m-1">
-                            Anterior
+        <div id="divNav" class="row">
+        <div class="col">
+            <label for="" class="navTotal">
+                Total: {{ $inscrip->total() }}
+            </label>
+        </div>
+        <div class="col">
+            <nav class="navbar navbar-light justify-content-end">
+                <ul class="pagination justify-content-end">
+                    <li class="{{ ($inscrip->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $inscrip->url(1) }}" class="page-link">
+                            1
                         </a>
-                    </li>
-                @else
-                    <li class="page-item disabled"> 
-                        <a href="" class="page-link m-1"> Anterior </a>
-                    </li>
-                @endif
-                @if($inscrip->nextPageUrl() != null)
-                    <li class="page-item">
-                        <a href="{{ $inscrip->nextPageUrl() }}" class="page-link m-1">
-                            Siguiente
+                    </li>    
+                    <li class="{{ ($inscrip->previousPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $inscrip->previousPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-left-square"></i>
                         </a>
-                    </li>
-                @else
-                <li class="page-item disabled"> 
-                        <a href="" class="page-link m-1"> Siguiente </a>
-                    </li>
-                @endif
-            </ul>
-        </nav>
+                    </li>    
+                    <li class="{{ ($inscrip->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $inscrip->nextPageUrl() }}" class="page-link">
+                            <i class="bi bi-arrow-right-square"></i>
+                        </a>
+                    </li> 
+                    <li class="{{ ($inscrip->nextPageUrl() == null) ? 'page-item disabled' : 'page-item' }}">
+                        <a href="{{ $inscrip->url($inscrip->lastPage()) }}" class="page-link">
+                            {{ $inscrip->lastPage() }}
+                        </a>
+                    </li> 
+                </ul>
+            </nav>
+        </div>
+    </div>
     <?php } ?>
 
     <button type="button" class="btn btn-primary d-none" data-toggle="modal" 

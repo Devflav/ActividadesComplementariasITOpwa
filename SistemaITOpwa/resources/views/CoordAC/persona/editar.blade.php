@@ -20,7 +20,7 @@
 					<div class="form-group">
 						<div class="col-sm">
 							<label for="nControl">* Grado:</label>
-							<select class="form-control" id="grado" name="grado" required> 
+							<select class="form-control" id="grado" name="id_grado" required> 
 								<option value="{{ $p->id_grado}}"> {{ $p->grado }} </option>
 								@foreach($grados as $g)
 									<option value="{{$g->id_grado}}" require> {{ $g->nombre }} </option>
@@ -59,21 +59,10 @@
 					<div class="form-group">
 						<div class="col-sm">
 							<label for="carrera">* Departamento:</label>
-							<select class="form-control" id="depto" name="depto" required> 
+							<select class="form-control" id="depto" name="id_depto" required> 
 								<option value="{{ $p->id_depto }}"> {{ $p->depto }} </option>
 								@foreach($departamentos as $d)
 									<option value="{{ $d->id_depto }}" require> {{ $d->nombre }} </option>
-								@endforeach
-							</select>
-							<div class="valid-feedback">Valid.</div>
-							<div class="invalid-feedback">Por favor rellena el campo.</div>
-						</div>
-						<div class="col-sm">
-							<label for="semestre">* Puesto:</label>
-							<select class="form-control" id="puesto" name="puesto" required> 
-								<option value="{{ $p->id_puesto }}"> {{ $p->puesto }} </option>
-								@foreach($puestos as $pu)
-									<option value="{{ $pu->id_puesto }}" require> {{ $pu->nombre }} </option>
 								@endforeach
 							</select>
 							<div class="valid-feedback">Valid.</div>
@@ -88,16 +77,25 @@
 								minlength="18" maxlength="18" name="curp" required>
 						</div>
 						<div class="col-sm">
+							<label for="semestre">* Puesto:</label>
+							<select class="form-control" id="puesto" name="id_puesto" required> 
+								<option value="{{ $p->id_puesto }}"> {{ $p->puesto }} </option>
+								@foreach($puestos as $pu)
+									<option value="{{ $pu->id_puesto }}" require> {{ $pu->nombre }} </option>
+								@endforeach
+							</select>
+							<div class="valid-feedback">Valid.</div>
+							<div class="invalid-feedback">Por favor rellena el campo.</div>
                			</div>
 					</div>
 				@else
 					<div class="form-group">
 						<div class="col-sm">
 							<label for="nControl">* Grado:</label>
-							<select class="form-control" id="grado" name="grado" disabled> 
+							<select class="form-control" id="grado" name="id_grado" readonly> 
 								<option value="{{ $p->id_grado}}"> {{ $p->grado }} </option>
 								@foreach($grados as $g)
-									<option value="{{$g->id_grado}}" disabled> {{ $g->nombre }} </option>
+									<option value="{{$g->id_grado}}" readonly> {{ $g->nombre }} </option>
 								@endforeach
 							</select>
 							<div class="valid-feedback"></div>
@@ -107,7 +105,7 @@
 							<label for="nombre">* Nombre (s):</label>
 							<input type="text" class="form-control text-uppercase" 
 								value="{{ $p->nombre }}" pattern="{[A-Z][a-z]+}+ *" 
-								minlength="4" name="nombre" disabled>
+								minlength="4" name="nombre" readonly>
 							<div class="valid-feedback">Valid.</div>
 							<div class="invalid-feedback">Por favor rellena el campo.</div>	
 						</div>
@@ -117,7 +115,7 @@
 							<label for="apePat">* Apallido Paterno:</label>
 							<input type="text" class="form-control text-uppercase" 
 								value="{{ $p->paterno }}" pattern="{[A-Z][a-z]+}+ *" 
-								minlength="4" name="apePat" disabled>
+								minlength="4" name="apePat" readonly>
 							<div class="valid-feedback">Valid.</div>
 							<div class="invalid-feedback">Por favor rellena el campo.</div>
 						</div>
@@ -125,7 +123,7 @@
 							<label for="apeMat">* Apellido Materno:</label>
 							<input type="text" class="form-control text-uppercase" 
 								value="{{ $p->materno }}" pattern="{[A-Z][a-z]+}+ *" 
-								minlength="4" name="apeMat" disabled>
+								minlength="4" name="apeMat" readonly>
 							<div class="valid-feedback">Valid.</div>
 							<div class="invalid-feedback">Por favor rellena el campo.</div>
 						</div>
@@ -133,21 +131,10 @@
 					<div class="form-group">
 						<div class="col-sm">
 							<label for="carrera">* Departamento:</label>
-							<select class="form-control" id="depto" name="depto" disabled> 
+							<select class="form-control" id="depto" name="id_depto" readonly> 
 								<option value="{{ $p->id_depto }}"> {{ $p->depto }} </option>
 								@foreach($departamentos as $d)
-									<option value="{{ $d->id_depto }}"disabled> {{ $d->nombre }} </option>
-								@endforeach
-							</select>
-							<div class="valid-feedback">Valid.</div>
-							<div class="invalid-feedback">Por favor rellena el campo.</div>
-						</div>
-						<div class="col-sm">
-							<label for="semestre">* Puesto:</label>
-							<select class="form-control" id="puesto" name="puesto" required> 
-								<option value="{{ $p->id_puesto }}"> {{ $p->puesto }} </option>
-								@foreach($puestos as $pu)
-									<option value="{{ $pu->id_puesto }}" require> {{ $pu->nombre }} </option>
+									<option value="{{ $d->id_depto }}"readonly> {{ $d->nombre }} </option>
 								@endforeach
 							</select>
 							<div class="valid-feedback">Valid.</div>
@@ -159,9 +146,18 @@
 							<label for="curp">* CURP:</label>
 							<input type="text" class="form-control text-uppercase" 
 								value="{{ $p->curp }}" pattern="[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9]{2}" 
-								minlength="18" maxlength="18" name="curp" disabled>
+								minlength="18" maxlength="18" name="curp" readonly>
 						</div>
 						<div class="col-sm">
+							<label for="semestre">* Puesto:</label>
+							<select class="form-control" id="puesto" name="id_puesto" required> 
+								<option value="{{ $p->id_puesto }}"> {{ $p->puesto }} </option>
+								@foreach($puestos as $pu)
+									<option value="{{ $pu->id_puesto }}"> {{ $pu->nombre }} </option>
+								@endforeach
+							</select>
+							<div class="valid-feedback">Valid.</div>
+							<div class="invalid-feedback">Por favor rellena el campo.</div>
                			</div>
 					</div>
 				@endif
@@ -212,5 +208,14 @@
 			</div>
         </form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

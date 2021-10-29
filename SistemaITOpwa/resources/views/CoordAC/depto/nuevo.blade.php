@@ -15,7 +15,7 @@
 					<input type="text" class="form-control text-uppercase" 
 					placeholder="Escribe el nombre del departamento" 
 					title="Departamento de gestión económica"
-					pattern="{[A-Z][a-z]+}+ *" name="nomDepto" required>
+					pattern="{[A-Z][a-z]+}+ *" name="nombre" required>
 					<div class="valid-feedback">Valido.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
@@ -23,7 +23,7 @@
 			<div class="form-group">
 				<div class="col-sm">
 					<label for="nombre">* Jefe de Departamento:</label>
-					<select class="form-control" id="persona" name="persona" required> 
+					<select class="form-control" id="persona" name="id_persona" required> 
 						<option value="" >Selecciona el nuevo Jefe</option>
 						@foreach($jefes as $j)
 							<option value="{{$j->id_persona }}" required> 
@@ -63,5 +63,14 @@
 			</div>
 		</form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

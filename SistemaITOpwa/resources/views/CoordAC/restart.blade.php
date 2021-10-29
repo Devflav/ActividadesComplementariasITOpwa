@@ -1,8 +1,9 @@
 @extends('layouts.coordComple')
 @section('content')
 
-<div class="modal fade" id="restablecer"  aria-labelledby="restablecerLabel" aria-hidden="true">
-  <div class="modal-dialog">
+<div class="modal fade" id="restablecer" data-backdrop="static"  aria-labelledby="restablecerLabel" 
+  data-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header" style="background:#1B396A;">
         <h5 class="modal-title text-white" id="restablecerLabel">RESTABLECER USUARIO</h5>
@@ -14,9 +15,15 @@
       <center>INTENTAS REESTABLECER UN USUARIO <br> ¿ESTAS SEGURO DE ESTA ACCIÓN?</center>
       </div>
       <div class="modal-footer">
-        <a href="{{ url('/restartuser').$usuario }}" class="btn btn-outline-danger">Restablecer</a>
-        <label for="" class="col-1"></label>
-        <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cerar</button>
+        <div class="form-group">
+          <div class="col-sm"></div>
+          <div class="col-sm">
+            <a href="{{ url('/restartuser').$usuario }}" class="btn btn-outline-danger">Restablecer</a>
+          </div>
+          <div class="col-sm">
+            <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Cerar</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -16,9 +16,7 @@
 <body>
     <div class="header-images">
         <div class="logo-right">
-            <img src="{{ url('/images/tec_nm.jpeg') }}"
-            height='60px'
-            >
+            <img src="{{ $images->cabecera }}" height='60px'>
         </div>
         <h3 class='constancia'>CONSTANCIA DE CUMPLIMIENTO DE ACTIVIDAD COMPLEMENTARIA</h3>
         <h5 class='tecDep'>Instituto Tecnológico de Oaxaca <br> {{ $data->depto }}</h5>
@@ -76,21 +74,7 @@
         </div>
         <footer>
             <div class="footer-wrapper">
-                <div class="logo-left">
-                    <img 
-                    src="{{ url('/images/ito.jpeg') }}"
-                        alt="logo tec" height="50px" style="margin: 0px 30px 0px 30px;" />
-                </div>
-                <div class="footer-content">
-                    <p>Avenida Ing. Víctor Bravo Ahuja No. 125 Esquina Calzada</p>
-                    <p>Tecnológico, C.P. 68030</p>
-                    <p>Oaxaca, Oax. Tel. (951) 501 50 16</p>
-                    <p>e-mail: tec_oax@itoaxaca.edu.mx</p>
-                    <p class="bold">tecnm.mx | oaxaca.tecnm.mx</p>
-                </div>
-                <div class="logo-right">
-                    <img src="{{ url('/images/logo_mexico.jpeg') }}" height='120px'>
-                </div>
+                <img src="{{ $images->cabecera }}" height='60px'>
             </div>
         </footer>
 </body>

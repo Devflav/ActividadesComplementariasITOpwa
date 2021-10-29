@@ -22,7 +22,7 @@
 				<div class="col-sm">
 					<label for="nombre">* Nombre (s):</label>
 					<input type="text" class="form-control" id="nombre" placeholder="Augusta" 
-						pattern="{[A-Z][a-z]+}+ *" minlength="4" name="nombre" required>
+						pattern="[a-zA-Z ]*" minlength="4" name="nombre" required>
 					<div class="valid-feedback">Formato valido.</div>
 					<div class="invalid-feedback">Escribe tu(s) Nombre(s)</div>	
 				</div>
@@ -31,14 +31,14 @@
 				<div class="col-sm">
 					<label for="apePat">* Apallido Paterno:</label>
 					<input type="text" class="form-control" id="apePat" placeholder="Ada" 
-						pattern="{[A-Z][a-z]+}+ *" minlength="4" name="apePat" required>
+						pattern="[a-zA-Z ]*" minlength="4" name="apePat" required>
 					<div class="valid-feedback">Formato valido.</div>
 					<div class="invalid-feedback">Escribe tu Apellido Paterno</div>
 				</div>
 				<div class="col-sm">
 					<label for="apeMat">* Apellido Materno:</label>
 					<input type="text" class="form-control" id="apeMat" placeholder="King" 
-						pattern="{[A-Z][a-z]+}+ *" minlength="4" name="apeMat" required>
+						pattern="[a-zA-Z ]*" minlength="4" name="apeMat" required>
 					<div class="valid-feedback">Formato valido.</div>
 					<div class="invalid-feedback">Escribe tu Apellido Materno</div>
 				</div>
@@ -82,7 +82,7 @@
 				<div class="col-sm">
 					<label for="curp">CURP:</label>
 					<input type="text" class="form-control" id="curp" placeholder="AAAA111111BBBBBB22" 
-						pattern="[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9]{2}" minlength="18" maxlength="18" 
+						pattern="[a-zA-Z0-9 ]*" minlength="18" maxlength="18" 
 						name="curp">
 					<div class="valid-feedback">Formato valido.</div>
 					<div class="invalid-feedback">Puedes registrarla en otro momento</div>

@@ -12,7 +12,7 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="nControl">* Grado:</label>
-					<select class="form-control" id="grado" name="grado" required> 
+					<select class="form-control" id="grado" name="id_grado" required> 
 						<option value=""> Selecciona una Grado </option>
 						@foreach($grados as $g)
 							<option value="{{$g->id_grado}}" require> {{ $g->nombre }} </option>
@@ -51,7 +51,7 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="carrera">* Departamento:</label>
-					<select class="form-control" id="depto" name="depto" required> 
+					<select class="form-control" id="depto" name="id_depto" required> 
 						<option value=""> Selecciona un Departamento </option>
 						@foreach($departamentos as $d)
 							<option value="{{ $d->id_depto }}" require> {{ $d->nombre }} </option>
@@ -130,5 +130,14 @@
 			</div>
         </form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

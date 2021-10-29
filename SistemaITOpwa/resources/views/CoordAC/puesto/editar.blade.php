@@ -29,7 +29,7 @@
 					<label for="descrip">* Descripción:</label>
 					<input type="text" class="form-control text-uppercase" 
 						value="{{ $p->descripcion }}" pattern="{[A-Z][a-z]+}+ *" 
-						name="descrip" required>
+						name="descripcion" required>
 					<div class="valid-feedback">Valido.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>	
                 </div>
@@ -48,7 +48,7 @@
                     <div class="col-sm">
                         <button type="button" data-toggle="modal" data-target="#edit" 
 							class="btn btn-outline-primary"> 
-                            Registrar
+                            Guardar
                         </button>
                     </div>
                     <br>
@@ -85,5 +85,14 @@
 			</div>
         </form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

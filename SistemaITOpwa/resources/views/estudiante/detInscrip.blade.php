@@ -118,7 +118,19 @@
                 <div class="invisible">
                     <input type="text" value="{{ $a->id_grupo}}" name="grupo">
                 </div>
+                
         @endforeach
+
+        <div class="form-group">
+            <div class="col-sm"></div>
+            <div class="col-sm"></div>
+            <div class="col-sm">
+                <a href="{{ url('Est/imprimir/horario').'/'.$actividad[0]->id_inscripcion }}" 
+                    class="btn btn-outline-primary" target="_blank">
+                    <i class="fa fa-lg fa-file-pdf-o"></i> Imprimir horario
+                </a>
+            </div>
+        </div>
 
     <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

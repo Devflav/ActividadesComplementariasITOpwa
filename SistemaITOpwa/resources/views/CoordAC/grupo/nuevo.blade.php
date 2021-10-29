@@ -45,10 +45,10 @@
 			<div class="form-group">
                 <div class="col-sm">
 					<label for="actividad">* Actividad:</label>
-					<select class="form-control" id="actividades" name="actividad" required> 
+					<select class="form-control" id="actividades" name="id_actividad" required> 
 						<option value=""> Selecciona la actividad </option>
 						@foreach($actividades as $a)
-							<option value="{{ $a->id_actividad }}" require> 
+							<option value="{{ $a->id_actividad }}"> 
 								{{ $a->creditos }}C - {{ $a->clave}} - {{ $a->nombre }} 
 							</option>
 						@endforeach
@@ -60,10 +60,10 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="respon">* Responsable:</label>
-					<select class="form-control" id="respon" name="responsable" required> 
+					<select class="form-control" id="respon" name="id_persona" required> 
 						<option value=""> Selecciona el responsable </option>
 						@foreach($personas as $p)
-							<option value="{{ $p->id_persona }}" name="responsable" require> 
+							<option value="{{ $p->id_persona }}"> 
 								{{ $p->grado }} {{ $p->nombre }} {{ $p->apePat }} {{ $p->apeMat }} 
 							</option>
 						@endforeach
@@ -74,7 +74,7 @@
                 <div class="col-sm">
 					<label for="cupo">* Cupo:</label>
 					<input type="text" class="form-control" name="cupo" 
-						placeholder="Escribe el cupo para el grupo" pattern="[0-9]{2}|[0-9]{1}" required>
+						placeholder="Escribe el cupo para el grupo" pattern="[0-9]{1,4}" required>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
@@ -92,7 +92,7 @@
                 </div>
                 <div class="col-sm">
 					<label for="lugar">* Lugar:</label>
-					<select class="form-control" id="lugar" name="lugar" required> 
+					<select class="form-control" id="lugar" name="id_lugar" required> 
 						<option value=""> Selecciona el lugar </option>
 						@foreach($lugares as $l)
 							<option value="{{ $l->id_lugar }}" require> {{ $l->nombre }} </option>
@@ -185,5 +185,15 @@
             </div>
         </form>
     </div>
+	
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

@@ -19,7 +19,7 @@ use DB;         use Auth;       use mysql_query;
 class PResponsableController extends Controller
 {
     /**Constructor del controlador */
-    public function _construct() {  $this->middleware('auth'); }
+    public function _construct() {  $this->middleware('profesorr'); }
     
     /**Redirecciona a la pagina de inicio de sesión de este usuario */
     public function f_inicio() { 
@@ -27,21 +27,22 @@ class PResponsableController extends Controller
         $now = date_create('America/Mexico_City')->format('H');
 
         $today = date("Y-m-d");
-        $dates = DB::select('SELECT ini_inscripcion, ini_evaluacion, ini_gconstancias,
-                fin_inscripcion, fin_evaluacion, fin_gconstancias
-                FROM periodo WHERE estado = "Actual"');
-        $processes = 00;
-        $endprocess = 00;
-        foreach($dates as $d){
-            if($today >= $d->ini_inscripcion && $today <= $d->fin_inscripcion){
-                $processes = 01;
-                $endprocess = $d->fin_inscripcion;}
-            elseif($today >= $d->ini_evaluacion && $today <= $d->fin_evaluacion){
-                $processes = 10;
-                $endprocess = $d->fin_evaluacion;}
-            elseif($today >= $d->ini_gconstancias && $today <= $d->fin_gconstancias){
-                $processes = 11;
-                $endprocess = $d->fin_gconstancias;}
+        $dates = Mperiodo::where('estado', "Actual")
+            ->first();
+
+        $processes = 00;    $endprocess = 00;
+
+        if($today >= $dates->ini_inscripcion && $today <= $dates->fin_inscripcion){
+            $processes = 01;
+            $endprocess = $dates->fin_inscripcion;
+        
+        } elseif($today >= $dates->ini_evaluacion && $today <= $dates->fin_evaluacion){
+            $processes = 10;
+            $endprocess = $dates->fin_evaluacion;
+        
+        } elseif($today >= $dates->ini_gconstancias && $today <= $dates->fin_gconstancias){
+            $processes = 11;
+            $endprocess = $dates->fin_gconstancias;
         }
 
         return view('ProfRes.inicio')  
@@ -194,9 +195,6 @@ class PResponsableController extends Controller
 /**Esta función se encarga de registrar en la base de datos la evaluación realizada */
     public function f_save_eval(Request $request) {
 
-        /*$crit = DB::select('SELECT id_crit_eval FROM criterios_evaluacion
-                WHERE estado = 1');*/
-
         $now = date_create('America/Mexico_City')->format('H');
 
         $alumno = DB::table('estudiante as a')
@@ -204,12 +202,6 @@ class PResponsableController extends Controller
                     ->select('i.id_inscripcion as id', 'i.id_grupo as id_grupo')
                     ->where('a.num_control', '=', $request->input('n_control'))
                     ->first();
-        
-        /*$id_desempenio = $request->input('idDesempenio');
-        $id_inscripcion = $alumno->id;
-        $asistencias = $request->input('asistencias');
-        $calificacion = $request->input('calificacion');
-        $observaciones = $request->input('observaciones');*/
 
         $evaluacion = new Mevaluacion();
         $evaluacion->id_desempenio = $request->input('idDesempenio');
@@ -220,12 +212,8 @@ class PResponsableController extends Controller
         $evaluacion->constancia = '';
         try {
             $evaluacion->save();
-            /*Mevaluacion::create(['id_inscripcion' => $id_inscripcion,
-            'id_desempenio' => $id_desempenio, 'asistencias' => $asistencias,
-            'calificacion' => $calificacion, 'observaciones' => $observaciones]);*/
 
             for ($i = 1; $i <= 7; $i++){
-            //foreach($crit as $c){
                 $evalValor = new MEvalValor();
                 $evalValor->id_evaluacion = $evaluacion->id;
                 $evalValor->id_crit_eval = $i;
@@ -373,6 +361,13 @@ class PResponsableController extends Controller
                          'p.apePat as apePat',
                          'p.apeMat as apeMat', 'g.nombre as grado')
                 ->first();
+
+        $images = Mperiodo::select('cabecera', 'pie')
+            ->where('estado', "Actual")
+            ->first();
+
+        $images->cabecera = substr($images->cabecera, 1);
+        $images->pie = substr($images->pie, 1);
         
         $now = date_create('America/Mexico_City');
         
@@ -386,17 +381,210 @@ class PResponsableController extends Controller
         $month = $months[(int)$monthNumber];
     
         $pdf = App::make('dompdf.wrapper');
-        $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
-             ->loadView('ProfRes.constancia', array('data' => $data,
-                        'profesor' => $profesor,
-                        'jefe' => $jefeDpto,
-                        'day' => $now->format('d'),
-                        'jefeDpto' => $jefe,
-                        'month' => $month,
-                        'year' => $now->format('Y')
-                    ));
-    
-        return $pdf->download('constancia.pdf');
+        $pdf = app('dompdf.wrapper');
+        $content = "<head>
+                        <meta charset='UTF-8' />
+                        <style>
+                            @font-face {
+                                font-family: 'Montserrat';
+                                font-style: normal;
+                                font-weight: normal;
+                            }
+                        </style>
+                    </head>";
+
+        $content .= "<body'
+                        <div class='header-images'>
+                            <div class='logo-right'>
+                                <img src=".$images->cabecera." height='150px'>
+                            </div>
+                                <br>
+                                <br>
+                                <h3 class='constancia'>CONSTANCIA DE CUMPLIMIENTO DE ACTIVIDAD COMPLEMENTARIA</h3>
+                                <h5 class='tecDep'>Instituto Tecnológico de Oaxaca <br> ". $data->depto ."</h5>
+                                <br>
+                                <br>
+                                <div class='header'>
+                                <h4>".$jefeDpto->grado . ' ' . $jefeDpto->nombre . ' ' . $jefeDpto->apePat . ' ' . $jefeDpto->apeMat."</h4>
+                                <h4>Jefe del Departamento de Servicios Escolares</h4>
+                                <h4>PRESENTE</h4>
+                            </div>
+                            <div class='content'>
+                                El(la) que suscribe
+                                <span class='text-content'>". $profesor->grado . ' ' . $profesor->nombre . ' ' . $profesor->apePat . ' ' . $profesor->apeMat ."</span> por este
+                                medio se permite hacer de su conocimiento que el(la) estudiante
+                                <span
+                                    class='text-content'>". $data->nombre . ' ' . $data->apePat . ' ' . $data->apeMat ."
+                                </span> con número
+                                de control <span class='text-content'>". $data->num_control ."</span> de la carrera de
+                                <span class='text-content'>". $data->carrera ."</span> ha cumplido su
+                                actividad complementaria con el nivel de desempeño
+                                <span class='text-content'>". $data->niv_des ."</span> y un valor numérico de
+                                <span class='text-content'>". $data->calificacion ."</span>, durante el periodo escolar
+                                ". $data->periodo ." con un valor curricular de
+                                <span class='text-content'>". $data->creditos ."</span> créditos.
+                            </div>
+                            <br />
+                            <div class='bottom'>
+                                <p>
+                                    Se extiende la presente en la Ciudad de Oaxaca a los ".$now->format('d')." dias de ". $month ." de
+                                    ".$now->format('Y').".
+                                </p>
+                                <br>
+                                <br>
+                                <div class='atentamente'>
+                                <br>
+                                    <p class='atentamente-title'>ATENTAMENTE</p>
+                                    <div class='column'>
+                                        <br>    
+                                        <br>    
+                                        <p class='mb'>.</p>
+                                        <p>___________________________________</p>
+                                        <p>". $profesor->grado . ' ' . $profesor->nombre . ' ' . $profesor->apePat . ' ' . $profesor->apeMat ."</p>
+                                        <p>Nombre y firma del profesor responsable</p>
+                                    </div>
+                                    <div class='column' style='margin-left: 55%'>
+                                        <br>
+                                        <br>
+                                        <p class='mb'>.</p>
+                                        <p>___________________________________</p>
+                                        <p>".$jefe->grado . ' ' . $jefe->nombre . ' ' . $jefe->apePat . ' ' . $jefe->apeMat."</p>
+                                        <p>Vo. Bo. del Jefe(a) del ".$data->depto."</p>
+                                    </div>
+                                </div>
+                                <p class='copia' style='text-align: left; margin-top: -250px;'>
+                                    <br>
+                                    <br>
+                                    C.c.p. Jefe(a) de Departamento correspondiente.
+                                    <br>
+                                    C.c.p. Interesado.
+                                </p>
+                            </div>
+                            <footer>
+                                <div class='footer-wrapper'>
+                                    <img src=".$images->pie." height='130px'>
+                                </div>
+                            </footer>
+                    </body>";
+
+        $content .= "<style>
+                        .copia{
+                            font-size: 10px;
+                        }
+                        body {
+                            margin: 0 2rem 0 2rem;
+                        }
+
+                        .tecDep {
+                            font-size: 10px;
+                            text-transform: uppercase;
+                            text-align: right;
+                        }
+                        .constancia{
+                            margin-bottom: 20px;
+                            font-weight: bold;
+                            font-size: 17px;
+                            display: flex;
+                            justify-content: center;
+                        }
+
+                        .header {
+                            margin-bottom: 20px;
+                            font-weight: bold;
+                            font-size: 16px;
+                        }
+
+                        .content {
+                            text-align: justify;
+                        }
+
+                        .content, .bottom {
+                            font-size: 15px;
+                        }
+
+                        .text-content {
+                            font-weight: bold;
+                        }
+
+                        body {
+                            font-family: 'Montserrat' !important;
+                        }
+
+                        h4 {
+                            padding: 0px;
+                            margin: 0px;
+                        }
+
+                        footer {
+                            position: fixed;
+                            bottom: -100px;
+                            left: 0px;
+                            right: 0px;
+                            height: 200px;
+                        }
+
+                        .atentamente {
+                            display: flex;
+                            justify-content: center;
+                        }
+
+                        .atentamente .column {
+                            width: 42%;
+                            text-align: center;
+                            margin-left: 4%;
+                        }
+
+                        .atentamente .column .name{
+                            font-size: 12px;
+                        }
+
+                        .atentamente .column .mb {
+                            margin-bottom: 30px;
+                            color: white;
+                        }
+
+                        .footer-wrapper {
+                            color: gray;
+                            font-size: 10px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            text-align: center;
+                        }
+
+                        footer .bold {
+                            font-weight: bold;
+                        }
+
+                        .atentamente-title {
+                            text-align: center;
+                        }
+
+                        footer .logo-left {
+                            margin-right: 600px;
+                        }
+
+                        footer .logo-right {
+                            margin-left: 600px;
+                        }
+
+                    </style>";
+
+        // $pdf = App::make('dompdf.wrapper');
+        // $pdf->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])
+        //      ->loadView('ProfRes.constancia', array('data' => $data,
+        //                 'profesor' => $profesor,
+        //                 'jefe' => $jefeDpto,
+        //                 'day' => $now->format('d'),
+        //                 'jefeDpto' => $jefe,
+        //                 'month' => $month,
+        //                 'year' => $now->format('Y'), 
+        //                 'images' => $images
+        //             ));
+
+        $pdf->loadHTML($content);
+
+        return $pdf->download('Constancia-'.$data->num_control.'.pdf');
     }
 /**Esta función genera y descarga el formato de evaluación de actividad
  * complementaria del estudiante que recibe como parametro
@@ -484,37 +672,37 @@ class PResponsableController extends Controller
     public function downloadPdf($gpo, $origin)    {
         $pdf = App::make('dompdf.wrapper');
         $pdf = app('dompdf.wrapper');
-        $content = "<h1>Lista de estudiantes</h1>";
-        $content .= "<h5> Grupo: " . $gpo . " </h5>";
+        $content = "<h2>LISTADO DE ESTUDIANTES</h2>";
 
-        $alumnosGrupo = DB::select(
-            "SELECT *
-                FROM persona as p
-                INNER JOIN estudiante as e ON p.id_persona = e.id_persona
-                INNER JOIN inscripcion as i ON e.id_estudiante = i.id_estudiante
-                WHERE e.id_estudiante IN (SELECT id_estudiante
-            FROM inscripcion
-            GROUP BY id_grupo) AND i.id_grupo = " .
-            $gpo .
-            " AND i.aprobada  = 1"
-        );
+        $alumnosGrupo = DB::table('persona as p')
+            ->join('estudiante as e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('inscripcion as i', 'e.id_estudiante', '=', 'i.id_estudiante')
+            ->select('*')
+            ->where('i.id_grupo', $gpo)
+            ->where('i.aprobada', 1)
+            ->get();
 
         $grupo = DB::table('grupo as g')
             ->join('persona as p', 'g.id_persona', '=', 'p.id_persona')
             ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
             ->select(
-                'g.clave as clave',
+                'g.clave',
                 'a.nombre as actividad',
-                'p.nombre as nombre',
+                'p.nombre',
                 'p.apePat as paterno',
                 'p.apeMat as materno',
-                'g.id_grupo as id_grupo'
+                'g.id_grupo'
             )
             ->where('g.id_grupo', $gpo)
             ->first();
 
-        $content .= "<h5> Actividad: " . $grupo->actividad . " </h5>";
-        $content .=
+        $content .= "<h5'>
+                        <label> Grupo: " . $grupo->clave."</label>
+                        <label class='col-sm-2'> </label>
+                        <label> Actividad: " .$grupo->actividad ."</label>
+                    </h5>";
+        
+            $content .=
             "<h5> Responsable: " .
             $grupo->nombre .
             " " .
@@ -523,14 +711,15 @@ class PResponsableController extends Controller
             $grupo->materno .
             " </h5>";
 
-        $content .= "<table style='width: 100%; border-collapse: collapse;'>
+        $content .= "<table style='width: 100%;  border-collapse: collapse;'>
 				<tr>
-                        <th width='10%'>No de control</th>
-                        <th width='15%'>Nombre</th>
-						<th width='10%'>Apellido Paterno</th>
-						<th width='10%'>Apellido Materno</th>";
+                        <th width='8%'>No. control</th>
+                        <th width='35%'>Nombre</th>";
         if($origin == 'print') {
 			$content .= "<th></th>
+						<th></th>
+						<th></th>
+						<th></th>
 						<th></th>
 						<th></th>
 						<th></th>
@@ -553,16 +742,16 @@ class PResponsableController extends Controller
                 $alumno->num_control .
                 "</td>
 										<td>" .
-                $alumno->nombre .
-                "</td>
-    								<td>" .
-                $alumno->apePat .
-                "</td>
-    								<td>" .
+                $alumno->nombre ." ".
+                $alumno->apePat ." ".
                 $alumno->apeMat .
-                "</td> ";
+                "</td>";
+
                 if($origin == 'print') {
                  $content .= "<td></td>".
+                 "<td></td>".
+                 "<td></td>".
+                 "<td></td>".
                  "<td></td>".
                  "<td></td>".
                  "<td></td>".
@@ -584,9 +773,13 @@ class PResponsableController extends Controller
                       border: 1px solid black;
                       font-size: 10px;
 				}
-				h1 {
-				    text-align:center;
+				h2 {
+                      font-size: 23px;
+                      text-align:center;
 				}
+                label{
+                    margin-rigth: 15px;
+                }
 			</style>";
 
         $pdf->loadHTML($content);

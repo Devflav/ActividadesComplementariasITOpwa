@@ -14,7 +14,7 @@
 					<label for="nombre">* Puesto:</label>
 					<input type="text" class="form-control text-uppercase" 
 						placeholder="Escribe el puesto" pattern="{[A-Z][a-z]+}+ *" 
-						name="nomPuesto" required>
+						name="nombre" required>
 					<div class="valid-feedback">Valido.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
@@ -26,7 +26,7 @@
 					<label for="descrip">* Descripción:</label>
 					<textarea type="text" class="form-control text-uppercase" 
 						placeholder="Escribe una descripción del puesto" 
-						pattern="{[A-Z][a-z]+}+ *" name="descrip" required></textarea>
+						pattern="{[A-Z][a-z]+}+ *" name="descripcion" required></textarea>
 					<div class="valid-feedback">Valido.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
@@ -59,5 +59,14 @@
             </div>
         </form>
     </div>
+    @if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

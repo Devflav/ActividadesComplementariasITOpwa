@@ -23,28 +23,29 @@ use App\Models\Mdepartamento;
 
 class JDepartmentController extends Controller
 {
-    public function _construct() { $this->middleware('auth');  }
+    public function _construct() { $this->middleware('jefedepto');  }
 
     public function f_inicio(Request $request) {
 
         $now = date_create('America/Mexico_City')->format('H');
 
         $today = date("Y-m-d");
-        $dates = DB::select('SELECT ini_inscripcion, ini_evaluacion, ini_gconstancias,
-                fin_inscripcion, fin_evaluacion, fin_gconstancias
-                FROM periodo WHERE estado = "Actual"');
-        $processes = 00;
-        $endprocess = 00;
-        foreach($dates as $d){
-            if($today >= $d->ini_inscripcion && $today <= $d->fin_inscripcion){
-                $processes = 01;
-                $endprocess = $d->fin_inscripcion;}
-            elseif($today >= $d->ini_evaluacion && $today <= $d->fin_evaluacion){
-                $processes = 10;
-                $endprocess = $d->fin_evaluacion;}
-            elseif($today >= $d->ini_gconstancias && $today <= $d->fin_gconstancias){
-                $processes = 11;
-                $endprocess = $d->fin_gconstancias;}
+        $dates = Mperiodo::where('estado', "Actual")
+            ->first();
+
+        $processes = 00;    $endprocess = 00;
+
+        if($today >= $dates->ini_inscripcion && $today <= $dates->fin_inscripcion){
+            $processes = 01;
+            $endprocess = $dates->fin_inscripcion;
+        
+        } elseif($today >= $dates->ini_evaluacion && $today <= $dates->fin_evaluacion){
+            $processes = 10;
+            $endprocess = $dates->fin_evaluacion;
+        
+        } elseif($today >= $dates->ini_gconstancias && $today <= $dates->fin_gconstancias){
+            $processes = 11;
+            $endprocess = $dates->fin_gconstancias;
         }
         
         return view('jDepto.inicio')
@@ -407,6 +408,18 @@ class JDepartmentController extends Controller
                 WHERE e.id_depto IN (SELECT id_depto
                                 FROM empleado
                                 WHERE id_persona = '.$id_per.')');
+            
+            $persona = DB::table('persona as p')
+                ->join('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+                ->join('grado as g', 'e.id_grado', '=', 'g.id_grado')
+                ->select('p.id_persona',
+                        'g.nombre AS grado',
+                        'p.nombre',
+                        'p.apePat',
+                        'p.apeMat')
+                ->where('e.id_depto', DB::raw('SELECT id_depto
+                                FROM empleado WHERE id_persona = '.$id_per))
+                ->get();
 
             $lugar = Mlugar::get();
 
