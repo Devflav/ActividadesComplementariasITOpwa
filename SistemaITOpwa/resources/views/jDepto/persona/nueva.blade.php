@@ -3,7 +3,11 @@
 <div class="container form-content col-sm-9">
 	<div class="form-group">
 		<div class="col-sm">
-			<div class="card-header"> Registrar Nuevo Personal </div>
+			<div class="card-header">
+				<div class="col-sm">
+					<label for=""> Registrar Nuevo Personal </label>
+				</div> 
+			</div>
         </div>
     </div>
     <div class="card-body">
@@ -11,65 +15,73 @@
             @csrf
             <div class="form-group">
                 <div class="col-sm">
-				<label for="nControl">* Grado:</label>
-									<select class="form-control" id="grado" name="grado" required> 
-									    <option value=""> Selecciona una Grado </option>
-										@foreach($grados as $g)
-											<option value="{{$g->id_grado}}" require> {{ $g->nombre }} </option>
-										@endforeach
-									</select>
-									<div class="valid-feedback"></div>
-									<div class="invalid-feedback">Por favor rellena el campo.</div>
+					<label for="nControl">* Grado:</label>
+					<select class="form-control" id="grado" name="id_grado" required> 
+						<option value=""> Selecciona una Grado </option>
+						@foreach($grados as $g)
+							<option value="{{$g->id_grado}}" require> {{ $g->nombre }} </option>
+						@endforeach
+					</select>
+					<div class="valid-feedback"></div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
                 <div class="col-sm">
-				<label for="nombre">* Nombre (s):</label>
-									<input type="text" class="form-control text-uppercase" id="nombre" placeholder="Nombre(s)" pattern="{[A-Z][a-z]+}+ *" minlength="4" name="nombre" required>
-									<div class="valid-feedback">Valid.</div>
-									<div class="invalid-feedback">Por favor rellena el campo.</div>	
+					<label for="nombre">* Nombre (s):</label>
+					<input type="text" class="form-control text-uppercase" id="nombre" 
+						placeholder="Nombre(s)" pattern="{[A-Z][a-z]+}+ *" 
+						minlength="4" name="nombre" required>
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>	
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-sm">
-				<label for="apePat">* Apallido Paterno:</label>
-									<input type="text" class="form-control text-uppercase" id="apePat" placeholder="Apellido Paterno" pattern="{[A-Z][a-z]+}+ *" minlength="4" name="apePat" required>
-									<div class="valid-feedback">Valid.</div>
-									<div class="invalid-feedback">Por favor rellena el campo.</div>
+					<label for="apePat">* Apallido Paterno:</label>
+					<input type="text" class="form-control text-uppercase" id="apePat" 
+						placeholder="Apellido Paterno" pattern="{[A-Z][a-z]+}+ *" 
+						minlength="4" name="apePat" required>
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
                 <div class="col-sm">
-				<label for="apeMat">* Apellido Materno:</label>
-									<input type="text" class="form-control text-uppercase" id="apeMat" placeholder="Apellido Materno" pattern="{[A-Z][a-z]+}+ *" minlength="4" name="apeMat" required>
-									<div class="valid-feedback">Valid.</div>
-									<div class="invalid-feedback">Por favor rellena el campo.</div>
+					<label for="apeMat">* Apellido Materno:</label>
+					<input type="text" class="form-control text-uppercase" id="apeMat" 
+						placeholder="Apellido Materno" pattern="{[A-Z][a-z]+}+ *" 
+						minlength="4" name="apeMat" required>
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-sm">
-				<label for="carrera">* Departamento:</label>
-									<input type="text" class="form-control" value="{{ $depto->nombre }}" disabled>
-									<div class="valid-feedback">Valid.</div>
-									<div class="invalid-feedback">Por favor rellena el campo.</div>
-                </div>
-                <div class="col-sm">
-				<label for="semestre">* Puesto:</label>
-									<input type="text" class="form-control" value="{{ $puesto->nombre }}" disabled>
-									<div class="valid-feedback">Valid.</div>
-									<div class="invalid-feedback">Por favor rellena el campo.</div>
+					<label for="carrera">* Departamento:</label>
+					<input type="text" class="form-control" value="{{ $depto->nombre }}" disabled>
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
             </div>
-            <div class="form-group">
+			<div class="form-group">
                 <div class="col-sm">
-				<label for="curp">* CURP:</label>
-									<input type="text" class="form-control text-uppercase" id="curp" 
-									placeholder="Escribe la Curp" pattern="[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9]{2}" 
-									minlength="18" maxlength="18" name="curp" required>
+					<label for="curp">* CURP:</label>
+					<input type="text" class="form-control text-uppercase" id="curp" 
+						placeholder="Escribe la Curp" pattern="[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9]{2}|[a-z]{4}[0-9]{6}[a-z]{6}[0-9]{2}" 
+						minlength="18" maxlength="18" name="curp" required>
                 </div>
                 <div class="col-sm">
+					<label for="semestre">* Puesto:</label>
+					<input type="text" class="form-control" value="{{ $puesto->nombre }}" disabled>
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
             </div>
-            <div class="form-group">
+			<div class="form-group">
                 <div class="col-sm">
-                    <label ><strong> * Campos Obligatorios </strong></label>
-                </div>
+					<label > 
+						<strong>
+							* Campos Obligatorios
+						</strong> 
+					</label>
+				</div>
             </div>
             <div class="container">
                 <div class="form-group">
@@ -81,7 +93,7 @@
                     </div>
                     <br>
                     <div class="col-sm">
-                        <a href="{{ url('JDepto/personal/1') }}" class="btn btn-outline-danger"> 
+                        <a href="{{ url('/JDepto/personal/1') }}" class="btn btn-outline-danger"> 
                             Cancelar 
                         </a> 
                     </div>
@@ -90,5 +102,14 @@
             </div>
         </form>
     </div>
+    @if ($errors->any())
+        @foreach ($errors->all() as $error)
+            <div class="row">
+                <div class="alert alert-danger">
+                    {{ $error }}
+                </div>
+            </div>
+        @endforeach
+    @endif
 </div>
 @endsection

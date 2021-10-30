@@ -233,7 +233,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('DivEProf/actdep/{d}/{p}', [DEProfessionalsController::class, 'f_actdepto']);
         Route::get('DivEProf/nuevaAct', [DEProfessionalsController::class, 'f_n_actividad']);
         Route::post('DivEProf/regAct', [DEProfessionalsController::class, 'f_regAct']);
-        Route::get('DivEProf/editarAct{a}', [DEProfessionalsController::class, 'f_e_actividad']);
+        Route::get('DivEProf/editarAct/{a}', [DEProfessionalsController::class, 'f_e_actividad']);
         Route::get('DivEProf/update/actividad/{a}', [DEProfessionalsController::class, 'f_editAct']);
         //Route::get('DivEProf/eliminar/actividad/{a}', [DEProfessionalsController::class, 'f_eliminaciones']);
         Route::get('DivEProf/delete/actividad/{a}', [DEProfessionalsController::class, 'f_deleteact']);
@@ -300,6 +300,7 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('DivEProf/lugares/{s}/{p}', [DEProfessionalsController::class, 'f_lugar']);
         Route::get('DivEProf/nuevoLugar', [DEProfessionalsController::class, 'f_n_lugar']);
         Route::post('DivEProf/regLugar', [DEProfessionalsController::class, 'f_regLugar']);
+        Route::get('DivEProf/searchlug', [DEProfessionalsController::class, 'f_searchlug']);
 
         Route::get('DivEProf/suspLabores/{p}', [DEProfessionalsController::class, 'f_s_labores']);
         Route::get('DivEProf/suspLabores/{s}/{p}', [DEProfessionalsController::class, 'f_s_labor']);
@@ -326,7 +327,7 @@ Route::group(['middleware' => 'auth'], function() {
     Route::group(['middleware' => 'jefedepto'], function()     {
 
         Route::get('JDepto/genConst{n_control}', [JDepartmentController::class, 'downloadConstancia']);
-        Route::get('JDepto/criterioPdf{n_control}', [PResponsableController::class, 'criterioPdf']);
+        Route::get('JDepto/criterioPdf{n_control}', [JDepartmentController::class, 'criterioPdf']);
         Route::get('JDepto', [JDepartmentController::class, 'f_inicio']);
         
         Route::get('JDepto/estudiante/Hist', [JDepartmentController::class, 'f_estudianteH']);
@@ -338,15 +339,15 @@ Route::group(['middleware' => 'auth'], function() {
         Route::get('JDepto/searchActividad', [JDepartmentController::class, 'f_searchact']);
         Route::post('/dpt/regAct', [JDepartmentController::class, 'f_regAct']);
         Route::get('JDepto/editAct{id_act}', [JDepartmentController::class, 'f_e_actividad']);
-        Route::post('/dpt/editAct{id_act}', [JDepartmentController::class, 'f_editAct']);
+        Route::post('/dpt/editAct/{id_act}', [JDepartmentController::class, 'f_editAct']);
         
         Route::get('JDepto/grupos/{p}', [JDepartmentController::class, 'f_grupos']);
         Route::get('JDepto/grupo/{s}/{p}', [JDepartmentController::class, 'f_grupo']);
         Route::get('JDepto/searchGrupo', [JDepartmentController::class, 'f_searchgrupo']);
         Route::get('JDepto/nuevGru', [JDepartmentController::class, 'f_n_grupo']);
-        Route::post('/dpt/regGru', [JDepartmentController::class, 'f_regGrupo']);
+        Route::post('/dpt/regGrupo', [JDepartmentController::class, 'f_regGrupo']);
         Route::get('JDepto/editGru{id_gru}', [JDepartmentController::class, 'f_e_grupo']);
-        Route::post('/dpt/editGru{id_gru}', [JDepartmentController::class, 'f_editGrupo']);
+        Route::post('/dpt/editGrupo/{id_gru}', [JDepartmentController::class, 'f_editGrupo']);
         
         Route::get('JDepto/datgen', [JDepartmentController::class, 'f_perfil']);
         Route::get('JDepto/editperf', [JDepartmentController::class, 'f_editperfil']);
@@ -381,7 +382,7 @@ Route::group(['middleware' => 'auth'], function() {
 
         Route::get('ProfR/genConst{n_control}', [PResponsableController::class, 'downloadConstancia']);
         Route::get('ProfR/criterioPdf{n_control}', [PResponsableController::class, 'criterioPdf']);
-        Route::get('ProfR/formEval{num_control}', [PResponsableController::class, 'formStudentEvaluation']);
+        Route::get('ProfR/formEval/{num_control}/{grupo}', [PResponsableController::class, 'formStudentEvaluation']);
         Route::get('ProfR/download{id_gru}/{print}', [PResponsableController::class, 'downloadPdf']);
         
         Route::get('ProfR', [PResponsableController::class, 'f_inicio']);

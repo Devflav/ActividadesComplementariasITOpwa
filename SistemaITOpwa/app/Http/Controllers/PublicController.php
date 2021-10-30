@@ -210,7 +210,8 @@ class PublicController extends Controller {
             if($newpswd == $conpswd){
                 $updt = Hash::make($newpswd);
                 Musers::where('id_persona', $user)
-                ->update(['password' => $updt, 'edo_sesion' => 1]);
+                    ->update(['password' => $updt, 
+                    'edo_sesion' => 1]);
 
                 ?>
                 <script>

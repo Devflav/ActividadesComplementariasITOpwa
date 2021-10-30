@@ -8,12 +8,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 
 // se declara modelos (bd)
-use App\Models\Musers;          use App\Models\Mgrado;
-use App\Models\Mgrupo;          use App\Models\Mpuesto;
-use App\Models\Mpersona;        use App\Models\Mperiodo;
-use App\Models\Mempleado;       use App\Models\Mcarreras;
-use App\Models\MEvalValor;      use App\Models\Mestudiante;
-use App\Models\Mevaluacion;     use App\Models\Mdepartamento;
+use App\Models\Musers;              use App\Models\Mgrado;
+use App\Models\Mgrupo;              use App\Models\Mpuesto;
+use App\Models\Mpersona;            use App\Models\Mperiodo;
+use App\Models\Mempleado;           use App\Models\Mcarreras;
+use App\Models\Meval_valor;         use App\Models\Mestudiante;
+use App\Models\Mevaluacion;         use App\Models\Mdepartamento;
+use App\Models\Mcriterios_evaluacion;
+use App\Models\Mnivel_desempenio; 
 use DB;         use Auth;       use mysql_query;
 
 class PResponsableController extends Controller
@@ -111,9 +113,9 @@ class PResponsableController extends Controller
                             ->where('pe.id_persona', $data[1])
                             ->where('g.clave', 'LIKE', $data[0])
                             ->orWhere('a.nombre', 'LIKE', $data[0]);
-            });
-            // ->orderBy('g.id_grupo')
-            // ->paginate(10);
+            })
+            ->orderBy('g.id_grupo')
+            ->paginate(10);
 
 
         return view('ProfRes.grupos')
@@ -197,15 +199,23 @@ class PResponsableController extends Controller
 
         $now = date_create('America/Mexico_City')->format('H');
 
-        $alumno = DB::table('estudiante as a')
-                    ->join('inscripcion as i', 'i.id_estudiante', '=', 'a.id_estudiante')
-                    ->select('i.id_inscripcion as id', 'i.id_grupo as id_grupo')
-                    ->where('a.num_control', '=', $request->input('n_control'))
-                    ->first();
+        $num_control = $request->input('n_control');
+        $grupo = $request->input('id_grupo');
+
+        $student = Mestudiante::where('num_control' ,$num_control)
+            ->first();
+
+        $alumno = DB::table('inscripcion as i')
+                    ->join('estudiante as e', 'i.id_estudiante', '=', 'e.id_estudiante')
+                    ->select('i.id_inscripcion as id')
+                    ->where('e.num_control', '=', $num_control)
+                    ->where('i.id_grupo', $grupo)
+                    ->where('i.aprobada', 1)
+                    ->get();
 
         $evaluacion = new Mevaluacion();
         $evaluacion->id_desempenio = $request->input('idDesempenio');
-        $evaluacion->id_inscripcion = $alumno->id;
+        $evaluacion->id_inscripcion = $alumno[0]->id;
         $evaluacion->asistencias = $request->input('asistencias');
         $evaluacion->calificacion = $request->input('calificacion');
         $evaluacion->observaciones = $request->input('observaciones');
@@ -214,23 +224,24 @@ class PResponsableController extends Controller
             $evaluacion->save();
 
             for ($i = 1; $i <= 7; $i++){
-                $evalValor = new MEvalValor();
+                $evalValor = new Meval_valor();
                 $evalValor->id_evaluacion = $evaluacion->id;
                 $evalValor->id_crit_eval = $i;
                 $evalValor->id_desempenio = $request->input($i)+1;
                 $evalValor->save();
             }
 
-            return redirect('ProfR/lista'.$alumno->id_grupo.'/evaluar')
+            return redirect('ProfR/lista'.$grupo.'/evaluar')
                         ->with('successEval', True);
         } catch (Exception $e) {
-            return redirect('ProfR/lista'.$alumno->id_grupo.'/evaluar')
+            return redirect('ProfR/lista'.$grupo.'/evaluar')
                         ->with('successEval', False);
         }
 
     }
 /**Retorna la lista de estudiantes de un grupo, el cual ya fue evaluado */
     public function f_evaluation_list($id_gru)    {
+        
         $grupo = DB::table('grupo as g')
             ->join('persona as p', 'g.id_persona', '=', 'p.id_persona')
             ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
@@ -270,6 +281,7 @@ class PResponsableController extends Controller
     }
 /**Retorna la vista del listado del grupo recibido como parametro */
     public function f_lista($id_gru, $origin)    {
+        
         $grupo = DB::table('grupo as g')
             ->join('persona as p', 'g.id_persona', '=', 'p.id_persona')
             ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
@@ -291,17 +303,18 @@ class PResponsableController extends Controller
             ->leftJoin('evaluacion as ev', 'i.id_inscripcion', '=', 'ev.id_inscripcion')
             ->leftJoin('nivel_desempenio as nd', 'nd.id_desempenio', '=', 'ev.id_desempenio')
             ->select(
-                'p.nombre as nombre',
-                'e.num_control as num_control',
-                'p.apePat as apePat',
-                'p.apeMat as apeMat',
-                'i.id_grupo as id_grupo',
+                'p.nombre',
+                'e.num_control',
+                'p.apePat',
+                'p.apeMat',
+                'i.id_grupo',
                 'ev.id_evaluacion as id_eval',
                 'nd.nombre as nivel_desempenio'
             )
             ->where('i.id_grupo', $id_gru)
             ->where('i.aprobada', 1)
-            ->get();
+            ->orderBy('p.apePat', 'asc')
+            ->paginate(10);
 
         return view('ProfRes.lista')
             ->with('grupo', $grupo)
@@ -401,7 +414,8 @@ class PResponsableController extends Controller
                                 <br>
                                 <br>
                                 <h3 class='constancia'>CONSTANCIA DE CUMPLIMIENTO DE ACTIVIDAD COMPLEMENTARIA</h3>
-                                <h5 class='tecDep'>Instituto Tecnológico de Oaxaca <br> ". $data->depto ."</h5>
+                                <br>
+                                <br>
                                 <br>
                                 <br>
                                 <div class='header'>
@@ -685,33 +699,50 @@ class PResponsableController extends Controller
         $grupo = DB::table('grupo as g')
             ->join('persona as p', 'g.id_persona', '=', 'p.id_persona')
             ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
             ->select(
                 'g.clave',
                 'a.nombre as actividad',
                 'p.nombre',
                 'p.apePat as paterno',
                 'p.apeMat as materno',
-                'g.id_grupo'
+                'g.id_grupo',
+                'd.nombre as depto'
             )
             ->where('g.id_grupo', $gpo)
             ->first();
 
-        $content .= "<h5'>
-                        <label> Grupo: " . $grupo->clave."</label>
-                        <label class='col-sm-2'> </label>
-                        <label> Actividad: " .$grupo->actividad ."</label>
-                    </h5>";
-        
-            $content .=
-            "<h5> Responsable: " .
-            $grupo->nombre .
-            " " .
-            $grupo->paterno .
-            " " .
-            $grupo->materno .
-            " </h5>";
+        $horario = DB::table('horario as h')
+            ->join('dias_semana as ds', 'h.id_dia', '=', 'ds.id_dia')
+            ->select('ds.nombre',
+                    'h.hora_fin',
+                    'h.hora_inicio')
+            ->where('id_grupo', $gpo)
+            ->get();
 
-        $content .= "<table style='width: 100%;  border-collapse: collapse;'>
+        $content .= "<h5>
+                        <label> Grupo: " . $grupo->clave."</label>
+                        <label class='col-sm-2'> - </label>
+                        <label> Responsable: " .$grupo->nombre ." " .$grupo->paterno ." " .$grupo->materno ." </label>
+                    </h5>";
+
+        $content .= "<h5>
+                    <label> Actividad: " . $grupo->actividad."</label>
+                    <label class='col-sm-2'> - </label>
+                    <label> Departamento: " .$grupo->depto ."</label>
+                </h5>";
+
+        // $content .= "<div class='row'>";
+
+        foreach($horario as $h){
+            $h->hora_inicio = substr($h->hora_inicio, 0, 5);
+            $h->hora_fin = substr($h->hora_fin, 0, 5);
+            $content .= "<label>| ".$h->nombre.":".$h->hora_inicio."-".$h->hora_fin." | "."</label>";
+        }
+
+        $content .= "<br>";
+
+        $content .= "<br> <table style='width: 100%;  border-collapse: collapse;'>
 				<tr>
                         <th width='8%'>No. control</th>
                         <th width='35%'>Nombre</th>";
@@ -878,40 +909,41 @@ class PResponsableController extends Controller
         return redirect()->to('/ProfR/datosGen');
     }
 
-    public function formStudentEvaluation($n_control) {
+    public function formStudentEvaluation($n_control, $id_grupo) {
         
         $now = date_create('America/Mexico_City')->format('H');
-        $grupoAsistencias = DB::table('estudiante as a')
-                    ->join('persona as p', 'p.id_persona', '=', 'a.id_persona')
-                    ->join('inscripcion as i', 'i.id_estudiante', '=', 'a.id_estudiante')
-                    ->join('grupo as g', 'g.id_grupo', '=', 'i.id_grupo')
-                    ->select('g.asistencias as asistencias', 'p.nombre as nombre',
-                             'p.apeMat as apeMat', 'p.apePat as apePat', 'a.num_control as nControl')
-                    ->where('a.num_control', '=', $n_control)
-                    ->first();
+        
+        $student = Mestudiante::where('num_control' ,$n_control)
+            ->first();
 
-        $ct = DB::table('criterios_evaluacion as t')
-            ->select(
-                't.id_crit_eval as id_crit_eval',
-                't.nombre as nombre',
-                't.descripcion as description',
-                't.estado as estado'
-            )
-            ->where('t.estado', 1)
+        $grupoAsistencias = DB::table('inscripcion as i')
+            ->join('estudiante as e', 'i.id_estudiante', '=', 'e.id_estudiante')
+            ->join('persona as p', 'e.id_persona', '=', 'p.id_persona')
+            ->join('grupo as g', 'g.id_grupo', '=', 'i.id_grupo')
+            ->select('g.asistencias', 
+                    'g.id_grupo',
+                    'p.nombre',
+                    'p.apeMat', 
+                    'p.apePat', 
+                    'e.num_control as nControl')
+            ->where('i.id_grupo', $id_grupo)
+            ->where('i.id_estudiante', $student->id_estudiante)
+            ->where('i.aprobada', 1)
             ->get();
 
-        $ds = DB::table('nivel_desempenio as t')
-            ->select(
-                't.id_desempenio as id_desempenio',
-                't.nombre as nombre',
-                't.valor as valor',
-            )
+        $ct = Mcriterios_evaluacion::where('estado', 1)
             ->get();
+
+        foreach($ct as $t){
+            $t->descripcion = ucfirst(mb_strtolower($t->descripcion));
+        }
+
+        $ds = Mnivel_desempenio::get();
 
         return view('ProfRes.evaluationForm')
                 ->with('critEval', $ct)
                 ->with('nivelD', $ds)
-                ->with('asistencias', $grupoAsistencias)
+                ->with('asistencias', $grupoAsistencias[0])
                 ->with('n_control', $n_control);
     }
 

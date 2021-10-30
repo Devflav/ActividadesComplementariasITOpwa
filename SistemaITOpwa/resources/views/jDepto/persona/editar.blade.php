@@ -15,7 +15,7 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="nControl">* Grado:</label>
-					<select class="form-control" id="grado" name="grado" required> 
+					<select class="form-control" id="grado" name="id_grado" required> 
 						<option value="{{ $p->id_grado}}"> {{ $p->grado }} </option>
 						@foreach($grados as $g)
 							<option value="{{$g->id_grado}}" require> {{ $g->nombre }} </option>
@@ -79,7 +79,7 @@
                     <div class="col-sm"></div>
                     <div class="col-sm">
                         <button type="submit" class="btn btn-outline-primary"> 
-                            Registrar
+                            Guardar
                         </button>
                     </div>
                     <br>
@@ -93,5 +93,14 @@
             </div>
         </form>
     </div>
+    @if ($errors->any())
+				@foreach ($errors->all() as $error)
+					<div class="row">
+						<div class="alert alert-danger">
+							{{ $error }}
+						</div>
+					</div>
+				@endforeach
+			@endif
 </div>
 @endsection

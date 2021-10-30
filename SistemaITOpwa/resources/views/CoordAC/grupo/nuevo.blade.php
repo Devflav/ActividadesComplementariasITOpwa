@@ -131,7 +131,10 @@
 					<input type="time" class="form-control" name="miercolesf">
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
-                </div>
+                </div>	
+            </div>
+			<br>
+			<div class="form-group">
 				<div class="col-sm">
 					<label for="cupo"> Jueves:</label>
 					<input type="time" class="form-control" name="jueves">

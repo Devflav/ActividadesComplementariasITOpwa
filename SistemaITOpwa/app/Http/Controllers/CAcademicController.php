@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 
-use DB;
+use App\Models\Musers;
 use App\Models\Mgrado;
 use App\Models\Mpuesto;
 use App\Models\Mperiodo;
 use App\Models\Mdepartamento;
+use DB;
 
 class CAcademicController extends Controller
 {
@@ -24,22 +27,22 @@ class CAcademicController extends Controller
         $now = date_create('America/Mexico_City')->format('H');
 
         $today = date("Y-m-d");
-        $dates = DB::select('SELECT ini_inscripcion, ini_evaluacion, ini_gconstancias,
-                fin_inscripcion, fin_evaluacion, fin_gconstancias
-                FROM periodo WHERE estado = "Actual"');
-        $processes = 00;
-        $endprocess = 00;
-        foreach($dates as $d){
-            if($today >= $d->ini_inscripcion && $today <= $d->fin_inscripcion){
-                $processes = 01;
-                $endprocess = $d->fin_inscripcion;}
-            elseif($today >= $d->ini_evaluacion && $today <= $d->fin_evaluacion){
-                $processes = 10;
-                $endprocess = $d->fin_evaluacion;}
-            elseif($today >= $d->ini_gconstancias && $today <= $d->fin_gconstancias){
-                $processes = 11;
-                $endprocess = $d->fin_gconstancias;}
-        }
+        $data = Mperiodo::where('estado', "Actual")->first();
+
+         $processes = 00;
+         $endprocess = 00;
+
+         if($today >= $data->ini_inscripcion && $today <= $data->fin_inscripcion){
+               $processes = 01;
+               $endprocess = $data->fin_inscripcion;}
+         elseif($today >= $data->ini_evaluacion && $today <= $data->fin_evaluacion){
+               $processes = 10;
+               $endprocess = $data->fin_evaluacion;}
+         elseif($today >= $data->ini_gconstancias && $today <= $data->fin_gconstancias){
+               $processes = 11;
+               $endprocess = $data->fin_gconstancias;}
+
+         $procesos[0] = $processes; $procesos[1] = $endprocess;
 
         return view('coordC.inicio')
         ->with('hora', $now)

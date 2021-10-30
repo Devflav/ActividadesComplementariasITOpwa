@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 
-use DB;
 use App\Models\Mgrado;
+use App\Models\Musers;
 use App\Models\Mpuesto;
 use App\Models\Mperiodo;
 use App\Models\Mevaluacion;
 use App\Models\Minscripcion;
 use App\Models\Mdepartamento;
+use DB;
 
 class EscServicesController extends Controller
 {

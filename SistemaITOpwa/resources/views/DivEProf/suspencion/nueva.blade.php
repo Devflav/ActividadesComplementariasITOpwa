@@ -7,18 +7,20 @@
         </div>
     </div>
     <div class="card-body">
-		<form method="POST" action="{{url('/DivEProf/regFecha')}}" class="needs-validation">
+		<form method="POST" action="{{url('DivEProf/regFecha')}}" class="needs-validation">
 			@csrf
 			<div class="form-group">
 				<div class="col-sm">
 					<label for="nomCritE">* Fecha (Única / Inicio):</label>
-					<input type="date" class="form-control" placeholder="Selecciona la fecha" name="fecha" required>
+					<input type="date" class="form-control" placeholder="Selecciona la fecha" 
+						name="fecha" required>
 					<div class="valid-feedback">Valido.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
 				<div class="col-sm">
 					<label for="nomCritE"> Fecha (Fin):</label>
-					<input type="date" class="form-control" placeholder="Selecciona la fecha" name="fechafin">
+					<input type="date" class="form-control" placeholder="Selecciona la fecha" 
+						name="fecha_fin">
 					<div class="valid-feedback">Valido.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>	
 				</div>
@@ -60,5 +62,14 @@
 			</div>
 		</form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

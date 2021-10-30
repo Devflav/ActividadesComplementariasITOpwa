@@ -32,8 +32,7 @@ class DEProfessionalsController extends Controller
 
     public function tipos(){
 
-        $tipos = DB::select('SELECT id_tipo, nombre
-            FROM tipo');
+        $tipos = Mtipo::select('id_tipo', 'nombre')->get();
 
         foreach($tipos as $t){
             $t->nombre = ucwords(mb_strtolower($t->nombre));
@@ -42,32 +41,40 @@ class DEProfessionalsController extends Controller
         return $tipos;
     }
 
+    public function procesoActual(){
+
+        $today = date("Y-m-d");
+    
+        $data = Mperiodo::where('estado', "Actual")->first();
+
+        $processes = 00;
+        $endprocess = 00;
+
+        if($today >= $data->ini_inscripcion && $today <= $data->fin_inscripcion){
+            $processes = 01;
+            $endprocess = $data->fin_inscripcion;}
+        elseif($today >= $data->ini_evaluacion && $today <= $data->fin_evaluacion){
+            $processes = 10;
+            $endprocess = $data->fin_evaluacion;}
+        elseif($today >= $data->ini_gconstancias && $today <= $data->fin_gconstancias){
+            $processes = 11;
+            $endprocess = $data->fin_gconstancias;}
+
+        $procesos[0] = $processes; $procesos[1] = $endprocess;
+
+        return $procesos;
+    }
+
     public function f_inicio(Request $request) { 
 
         $now = date_create('America/Mexico_City')->format('H');
-        $today = date("Y-m-d");       
 
-        $dates = DB::select('SELECT ini_inscripcion, ini_evaluacion, ini_gconstancias,
-                fin_inscripcion, fin_evaluacion, fin_gconstancias
-                FROM periodo WHERE estado = "Actual"');
-        $processes = 00;
-        $endprocess = 00;
-        foreach($dates as $d){
-            if($today >= $d->ini_inscripcion && $today <= $d->fin_inscripcion){
-                $processes = 01;
-                $endprocess = $d->fin_inscripcion;}
-            elseif($today >= $d->ini_evaluacion && $today <= $d->fin_evaluacion){
-                $processes = 10;
-                $endprocess = $d->fin_evaluacion;}
-            elseif($today >= $d->ini_gconstancias && $today <= $d->fin_gconstancias){
-                $processes = 11;
-                $endprocess = $d->fin_gconstancias;}
-        }
+        $procesos = $this->procesoActual();
 
         return view('DivEProf.inicio')
         ->with('hora', $now)
-        ->with('process', $processes)
-        ->with('end', $endprocess)
+        ->with('process', $procesos[0])
+        ->with('end', $procesos[1])
         ->with('tipos', $this->tipos());
     }
 
@@ -101,12 +108,11 @@ class DEProfessionalsController extends Controller
         $now = date('Y-m-d');
         $modificar = true;
 
-        $roll = Mperiodo::select('id_periodo', 'nombre', 'ini_inscripcion', 'fin_inscripcion')
-            ->where('estado', "Actual")->first();
+        $roll = Mperiodo::where('estado', "Actual")->first();
 
-        if($now < $roll->ini_inscripcion || $now > $roll->fin_inscripcion)
+        if($now < $roll->inicio || $now > $roll->fin_inscripcion)
             $modificar = false;
-
+        
         $actividades = DB::table('actividad as a')
             ->leftJoin('departamento as d', 'a.id_depto', '=', 'd.id_depto')
             ->leftJoin('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
@@ -121,10 +127,11 @@ class DEProfessionalsController extends Controller
             ->orderBy('a.id_actividad')
             ->paginate(10);
 
+
         return view('DivEProf.actividad.actividades')
         ->with('actividades', $actividades)
-        ->with('pnom', $roll->nombre)
-        ->with('mod', $modificar)
+        ->with('periodo', $roll->nombre)
+        ->with('mod', true)
         ->with('tipos', $this->tipos()); 
     }
 
@@ -134,11 +141,10 @@ class DEProfessionalsController extends Controller
         $modificar = true;
         $search = "%".mb_strtoupper($search)."%";
 
-        $roll = Mperiodo::where('estado', "Actual")
-            ->first();
-        
+        $roll = Mperiodo::where('estado', "Actual")->first();
+    
         $periodo = $roll->nombre;
-        
+
         if($now < $roll->inicio || $now > $roll->fin_inscripcion)
             $modificar = false;
             
@@ -162,8 +168,8 @@ class DEProfessionalsController extends Controller
 
             return view('DivEProf.actividad.actividades')
             ->with('actividades', $actividades)
-            ->with('pnom', $periodo)
-            ->with('mod', $modificar)
+            ->with('periodo', $periodo)
+            ->with('mod', true)
             ->with('tipos', $this->tipos()); 
     }
 
@@ -177,10 +183,8 @@ class DEProfessionalsController extends Controller
     public function f_depto() { 
 
         $depto = DB::table('departamento AS d')
-            ->leftJoin('actividad AS a', 'd.id_depto', '=', 'a.id_depto')
             ->select('d.id_depto', 'd.nombre')
             ->where('d.estado', 1)
-            ->where('a.estado', 1)
             ->orderBy('d.id_depto')
             ->paginate(10);
 
@@ -196,6 +200,7 @@ class DEProfessionalsController extends Controller
 
         $roll = Mperiodo::select('inicio', 'fin_inscripcion')
             ->where('estado', "Actual")->first();
+
         if($now < $roll->inicio || $now > $roll->fin_inscripcion)
             $modificar = false;
 
@@ -223,8 +228,8 @@ class DEProfessionalsController extends Controller
 
         return view('DivEProf.actividad.actividades')
         ->with('actividades', $actividades)
-        ->with('pnom', $depto->nombre)
-        ->with('mod', $modificar)
+        ->with('periodo', $depto->nombre)
+        ->with('mod', true)
         ->with('tipos', $this->tipos());  
     }
 
@@ -235,7 +240,7 @@ class DEProfessionalsController extends Controller
 
         $roll = Mperiodo::select('inicio', 'fin_inscripcion')
             ->where('estado', "Actual")->first();
-            
+
         if($now < $roll->inicio || $now > $roll->fin_inscripcion)
             $modificar = false;
 
@@ -264,8 +269,8 @@ class DEProfessionalsController extends Controller
 
         return view('DivEProf.actividad.actividades')
         ->with('actividades', $actividades)
-        ->with('pnom', $tipo->nombre)
-        ->with('mod', $modificar)
+        ->with('periodo', $tipo->nombre)
+        ->with('mod', true)
         ->with('tipos', $this->tipos());  
     }
 
@@ -274,8 +279,8 @@ class DEProfessionalsController extends Controller
         $depto = Mdepartamento::get();
         $tipos = Mtipo::get();
         $periodo = Mperiodo::select('nombre')
-        ->where('estado', "Actual")
-        ->first();
+            ->where('estado', "Actual")
+            ->first();
 
         return view('DivEProf.actividad.nueva')
         ->with('deptos', $depto)
@@ -286,22 +291,44 @@ class DEProfessionalsController extends Controller
 
     public function f_regAct(Request $request){
 
-        $clave = mb_strtoupper($request->clave);
-        $nombre = mb_strtoupper($request->nombre);
-        $creditos = $request->creditos;
-        $depto = $request->depto;
-        $tipo = $request->tipo;
-        $descrip = mb_strtoupper($request->descripcion);
-        $restringida = $request->restringida;
+        $data = $request->all();
+        
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'unique' => 'El campo :attribute ya se ha registrado.',
+            'email' => 'El dominio valido para el e-mail es: @itoaxaca.edu.mx'
+        ];
+      
+        $validation = \Validator::make($request->all(), [
+            'id_depto' => 'required|exists:departamento,id_depto',
+            'id_tipo' => 'required|exists:tipo,id_tipo',
+            'clave' => 'required|size:5',
+            'nombre' => 'required|min:3|max:100',
+            'creditos' => 'required|numeric',
+            'descripcion' => 'nullable|max:250',
+            'restringida' => 'required|numeric'
+        ], $messages);      
+          
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
 
-        $peri = Mperiodo::select('id_periodo')
+        $periodo = Mperiodo::select('id_periodo')
             ->where('estado', "Actual")
                 ->first();
 
-        Mactividad::create(['id_depto' => $depto, 'id_tipo' => $tipo,
-        'id_periodo' => $peri->id_periodo, 'clave' => $clave, 'nombre' => $nombre,
-        'creditos' => $creditos, 'descripcion' => $descrip, 
-        'restringida' => $restringida, 'estado' => 1]);
+        Mactividad::create([
+                'id_depto' => $data['id_depto'], 
+                'id_tipo' => $data['id_tipo'],
+                'id_periodo' => $periodo->id_periodo, 
+                'clave' => mb_strtoupper($data['clave']), 
+                'nombre' => mb_strtoupper($data['nombre']),
+                'creditos' => $data['creditos'], 
+                'descripcion' => mb_strtoupper($data['descripcion']), 
+                'restringida' => $data['restringida'], 
+                'estado' => 1]);
 
         return redirect()->to('/DivEProf/actividades/1');
     }
@@ -311,14 +338,21 @@ class DEProfessionalsController extends Controller
         $depto = Mdepartamento::get();
         $tipos = Mtipo::get();
 
-        $actividad = DB::select('SELECT a.id_actividad, a.clave,
-                a.nombre, a.creditos, a.id_tipo,
-                d.nombre AS depto, t.nombre AS tipo,
-                a.descripcion, a.id_depto
-        FROM actividad AS a 
-        LEFT JOIN departamento AS d ON a.id_depto = d.id_depto
-        LEFT JOIN tipo AS t ON a.id_tipo = t.id_tipo
-        WHERE a.id_actividad = '.$id_act);
+        $actividad = DB::table('actividad AS a')
+            ->leftJoin('departamento AS d', 'a.id_depto', '=', 'd.id_depto')
+            ->leftJoin('tipo AS t', 'a.id_tipo', '=', 't.id_tipo')
+            ->select('a.id_actividad', 
+                    'a.clave',
+                    'a.nombre',
+                    'a.creditos',
+                    'a.id_tipo',
+                    'd.nombre as depto',
+                    't.nombre as tipo',
+                    'a.descripcion',
+                    'a.id_depto',
+                    'a.restringida')
+            ->where('a.id_actividad', $id_act)
+            ->get();
 
         return view('DivEProf.actividad.editar')
         ->with('actividad', $actividad)
@@ -329,18 +363,53 @@ class DEProfessionalsController extends Controller
 
     public function f_editAct($id_act, Request $request){
 
-        $clave = mb_strtoupper($request->clave);
-        $nombre = mb_strtoupper($request->nombre);
-        $creditos = $request->creditos;
-        $depto = $request->depto;
-        $tipo = $request->tipo;
-        $descrip = mb_strtoupper($request->descripcion);
+        $data = $request->all();
+        
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'unique' => 'El campo :attribute ya se ha registrado.'
+        ];
+
+        $clave = Mactividad::select('clave')
+            ->where('id_actividad', $id_act)
+            ->first();
+
+        if( $clave->clave == mb_strtoupper($data['clave']) ) {
+
+            $validation = \Validator::make($request->all(), [
+                'id_depto' => 'required|exists:departamento,id_depto',
+                'id_tipo' => 'required|exists:tipo,id_tipo',
+                'nombre' => 'required|min:3|max:100',
+                'descripcion' => 'nullable|max:250',
+                'restringida' => 'required|numeric'
+            ], $messages);  
+        } else {
+
+            $validation = \Validator::make($request->all(), [
+                'id_depto' => 'required|exists:departamento,id_depto',
+                'id_tipo' => 'required|exists:tipo,id_tipo',
+                'clave' => 'required|unique:actividad|size:5',
+                'nombre' => 'required|min:3|max:100',
+                'descripcion' => 'nullable|max:250',
+                'restringida' => 'required|numeric'
+            ], $messages);   
+        }   
+          
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
 
         Mactividad::where('id_actividad', $id_act)
-        ->update(['id_depto' => $depto, 'id_tipo' => $tipo,
-        'clave' => $clave, 'nombre' => $nombre,
-        'creditos' => $creditos, 'descripcion' => $descrip, 
-        'estado' => 1]);
+            ->update([
+                'id_depto' => $data['id_depto'], 
+                'id_tipo' => $data['id_tipo'],
+                'clave' => mb_strtoupper($data['clave']), 
+                'nombre' => mb_strtoupper($data['nombre']),
+                'descripcion' => mb_strtoupper($data['descripcion']),
+                'restringida' => $data['restringida']
+            ]);
 
         return redirect()->to('/DivEProf/actividades/1');
     }
@@ -350,14 +419,14 @@ class DEProfessionalsController extends Controller
         Mactividad::where('id_actividad', $id_delete)
             ->update(['estado' => 0]);
 
-        return $this->f_actividades(1);
+        return  redirect()->to('/DivEProf/actividades/1');
     }
 
 /*----------------------------------------------------------------------------------------------------*/
 
     public function f_grupos($pagina) {
         $now = date('Y-m-d');
-        $modificar = true;
+        $modificar;
 
         $periodo = Mperiodo::select('id_periodo', 'nombre', 'inicio', 'fin_inscripcion')
             ->where('estado', "Actual")
@@ -367,39 +436,37 @@ class DEProfessionalsController extends Controller
             ? $modificar = false : $modificar = true;
 
         $grupos = DB::table('grupo AS g')
-            ->leftJoin('periodo AS p', 'g.id_periodo', '=', 'p.id_periodo')
-            ->leftJoin('actividad AS a', 'g.id_actividad', '=', 'a.id_actividad')
-            ->leftJoin('persona AS pe', 'g.id_persona', '=', 'pe.id_persona')
-            ->leftJoin('lugar AS l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->join('periodo AS p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->join('actividad AS a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->join('persona AS pe', 'g.id_persona', '=', 'pe.id_persona')
+            ->join('lugar AS l', 'g.id_lugar', '=', 'l.id_lugar')
             ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
             ->select('g.id_grupo', 
-                    'g.cupo', 
+                    'g.cupo_libre', 
                     'g.clave', 
                     'g.asistencias', 
                     'a.nombre AS actividad', 
                     'l.nombre AS lugar',
                     'd.id_depto',
                     DB::raw('CONCAT(pe.nombre, " ", pe.apePat, " ", pe.apeMat) AS responsable'))
-            ->when(null, function ($query) {
-                return $query->where('p.estado', "Actual")
-                            ->where('g.estado', 1);
-            })
+            ->where('p.estado', "Actual")
+            ->where('g.estado', 1)
             ->orderBy('g.id_grupo')
             ->paginate(10);
 
         return view('DivEProf.grupo.grupos')
         ->with('grupos', $grupos)
-        ->with('pnom', $periodo->nombre)
-        ->with('dept', 1)
-        ->with('mod', $modificar)
+        ->with('periodo', $periodo->nombre)
+        // ->with('dept', 1)
+        ->with('mod', true)
         ->with('tipos', $this->tipos());   
     }
 
     public function f_gruposB($search, $pagina) {
 
         $now = date('Y-m-d');
-        $modificar = true;
-        $search = mb_strtoupper("%".$search."%");
+        $modificar;
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
 
         $periodo = Mperiodo::select('id_periodo', 'nombre', 'inicio', 'fin_inscripcion')
             ->where('estado', "Actual")
@@ -415,29 +482,27 @@ class DEProfessionalsController extends Controller
             ->leftJoin('lugar AS l', 'g.id_lugar', '=', 'l.id_lugar')
             ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
             ->select('g.id_grupo', 
-                    'g.cupo', 
+                    'g.cupo_libre', 
                     'g.clave', 
                     'g.asistencias', 
                     'a.nombre AS actividad', 
                     'l.nombre AS lugar',
                     'd.id_depto',
                     DB::raw('CONCAT(pe.nombre, " ", pe.apePat, " ", pe.apeMat) AS responsable'))
-            ->when($search, function ($query, $search) {
-                return $query->where('p.estado', "Actual")
-                            ->where('g.estado', 1)
-                            ->where('g.clave', 'LIKE', $search)
-                            ->orWhere('a.nombre', 'LIKE', $search)
-                            ->orWhere('pe.nombre', 'LIKE', $search)
-                            ->orWhere('pe.apePat', 'LIKE', $search);
-            })
+            ->where('p.estado', "Actual")
+            ->where('g.estado', 1)
+            ->where('g.clave', 'LIKE', $search)
+            ->orWhere('a.nombre', 'LIKE', $search)
+            // ->orWhere('pe.nombre', 'LIKE', $search)
+            // ->orWhere('pe.apePat', 'LIKE', $search)
             ->orderBy('g.id_grupo')
             ->paginate(10);
 
         return view('DivEProf.grupo.grupos')
         ->with('grupos', $grupos)
-        ->with('pnom', $periodo->nombre)
-        ->with('dept', $dept)
-        ->with('mod', $modificar)
+        ->with('periodo', $periodo->nombre)
+        ->with('dept', 1)
+        ->with('mod', true)
         ->with('tipos', $this->tipos());   
     }
 
@@ -451,33 +516,29 @@ class DEProfessionalsController extends Controller
     public function f_n_grupo(Request $request, $id_dep){
 
         $periodo = Mperiodo::select('id_periodo', 'nombre')
-        ->where('estado', "Actual")
-        ->get();
+            ->where('estado', "Actual")
+            ->get();
 
-        $actividad = DB::select('SELECT a.id_actividad, a.clave, 
-                a.nombre, a.creditos
-        FROM actividad AS a
-        LEFT JOIN  departamento AS  d ON  a.id_depto =  d.id_depto
-        WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        AND a.id_depto = '.$id_dep);
-        
-        /*id_periodo 
-            IN (SELECT id_periodo
-                FROM periodo
-                WHERE estado = "Actual")
-            AND a.id_depto = '.$id_dep);*/
+        $actividad = DB::table('actividad as a')
+            ->join('departamento AS d', 'a.id_depto', '=', 'd.id_depto')
+            ->select('a.id_actividad',
+                    'a.clave',
+                    'a.nombre',
+                    'a.creditos')
+            ->where('a.estado', 1)
+            ->where('a.id_depto', $id_dep)
+            ->get();
 
         $persona = DB::table('persona AS p')
-        ->join('empleado AS e', 'p.id_persona', '=', 'e.id_persona')
-        ->join('grado AS g', 'e.id_grado', '=', 'g.id_grado')
-        ->select('p.id_persona', 'g.nombre AS grado', 'p.nombre', 'p.apePat', 'p.apeMat')
-        ->where('e.id_depto', $id_dep)
-        ->get();
-
-        // Solucion
-        /*if($request->ajax()){
-            return $persona->pluck("nombre", "id_persona");
-        }*/
+            ->join('empleado AS e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('grado AS g', 'e.id_grado', '=', 'g.id_grado')
+            ->select('p.id_persona', 
+                    'g.nombre AS grado', 
+                    'p.nombre', 
+                    'p.apePat', 
+                    'p.apeMat')
+            ->where('e.id_depto', $id_dep)
+            ->get();
 
         $lugar = Mlugar::get();
 
@@ -494,70 +555,79 @@ class DEProfessionalsController extends Controller
 
     public function f_regGrupo(Request $request){
 
-        $clave = mb_strtoupper($request->clave);
-        //$periodo = $request->periodo;
-        $actividad = $request->actividad;
-        $responsable = $request->responsable;
-        $lugar = $request->lugar;
-        $cupo = $request->cupo;
-        $orden = $request->orden;
-
-        $lun = $request->lunes;
-        $lunf = $request->lunesf;
-        $mar = $request->martes;
-        $marf = $request->martesf;
-        $mie = $request->miercoles;
-        $mief = $request->miercolesf;
-        $jue = $request->jueves;
-        $juef = $request->juevesf;
-        $vie = $request->viernes;
-        $vief = $request->viernesf;
-        $sab = $request->sabado;
-        $sabf = $request->sabadof;
+        $data = $request->all();
+        
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'starts_with' => 'El campo :attribute no cumple con el formato.',
+            'size' => 'El campo :attribute no cumple con el formato.',
+            'unique' => 'El campo :attribute ya se ha registrado.'
+        ];
+      
+        $validation = \Validator::make($request->all(), [
+            'id_actividad' => 'required|exists:actividad,id_actividad',
+            'id_persona' => 'required|exists:persona,id_persona',
+            'id_lugar' => 'required|exists:lugar,id_lugar',
+            'clave' => 'required|unique:grupo|starts_with:G,g|size:7',
+            'cupo' => 'required|integer:4',
+            'orden' => 'required|numeric'
+        ], $messages);      
+          
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
 
         $periodo = Mperiodo::select('id_periodo')
-                                ->where('estado', "Actual")->get();
-        foreach($periodo AS $p){
-            $grupo = Mgrupo::create(['id_periodo' => $p->id_periodo, 
-                'id_actividad' => $actividad, 'id_persona' => $responsable, 
-                'id_lugar' => $lugar, 'clave' => $clave, 'cupo' => $cupo, 
-                'cupo_libre' => $cupo, 'orden' => $orden, 'estado' => 1]);
-        } 
+                                ->where('estado', "Actual")->first();
 
-        if($lun != null){
+        $grupo = Mgrupo::create([
+                    'id_periodo' => $periodo->id_periodo, 
+                    'id_actividad' => $data['id_actividad'], 
+                    'id_persona' => $data['id_persona'], 
+                    'id_lugar' => $data['id_lugar'], 
+                    'clave' => mb_strtoupper($data['clave']), 
+                    'cupo' => $data['cupo'], 
+                    'cupo_libre' => $data['cupo'], 
+                    'orden' => $data['orden'], 
+                    'estado' => 1]
+                );
+
+        if($data['lunes'] != null && $data['lunesf'] != null){
             Mhorario::create(['id_grupo' => $grupo->id, 
-                'id_dia' => 1, 'hora_inicio' => $lun,
-                'hora_fin' => $lunf]);
+                'id_dia' => 1, 'hora_inicio' => $data['lunes'],
+                'hora_fin' => $data['lunesf']]);
         }
 
-        if($mar != null){
+        if($data['martes'] != null && $data['martesf'] != null){
             Mhorario::create(['id_grupo' => $grupo->id, 
-                'id_dia' => 2, 'hora_inicio' => $mar,
-                'hora_fin' => $marf]);
+                'id_dia' => 2, 'hora_inicio' => $data['martes'],
+                'hora_fin' => $data['martesf']]);
         }
 
-        if($mie != null){
+        if($data['miercoles'] != null && $data['miercolesf'] != null){
             Mhorario::create(['id_grupo' => $grupo->id, 
-                'id_dia' => 3, 'hora_inicio' => $mie,
-                'hora_fin' => $mief]);
+                'id_dia' => 3, 'hora_inicio' => $data['miercoles'],
+                'hora_fin' => $data['miercolesf']]);
         }
 
-        if($jue != null){
+        if($data['jueves'] != null && $data['juevesf'] != null){
             Mhorario::create(['id_grupo' => $grupo->id, 
-                'id_dia' => 4, 'hora_inicio' => $jue,
-                'hora_fin' => $juef]);
+                'id_dia' => 4, 'hora_inicio' => $data['jueves'],
+                'hora_fin' => $data['juevesf']]);
         }
 
-        if($vie != null){
+        if($data['viernes'] != null && $data['viernesf'] != null){
             Mhorario::create(['id_grupo' => $grupo->id, 
-                'id_dia' => 5, 'hora_inicio' => $vie,
-                'hora_fin' => $vief]);
+                'id_dia' => 5, 'hora_inicio' => $data['viernes'],
+                'hora_fin' => $data['viernesf']]);
         }
 
-        if($sab != null){
+        if($data['sabado'] != null && $data['sabadof'] != null){
             Mhorario::create(['id_grupo' => $grupo->id, 
-                'id_dia' => 6, 'hora_inicio' => $sab,
-                'hora_fin' => $sabf]);
+                'id_dia' => 6, 'hora_inicio' => $data['sabado'],
+                'hora_fin' => $data['sabadof']]);
         }
 
         return redirect()->to('/DivEProf/grupos/1');
@@ -567,96 +637,130 @@ class DEProfessionalsController extends Controller
     public function f_e_grupo($id_gru, $dpt){
 
         $periodo = Mperiodo::select('id_periodo', 'nombre')
-        ->where('estado', "Actual")
-        ->get();
+            ->where('estado', "Actual")
+            ->get();
 
-        $actividad = DB::select('SELECT a.id_actividad, a.clave, 
-                a.nombre, a.creditos, a.descripcion,
-                d.nombre AS depto, t.nombre AS tipo
-        FROM actividad AS a
-        LEFT JOIN departamento AS d ON a.id_depto = d.id_depto
-        LEFT JOIN tipo AS t ON a.id_tipo = t.id_tipo
-        WHERE a.estado IN(SELECT estado FROM actividad WHERE estado = 1)
-        AND d.id_depto = '.$dpt);
-        /*IN (SELECT id_periodo
-        FROM periodo
-        WHERE estado = "Actual")*/
+        $actividad = DB::table('actividad as a')
+            ->join('departamento AS d', 'a.id_depto', '=', 'd.id_depto')
+            ->select('a.id_actividad',
+                    'a.clave',
+                    'a.nombre',
+                    'a.creditos')
+            ->where('a.estado', 1)
+            ->where('a.id_depto', $dpt)
+            ->get();
 
-        $persona = DB::select('SELECT p.id_persona, p.nombre,
-                p.apePat, p.apeMat, g.nombre AS grado
-        FROM persona AS p
-        JOIN empleado AS e ON p.id_persona = e.id_persona
-        JOIN grado AS g ON e.id_grado = g.id_grado
-        JOIN departamento AS d ON e.id_depto = d.id_depto
-        WHERE p.estado IN(SELECT estado FROM persona WHERE estado = 1)
-        AND d.id_depto = '.$dpt);
+        $persona = DB::table('persona AS p')
+            ->join('empleado AS e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('grado AS g', 'e.id_grado', '=', 'g.id_grado')
+            ->select('p.id_persona', 
+                    'g.nombre AS grado', 
+                    'p.nombre', 
+                    'p.apePat', 
+                    'p.apeMat')
+            ->where('e.id_depto', $dpt)
+            ->get();
 
-        $lugar = Mlugar::get();
-
-        $grupo = DB::select('SELECT g.id_grupo, g.cupo, g.clave, g.asistencias, 
-                p.nombre as periodo, g.id_periodo, g.cupo_libre,
-                g.id_actividad, g.id_lugar, g.id_persona, 
-                a.nombre as actividad, pe.nombre as nomP, 
-                pe.apePat as paterno, pe.apeMat as materno, 
-                l.nombre as lugar, g.orden, gr.nombre AS grado
-        FROM grupo AS g 
-        LEFT JOIN periodo AS p ON g.id_periodo = p.id_periodo 
-        LEFT JOIN actividad AS a ON g.id_actividad = a.id_actividad 
-        LEFT JOIN persona AS pe ON g.id_persona = pe.id_persona 
-        LEFT JOIN lugar AS l ON g.id_lugar = l.id_lugar
-        JOIN empleado AS e ON pe.id_persona = e.id_persona
-        JOIN grado AS gr ON e.id_grado = gr.id_grado
-        WHERE g.id_grupo = '.$id_gru);
+        $grupo = DB::table('grupo as g')
+            ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->join('persona as pe', 'g.id_persona', '=', 'pe.id_persona')
+            ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->join('empleado as e', 'pe.id_persona', '=', 'e.id_persona')
+            ->join('grado as gr', 'e.id_grado', '=', 'gr.id_grado')
+            ->select('g.id_grupo',
+                    'g.cupo',
+                    'g.clave',
+                    'p.nombre as periodo',
+                    'a.nombre as actividad',
+                    'a.clave as aClave',
+                    'a.creditos',
+                    'pe.nombre as nomP',
+                    'pe.apePat as paterno',
+                    'pe.apeMat as materno',
+                    'l.nombre as lugar',
+                    'g.orden',
+                    'gr.nombre as grado',
+                    'g.id_actividad',
+                    'g.id_persona',
+                    'g.id_lugar')
+            ->where('g.id_grupo', $id_gru)
+            ->get();
 
         $deptos = Mdepartamento::get();
+        $lugar = Mlugar::get();
 
-        $h1 = DB::select('SELECT h.hora_inicio, h.hora_fin
-        FROM grupo AS g
-            LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
-            LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
-        WHERE ds.id_dia = 1
-        AND h.estado = 1
-        AND g.id_grupo = '.$id_gru);
+        $h1 = DB::table('grupo as g')
+            ->leftJoin('horario as h', 'g.id_grupo', '=', 'h.id_grupo')
+            ->leftJoin('dias_semana as d', 'h.id_dia', '=', 'd.id_dia')
+            ->select('h.hora_inicio',
+                    'h.hora_fin')
+            ->where('d.id_dia', 1)
+            ->where('h.estado', 1)
+            ->where('g.id_grupo', $id_gru)
+            ->get();
+        if(count($h1) == 0) 
+            $h1 = false;
 
-        $h2 = DB::select('SELECT h.hora_inicio, h.hora_fin
-        FROM grupo AS g
-            LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
-            LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
-        WHERE ds.id_dia = 2
-        AND h.estado = 1
-        AND g.id_grupo = '.$id_gru);
+        $h2 = DB::table('grupo as g')
+            ->leftJoin('horario as h', 'g.id_grupo', '=', 'h.id_grupo')
+            ->leftJoin('dias_semana as d', 'h.id_dia', '=', 'd.id_dia')
+            ->select('h.hora_inicio',
+                    'h.hora_fin')
+            ->where('d.id_dia', 2)
+            ->where('h.estado', 1)
+            ->where('g.id_grupo', $id_gru)
+            ->get();
+        if(count($h2) == 0) 
+            $h2 = false;
 
-        $h3 = DB::select('SELECT h.hora_inicio, h.hora_fin
-        FROM grupo AS g
-            LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
-            LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
-        WHERE ds.id_dia = 3
-        AND h.estado = 1
-        AND g.id_grupo = '.$id_gru);
+        $h3 = DB::table('grupo as g')
+            ->leftJoin('horario as h', 'g.id_grupo', '=', 'h.id_grupo')
+            ->leftJoin('dias_semana as d', 'h.id_dia', '=', 'd.id_dia')
+            ->select('h.hora_inicio',
+                    'h.hora_fin')
+            ->where('d.id_dia', 3)
+            ->where('h.estado', 1)
+            ->where('g.id_grupo', $id_gru)
+            ->get();
+        if(count($h3) == 0) 
+            $h3 = false;
 
-        $h4 = DB::select('SELECT h.hora_inicio, h.hora_fin
-        FROM grupo AS g
-            LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
-            LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
-        WHERE ds.id_dia = 4
-        AND h.estado = 1
-        AND g.id_grupo = '.$id_gru);
+        $h4 = DB::table('grupo as g')
+            ->leftJoin('horario as h', 'g.id_grupo', '=', 'h.id_grupo')
+            ->leftJoin('dias_semana as d', 'h.id_dia', '=', 'd.id_dia')
+            ->select('h.hora_inicio',
+                    'h.hora_fin')
+            ->where('d.id_dia', 4)
+            ->where('h.estado', 1)
+            ->where('g.id_grupo', $id_gru)
+            ->get();
+        if(count($h4) == 0) 
+            $h4 = false;
 
-        $h5 = DB::select('SELECT h.hora_inicio, h.hora_fin
-        FROM grupo AS g
-            LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
-            LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
-        WHERE ds.id_dia = 5
-        AND h.estado = 1
-        AND g.id_grupo = '.$id_gru);
+        $h5 = DB::table('grupo as g')
+            ->leftJoin('horario as h', 'g.id_grupo', '=', 'h.id_grupo')
+            ->leftJoin('dias_semana as d', 'h.id_dia', '=', 'd.id_dia')
+            ->select('h.hora_inicio',
+                    'h.hora_fin')
+            ->where('d.id_dia', 5)
+            ->where('h.estado', 1)
+            ->where('g.id_grupo', $id_gru)
+            ->get();
+        if(count($h5) == 0) 
+            $h5 = false;
 
-        $h6 = DB::select('SELECT h.hora_inicio, h.hora_fin
-        FROM grupo AS g
-            LEFT JOIN horario AS h ON g.id_grupo = h.id_grupo
-            LEFT JOIN dias_semana AS ds ON h.id_dia = ds.id_dia
-        WHERE ds.id_dia = 6
-        AND h.estado = 1
-        AND g.id_grupo = '.$id_gru);
+        $h6 = DB::table('grupo as g')
+            ->leftJoin('horario as h', 'g.id_grupo', '=', 'h.id_grupo')
+            ->leftJoin('dias_semana as d', 'h.id_dia', '=', 'd.id_dia')
+            ->select('h.hora_inicio',
+                    'h.hora_fin')
+            ->where('d.id_dia', 6)
+            ->where('h.estado', 1)
+            ->where('g.id_grupo', $id_gru)
+            ->get();
+        if(count($h6) == 0) 
+            $h6 = false;
 
         return view('DivEProf.grupo.editar')->with('grupo', $grupo)
                 ->with('periodos', $periodo)
@@ -671,120 +775,148 @@ class DEProfessionalsController extends Controller
 
     public function f_editGrupo($id_gru, Request $request){
         
-        $clave = mb_strtoupper($request->clave);
-        $actividad = $request->actividad;
-        $responsable = $request->responsable;
-        $lugar = $request->lugar;
-        $cupo = $request->cupo;
-        $orden = $request->orden;
-
-        $lun = $request->lunes;         $lunf = $request->lunesf;
-        $mar = $request->martes;        $marf = $request->martesf;
-        $mie = $request->miercoles;     $mief = $request->miercolesf;
-        $jue = $request->jueves;        $juef = $request->juevesf;
-        $vie = $request->viernes;       $vief = $request->viernesf;
-        $sab = $request->sabado;        $sabf = $request->sabadof;
-
-        $oldcupo = Mgrupo::select('cupo', 'cupo_libre')->where('id_grupo', $id_gru)->get();
-
-        foreach($oldcupo as $c){
-            
-            if($c->cupo == $c->cupo_libre){
-                Mgrupo::where('id_grupo', $id_gru)
-                ->update(['id_actividad' => $actividad,
-                'id_persona' => $responsable, 'id_lugar' => $lugar,
-                'clave' => $clave, 'cupo' => $cupo, 
-                'cupo_libre' => $cupo, 'orden' => $orden]);
-            }else{
-                Mgrupo::where('id_grupo', $id_gru)
-                ->update(['id_actividad' => $actividad,
-                'id_persona' => $responsable, 'id_lugar' => $lugar,
-                'clave' => $clave, 'cupo' => $cupo, 'orden' => $orden]);
-            }
+        $data = $request->all();
+        
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'starts_with' => 'El campo :attribute no cumple con el formato.',
+            'size' => 'El campo :attribute no cumple con el formato.',
+            'unique' => 'El campo :attribute ya se ha registrado.'
+        ];
+      
+        $validation = \Validator::make($request->all(), [
+            'id_actividad' => 'required|exists:actividad,id_actividad',
+            'id_persona' => 'required|exists:persona,id_persona',
+            'id_lugar' => 'required|exists:lugar,id_lugar',
+            'clave' => 'required|starts_with:G,g|size:7',
+            'cupo' => 'required|integer:4',
+            'orden' => 'required|numeric'
+        ], $messages);      
+          
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
         }
+
+        $old_data = Mgrupo::select('clave', 'cupo', 'cupo_libre')->where('id_grupo', $id_gru)->first();
+
+        // foreach($old_data as $c){
+            
+            if($old_data->cupo == $old_data->cupo_libre){
+                Mgrupo::where('id_grupo', $id_gru)
+                    ->update([
+                        'id_actividad' => $data['id_actividad'], 
+                        'id_persona' => $data['id_persona'], 
+                        'id_lugar' => $data['id_lugar'], 
+                        'cupo' => $data['cupo'], 
+                        'cupo_libre' => $data['cupo'], 
+                        'orden' => $data['orden']
+                    ]);
+            }else{
+                $new_cupo_libre = $data['cupo'] - ($old_data->cupo - $old_data->cupo_libre);
+
+                Mgrupo::where('id_grupo', $id_gru)
+                    ->update([
+                        'id_actividad' => $data['id_actividad'], 
+                        'id_persona' => $data['id_persona'], 
+                        'id_lugar' => $data['id_lugar'], 
+                        'cupo' => $data['cupo'], 
+                        'cupo_libre' => $new_cupo_libre, 
+                        'orden' => $data['orden']
+                    ]);
+            }
+
+            if($old_data->clave != $data['clave']){
+
+                Mgrupo::where('id_grupo', $id_gru)
+                    ->update([
+                        'clave' => mb_strtoupper($data['clave'])
+                    ]);
+            }
+        // }
         
         $haylun = 0; $haymar = 0; $haymie = 0; $hayjue = 0; $hayvie = 0; $haysab = 0;
 
         $horario = Mhorario::where('id_grupo', $id_gru)->where('estado', 1)->get();
-        //return $horario;
 
             foreach($horario as $h){
 
                 if($h->id_dia == 1){
-                    if($lun != null){
+                    if($data['lunes'] != null && $data['lunesf'] != null){
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 1)
-                        ->update(['hora_inicio' => $lun,
-                        'hora_fin' => $lunf]);
+                            ->where('id_dia', 1)
+                            ->update(['hora_inicio' => $data['lunes'],
+                            'hora_fin' => $data['lunesf']]);
                     }else{
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 1)
-                        ->update(['estado' => 0]);
+                            ->where('id_dia', 1)
+                            ->update(['estado' => 0]);
                     }
                     $haylun = 1;
 
                 }elseif($h->id_dia == 2){
-                    if($mar != null){
+                    if($data['martes'] != null && $data['martesf'] != null){
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 2)
-                        ->update(['hora_inicio' => $mar,
-                            'hora_fin' => $marf]);
+                            ->where('id_dia', 2)
+                            ->update(['hora_inicio' => $data['martes'],
+                                'hora_fin' => $data['martesf']]);
                     }else{
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 2)
-                        ->update(['estado' => 0]);
+                            ->where('id_dia', 2)
+                            ->update(['estado' => 0]);
                     }
                     $haymar = 1;
 
                 }elseif($h->id_dia == 3){
-                    if($mie != null){
+                    if($data['miercoles'] != null && $data['miercolesf'] != null){
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 3)
-                        ->update(['hora_inicio' => $mie,
-                            'hora_fin' => $mief]);
+                            ->where('id_dia', 3)
+                            ->update(['hora_inicio' => $data['miercoles'],
+                                'hora_fin' => $data['miercolesf']]);
                     }else{
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 3)
-                        ->update(['estado' => 0]);
+                            ->where('id_dia', 3)
+                            ->update(['estado' => 0]);
                     }
                     $haymie = 1;
 
                 }elseif($h->id_dia == 4){
-                    if($jue != null){
+                    if($data['jueves'] != null && $data['juevesf'] != null){
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 4)
-                        ->update(['hora_inicio' => $jue,
-                            'hora_fin' => $juef]);
+                            ->where('id_dia', 4)
+                            ->update(['hora_inicio' => $data['jueves'],
+                                'hora_fin' => $data['juevesf']]);
                     }else{
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 4)
-                        ->update(['estado' => 0]);
+                            ->where('id_dia', 4)
+                            ->update(['estado' => 0]);
                     }
                     $hayjue = 1;
 
                 }elseif($h->id_dia == 5){
-                    if($vie != null){
+                    if($data['viernes'] != null && $data['viernesf'] != null){
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 5)
-                        ->update(['hora_inicio' => $vie,
-                            'hora_fin' => $vief]);
+                            ->where('id_dia', 5)
+                            ->update(['hora_inicio' => $data['viernes'],
+                                'hora_fin' => $data['viernesf']]);
                     }else{
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 5)
-                        ->update(['estado' => 0]);
+                            ->where('id_dia', 5)
+                            ->update(['estado' => 0]);
                     }
                     $hayvie = 1;
 
                 }elseif($h->id_dia == 6){
-                    if($sab != null){
+                    if($data['sabado'] != null && $data['sabadof'] != null){
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 6)
-                        ->update(['hora_inicio' => $sab,
-                            'hora_fin' => $sabf]);
+                            ->where('id_dia', 6)
+                            ->update(['hora_inicio' => $data['sabado'],
+                                'hora_fin' => $data['sabadof']]);
                     }else{
                         Mhorario::where('id_grupo', $id_gru)
-                        ->where('id_dia', 6)
-                        ->update(['estado' => 0]);
+                            ->where('id_dia', 6)
+                            ->update(['estado' => 0]);
                     }
                     $haysab = 1;
                 }
@@ -792,54 +924,53 @@ class DEProfessionalsController extends Controller
 
         
             if($haylun == 0){
-                if($lun != null){
+                if($data['lunes'] != null && $data['lunesf'] != null){
                     Mhorario::create(['id_grupo' => $id_gru, 
-                        'id_dia' => 1, 'hora_inicio' => $lun,
-                        'hora_fin' => $lunf]);
+                        'id_dia' => 1, 'hora_inicio' => $data['lunes'],
+                        'hora_fin' => $data['lunesf']]);
                 }
 
             }
 
             if($haymar == 0){
-                if($mar != null){
+                if($data['martes'] != null && $data['martesf'] != null){
                     Mhorario::create(['id_grupo' => $id_gru, 
-                        'id_dia' => 2, 'hora_inicio' => $mar,
-                        'hora_fin' => $marf]);
+                        'id_dia' => 2, 'hora_inicio' => $data['martes'],
+                        'hora_fin' => $data['martesf']]);
                 }
             }
             
             if($haymie == 0){
-                if($mie != null){
+                if($data['miercoles'] != null && $data['miercolesf'] != null){
                     Mhorario::create(['id_grupo' => $id_gru, 
-                        'id_dia' => 3, 'hora_inicio' => $mie,
-                        'hora_fin' => $mief]);
+                        'id_dia' => 3, 'hora_inicio' => $data['miercoles'],
+                        'hora_fin' => $data['miercolesf']]);
                 }
             }
             
             if($hayjue == 0){
-                if($jue != null){
+                if($data['jueves'] != null && $data['juevesf'] != null){
                     Mhorario::create(['id_grupo' => $id_gru, 
-                        'id_dia' => 4, 'hora_inicio' => $jue,
-                        'hora_fin' => $juef]);
+                        'id_dia' => 4, 'hora_inicio' => $data['jueves'],
+                        'hora_fin' => $data['juevesf']]);
                 }
             }
             
             if($hayvie == 0){
-                if($vie != null){
+                if($data['viernes'] != null && $data['viernesf'] != null){
                     Mhorario::create(['id_grupo' => $id_gru, 
-                        'id_dia' => 5, 'hora_inicio' => $vie,
-                        'hora_fin' => $vief]);
+                        'id_dia' => 5, 'hora_inicio' => $data['viernes'],
+                        'hora_fin' => $data['viernesf']]);
                 }
             }
             
             if($haysab == 0){
-                if($sab != null){
+                if($data['sabado'] != null && $data['sabadof'] != null){
                     Mhorario::create(['id_grupo' => $id_gru, 
-                        'id_dia' => 6, 'hora_inicio' => $sab,
-                        'hora_fin' => $sabf]);
+                        'id_dia' => 6, 'hora_inicio' => $data['sabado'],
+                        'hora_fin' => $data['sabadof']]);
                 }
             }
-        
 
         return redirect()->to('/DivEProf/grupos/1');
     }
@@ -859,15 +990,11 @@ class DEProfessionalsController extends Controller
         
         $now = date('Y-m-d');
         $modificar = true;
-
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion', 'ini_evaluacion')
             ->where('estado', "Actual")->first();
 
         if($now < $roll->ini_inscripcion || $now >= $roll->ini_evaluacion)
             $modificar = false;
-        
-        $outime = 2;
-        $roll->fin_inscripcion < $now ? $outime = true : $outime = false;
 
         $estudiantes = DB::table('persona AS p')
             ->join('estudiante AS e', 'p.id_persona', '=', 'e.id_persona')
@@ -877,21 +1004,18 @@ class DEProfessionalsController extends Controller
                     'e.num_control', 
                     'c.nombre AS carrera', 
                     'e.semestre', 
-                    'p.curp', 
                     'p.estado', 
                     'e.id_persona', 
                     'd.id_depto',
                     DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS estudiante'))
-            ->when(null, function ($query) {
-                return $query->where('p.estado', 1)
-                            ->where('p.tipo', "Estudiante");
-            })
+            ->where('p.estado', 1)
+            ->where('p.tipo', "Estudiante")
             ->orderBy('e.semestre')
             ->paginate(10);
 
         return view('DivEProf.estudiante.estudiantes')
         ->with('estudiantes', $estudiantes)
-        ->with('mod', $modificar)
+        ->with('mod', true)
         ->with('tipos', $this->tipos());   
     }
 
@@ -899,15 +1023,12 @@ class DEProfessionalsController extends Controller
         
         $now = date('Y-m-d');
         $modificar = true;
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion', 'ini_evaluacion')
         ->where('estado', "Actual")->first();
         
         if($now < $roll->ini_inscripcion || $now >= $roll->ini_evaluacion)
             $modificar = false;
-        
-        $outime = 2;
-        $roll->fin_inscripcion < $now ? $outime = true : $outime = false;
 
         $estudiantes = DB::table('persona AS p')
             ->join('estudiante AS e', 'p.id_persona', '=', 'e.id_persona')
@@ -917,7 +1038,6 @@ class DEProfessionalsController extends Controller
                     'e.num_control', 
                     'c.nombre AS carrera', 
                     'e.semestre', 
-                    'p.curp', 
                     'p.estado', 
                     'e.id_persona', 
                     'd.id_depto',
@@ -926,6 +1046,8 @@ class DEProfessionalsController extends Controller
                 return $query->where('p.tipo', "Estudiante")
                             ->where('e.num_control', 'LIKE', $search)
                             ->orWhere('p.nombre', 'LIKE', $search)
+                            ->orWhere('p.apePat', 'LIKE', $search)
+                            ->orWhere('p.apeMat', 'LIKE', $search)
                             ->orWhere('c.nombre', 'LIKE', $search)
                             ->where('p.estado', 1);
             })
@@ -934,7 +1056,7 @@ class DEProfessionalsController extends Controller
 
         return view('DivEProf.estudiante.estudiantes')
         ->with('estudiantes', $estudiantes)
-        ->with('mod', $modificar)
+        ->with('mod', true)
         ->with('tipos', $this->tipos());   
     }
 
@@ -961,43 +1083,62 @@ class DEProfessionalsController extends Controller
 
     public function f_regEst(Request $request){
 
-        $nControl = $request->nControl;
-        $contraseña = bcrypt($request->nControl);
-        $nombre = mb_strtoupper($request->nombre);
-        $apePat = mb_strtoupper($request->apePat);
-        $apeMat = mb_strtoupper($request->apeMat);
-        $nomUser = mb_strtoupper($request->nombre.' '.$request->apePat.' '.$request->apeMat);
-        $carrera = $request->carrera;
-        $semestre = $request->semestre;
-        $email = $request->email;
-        $curp = mb_strtoupper($request->curp);
-        $hoy = date("Y-m-d");
+        $data = $request->all();
 
-        $existe = false;
-        $estudiantes = Mestudiante::select('num_control', 'email')->get();
-        foreach($estudiantes as $e){
-            if($e->num_control == $nControl || $e->email == $email)
-                $existe = true;
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'unique' => 'El campo :attribute ya se ha registrado.',
+            'email' => 'El dominio valido para el e-mail es: @itoaxaca.edu.mx',
+            'ends_with' => 'El dominio valido para el e-mail es: @itoaxaca.edu.mx'
+        ];
+        
+        $validation = \Validator::make($request->all(), [
+            'num_control' => 'required|unique:estudiante|min:8|max:9',
+            'nombre' => 'required|min:3|max:30',
+            'apePat' => 'required|min:3|max:20',
+            'apeMat' => 'required|min:3|max:20',
+            'id_carrera' => 'required|exists:carrera,id_carrera',
+            'email' => 'required|email|unique:estudiante|ends_with:@itoaxaca.edu.mx|min:24|max:25',
+            'curp' => 'nullable|unique:persona|size:18'
+        ], $messages);      
+
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
         }
 
-        if($existe){
-            ?><script>
-                alert("Número de control ya registrado, por favor verifica los datos.");
-                location.href = "/DivEProf/nuevoEst";
-            </script><?php
-        }else{
-            $persona = Mpersona::create(['nombre' => $nombre, 'apePat' => $apePat,
-            'apeMat' => $apeMat, 'curp' => $curp, 'tipo' => "Estudiante", 'estado' => 1]);
+        $hoy = date("Y-m-d");
+        $nomUser = mb_strtoupper($data['nombre'].' '.$data['apePat'].' '.$data['apeMat']);
+        $contraseña = bcrypt($data['num_control']);
 
-            Mestudiante::create(['id_persona' => $persona->id, 'id_carrera' => $carrera, 
-            'num_control' => $nControl, 'email' => $email, 'semestre' => $semestre]);
+        $persona = Mpersona::create([
+                    'nombre' => mb_strtoupper($data['nombre']), 
+                    'apePat' => mb_strtoupper($data['apePat']),
+                    'apeMat' => mb_strtoupper($data['apeMat']), 
+                    'curp' => mb_strtoupper($data['curp']), 
+                    'tipo' => "Estudiante", 
+                    'estado' => 1]);
 
-            Musers::create(['id_persona' => $persona->id, 'id_puesto' => 6,
-            'nombre' => $nomUser, 'usuario' => $email, 'password' => $contraseña,
-            'fecha_registro' => $hoy, 'edo_sesion' => 0, 'estado' => 1]);
+        Mestudiante::create([
+            'id_persona' => $persona->id, 
+            'id_carrera' => $data['id_carrera'], 
+            'num_control' => $data['num_control'], 
+            'email' => $data['email'], 
+            'semestre' => $data['semestre']]);
+
+        Musers::create([
+            'id_persona' => $persona->id, 
+            'id_puesto' => 6,
+            'nombre' => $nomUser, 
+            'usuario' => $data['email'], 
+            'password' => $contraseña,
+            'fecha_registro' => $hoy, 
+            'edo_sesion' => 0, 
+            'estado' => 1]);
 
             return redirect()->to('/DivEProf/estudiantes/1');
-        }
+        
     }
 
 /*----------------------------------------------------------------------------------------------------*/
@@ -1007,14 +1148,13 @@ class DEProfessionalsController extends Controller
         $periodoI = $request->input('periodo');
         $actividadI = $request->input('actividad');
 
-        $periodo = DB::select('SELECT id_periodo, nombre
-            FROM periodo
-            WHERE estado = "Actual"
-            OR estado = "Anterior"
-            OR estado = "Finalizado"');
+        $periodo = Mperiodo::select('id_periodo', 'nombre')
+            ->where('estado', '<>', 'Espera')
+            ->where('estado', '<>', 'Siguiente')
+            ->get();
 
         $actividad = DB::table('actividad AS a')
-            ->select('a.nombre as nombre', 'a.id_actividad as id_actividad')
+            ->select('a.nombre', 'a.id_actividad')
             ->get();
         
         if(isset($periodoI) == False) {
@@ -1027,11 +1167,12 @@ class DEProfessionalsController extends Controller
                 ->join('grupo as g', 'g.id_actividad', '=', 'a.id_actividad')
                 ->join('inscripcion as i', 'i.id_grupo', '=', 'g.id_grupo')
                 ->join('evaluacion as e', 'e.id_inscripcion', '=', 'i.id_inscripcion')
-                ->select('e.id_desempenio as id_desempenio', 'p.nombre as periodo', 'a.nombre as actividad')
+                ->select('e.id_desempenio', 
+                        'p.nombre as periodo', 
+                        'a.nombre as actividad')
                 ->where('p.id_periodo', '=', $periodoI)
                 ->where('a.id_actividad', '=', $actividadI)
                 ->get();
-        
         
         return view('DivEProf.reportes')
             ->with('tipos', $this->tipos())
@@ -1048,7 +1189,7 @@ class DEProfessionalsController extends Controller
 
     public function f_carreras($search) { 
 
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
 
         if($search == "%0%"){
             $carreras = DB::table('carrera as c')
@@ -1065,10 +1206,8 @@ class DEProfessionalsController extends Controller
             ->select('c.id_carrera',
                     'c.nombre',
                     'd.nombre AS depto')
-            ->when($search, function ($query, $search) {
-                return $query->where('c.nombre', 'LIKE', $search)
-                            ->where('c.estado', 1);
-            })
+            ->where('c.nombre', 'LIKE', $search)
+            ->where('c.estado', 1)
             ->orderBy('c.id_carrera')
             ->paginate(10); 
         }
@@ -1080,7 +1219,7 @@ class DEProfessionalsController extends Controller
 
     public function f_searchcar(Request $request) { 
 
-        $search = $request->buscar;
+        $search = $request->search;
         // return $this->f_carreras($search);
         return redirect()->to('/DivEProf/carreras/'.$search);
     }
@@ -1096,20 +1235,34 @@ class DEProfessionalsController extends Controller
 
     public function f_regCar(Request $request){
 
-        $carrera = mb_strtoupper($request->nombreCarr);
-        $depto = $request->depto;
-        $tipo = $request->tipo;
-        if($tipo == 1)
-            $tipo = 'INGENIERÍA ';
-        else 
-            $tipo = 'LICENCIATURA ';
+        $data = $request->all();
+
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'exists' => 'El departamento no existe.'
+        ];
+
+        $validation = \Validator::make($request->all(), [
+                'nombre' => 'required|min:3|max:87',
+                'id_depto' => 'required|exists:departamento,id_depto',
+                'tipo' => 'required|boolean',
+            ], $messages);
         
-        $carrera = $tipo.$carrera;
+        if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+            }
 
-        //return $carrera;
-
-        Mcarrera::create(['id_depto' => $depto, 'nombre' => $carrera, 
-        'estado' => 1]);
+        if($data['tipo'] == 0)
+            $data['tipo'] = 'INGENIERÍA ';
+        else 
+            $data['tipo'] = 'LICENCIATURA ';
+        
+        Mcarrera::create(['id_depto' => $data['id_depto'], 
+                'nombre' => mb_strtoupper($data['tipo'].$data['nombre']), 
+                'estado' => 1
+            ]);
 
         return redirect()->to('/DivEProf/carreras/0');
     }
@@ -1119,7 +1272,7 @@ class DEProfessionalsController extends Controller
 
     public function f_critEva($search) {
         
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
 
         if($search == "%0%"){
             $critEval = DB::table('criterios_evaluacion')
@@ -1162,11 +1315,28 @@ class DEProfessionalsController extends Controller
 
     public function f_regCritE(Request $request){
 
-        $nombre = mb_strtoupper($request->nomCritE);
-        $descrip = mb_strtoupper($request->desCritE);
+        $data = $request->all();
 
-        Mcriterios_evaluacion::create(['nombre' => $nombre,
-        'descripcion' => $descrip, 'estado' => 1]);
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.'
+        ];
+
+        $validation = \Validator::make($request->all(), [
+                'nombre' => 'required|min:3|max:45',
+                'descripcion' => 'required|min:3|max:150'
+            ], $messages);
+        
+        if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+            }
+
+        Mcriterios_evaluacion::create([
+                'nombre' => mb_strtoupper($data['nombre']),
+                'descripcion' => mb_strtoupper($data['descripcion']), 
+                'estado' => 1
+            ]);
 
         return redirect()->to('/DivEProf/critEvaluacion/0');
     }
@@ -1194,7 +1364,7 @@ class DEProfessionalsController extends Controller
 
     public function f_departamento($search, $pagina){
 
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
         
         $departamentos = DB::table('departamento as d')
             ->leftJoin('persona as p', 'd.id_persona', '=', 'p.id_persona')
@@ -1219,19 +1389,41 @@ class DEProfessionalsController extends Controller
     public function f_searchdpt(Request $request) { 
 
         $search = mb_strtoupper($request->search);
-        return $this->f_departamento($search, 1);
-        //return redirect()->to('DivEProf/departamentos/'.$search.'/1');
+        // return $this->f_departamento($search, 1);
+        return redirect()->to('/DivEProf/departamentos/'.$search.'/1');
     }
 
     public function f_n_depto() { 
 
-        $jefes = DB::select('SELECT p.id_persona, g.nombre AS grado, 
-            p.nombre, p.apePat, p.apeMat
-            FROM persona AS p
-            LEFT JOIN empleado AS e ON p.id_persona = e.id_persona
-            LEFT JOIN grado AS g ON e.id_grado = g.id_grado
-            WHERE e.id_puesto = 2
-            AND p.estado = 1');
+        $todos = DB::table('persona as p')
+            ->join('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('grado as g', 'e.id_grado', '=', 'g.id_grado')
+            ->select('p.id_persona',
+                    'p.nombre',
+                    'p.apePat',
+                    'p.apeMat',
+                    'g.nombre as grado')
+            ->where('e.id_puesto', '<>', 7)
+            ->where('e.id_puesto', '<>', 5)
+            ->where('p.estado', 1)
+            ->get();
+
+        $asignados = Mdepartamento::select('id_persona')->get();
+
+        $jefes = []; $c = 0;
+        foreach($todos as $t){
+            $exist = false;
+            
+            foreach ($asignados as $a){
+                if($a->id_persona == $t->id_persona)
+                    $exist = true;
+            }
+
+            if(!$exist){
+                $jefes[$c] = $t;
+                $c++;
+            }
+        }
         
         return view('DivEProf.depto.nuevo')
         ->with('jefes', $jefes)
@@ -1240,10 +1432,28 @@ class DEProfessionalsController extends Controller
 
     public function f_regDepto(Request $request){
 
-        $nombre = mb_strtoupper($request->nomDepto);
-        $jefe = $request->persona;
+        $data = $request->all();
 
-        Mdepartamento::create(['id_persona' => $jefe, 'nombre' => $nombre, 'estado' => 1]);
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.'
+        ];
+
+        $validation = \Validator::make($request->all(), [
+                'nombre' => 'required|min:3|max:100',
+                'id_persona' => 'required|exists:persona,id_persona'
+            ], $messages);
+        
+        if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+            }
+
+        Mdepartamento::create([
+                'id_persona' => $data['id_persona'], 
+                'nombre' => mb_strtoupper($data['nombre']), 
+                'estado' => 1
+            ]);
 
         return redirect()->to('/DivEProf/departamentos/1');
     }
@@ -1267,7 +1477,7 @@ class DEProfessionalsController extends Controller
 
     public function f_grado($search, $pagina) {
 
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
 
         $grados = DB::table('grado')
         ->select('id_grado',
@@ -1288,8 +1498,8 @@ class DEProfessionalsController extends Controller
     public function f_searchgra(Request $request) { 
 
         $search = mb_strtoupper($request->search);
-        return $this->f_grado($search, 1); 
-        //return redirect()->to('DivEProf/grados/'.$search.'/1');
+        // return $this->f_grado($search, 1); 
+        return redirect()->to('/DivEProf/grados/'.$search.'/1');
     }
 
     public function f_n_grado() { 
@@ -1300,11 +1510,28 @@ class DEProfessionalsController extends Controller
 
     public function f_regGrado(Request $request){
 
-        $nombre = mb_strtoupper($request->nomGrado);
-        $sig = mb_strtoupper($request->significado);
+        $data = $request->all();
+        
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.'
+        ];
 
-        Mgrado::create(['nombre' => $nombre, 
-        'significado' => $sig, 'estado' => 1]);
+        $validation = \Validator::make($data, [
+                'nombre' => 'required|string|min:3|max:15',
+                'signifiado' => 'required|string|min:3|max:100'
+            ], $messages);
+        
+        if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+            }
+
+        Mgrado::create([
+            'nombre' => $data['nombre'], 
+            'significado' => $data['significado'], 
+            'estado' => 1
+        ]);
 
         return redirect()->to('/DivEProf/grados/1');
     }
@@ -1313,8 +1540,7 @@ class DEProfessionalsController extends Controller
 
     public function f_periodos($pagina) {
 
-        $periodos = DB::table('periodo')
-            ->select('id_periodo',
+        $periodos = Mperiodo::select('id_periodo',
                     'nombre',
                     'inicio',
                     'fin',
@@ -1330,18 +1556,15 @@ class DEProfessionalsController extends Controller
 
     public function f_periodo($search, $pagina) {
 
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
 
-        $periodos = DB::table('periodo')
-            ->select('id_periodo',
+        $periodos = Mperiodo::select('id_periodo',
                     'nombre',
                     'inicio',
                     'fin',
                     'estado')
-            ->when($search, function ($query, $search) {
-                return $query->where('nombre', 'LIKE', $search)
-                        ->where('condicion', 1);
-            })
+            ->where('nombre', 'LIKE', $search)
+            ->where('condicion', 1)
             ->orderBy('id_periodo')
             ->paginate(10);
 
@@ -1353,8 +1576,8 @@ class DEProfessionalsController extends Controller
     public function f_searchperi(Request $request) { 
 
         $search = $request->search;
-        return $this->f_periodo($search, 1); 
-        //return redirect()->to('DivEProf/periodos/'.$search.'/1');
+        // return $this->f_periodo($search, 1); 
+        return redirect()->to('/DivEProf/periodos/'.$search.'/1');
     }
 
     public function f_n_periodo(){
@@ -1363,9 +1586,7 @@ class DEProfessionalsController extends Controller
                     "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE");
 
         $año = [date("Y"), date("Y")+1, date("Y")+2];
-        /**<input type="text" class="form-control" name="nombre" 
-            pattern="[ENE]{1}[A-Z]+[-][JUN]{1}[A-Z]+[0-9]{4}|[AGO]{1}[A-Z]+[-][DIC]{1}[A-Z]+[0-9]{4}|[SEP]{1}[A-Z]+[-][ENE]{1}[A-Z]+[0-9]{4}" 
-            placeholder="MESINICIO-MESFIN/AÑO ó MESINICIO AÑO-MESFIN AÑO" required> */
+
         return view('DivEProf.periodo.nuevo')
             ->with('mes', $mes)
             ->with('año', $año)
@@ -1374,258 +1595,116 @@ class DEProfessionalsController extends Controller
 
     public function f_regPeriodo(Request $request){
         
-        $ruta = "images/ac_ito/";
-        $nombre = $request->mesi.' '.$request->anioi.' - '.$request->mesf.' '.$request->aniof;
-        $inicio = $request->iniPeri;
-        $fin = $request->finPeri;
-        $iniIns = $request->iniIns;
-        $finIns = $request->finIns;
-        $iniEval = $request->iniEval;
-        $finEval = $request->finEval;
-        $iniCons = $request->iniGcons;
-        $finCons = $request->finGcons;
-        $inscrip = true; $eval = true; $const = true; 
-        $mi = true; $me = true; $mc = true;
-        $gob = ''; $tecnm = ''; $ito = ''; $encabezado = '';
+        $data = $request->all();
 
-        if($request->hasFile('gobierno')){
-            $g_new = $request->file('gobierno')->getClientOriginalName();
-            $gob =  $request->file('gobierno');
-            $gob->move($ruta, $g_new);
-            $gob = '/'.$ruta.$g_new;
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'date_format' => 'El campo :attribute no coincide con el formato obligatorio.',
+            'required_if' => 'El campo :attribute no cuenta con el valor previo necesario.',
+            'file' => 'El campo :attribute debe ser un archivo (png, jpg, etc).'
+        ];
+
+        $validation = \Validator::make($data, [
+                'mes_ini' => 'required|string|min:4|max:10',
+                'mes_fin' => 'required|string|min:4|max:10',
+                'anio_ini' => 'required|date_format:Y',
+                'anio_fin' => 'required|date_format:Y',
+                'inicio' => 'required|date_format:Y-m-d',
+                'fin' => 'required|date_format:Y-m-d',
+                'ini_inscripcion' => 'nullable|date_format:Y-m-d',
+                'fin_inscripcion' => 'nullable|date_format:Y-m-d',
+                'ini_evaluacion' => 'nullable|date_format:Y-m-d',
+                'fin_evaluacion' => 'nullable|date_format:Y-m-d',
+                'ini_gconstancias' => 'nullable|date_format:Y-m-d',
+                'fin_gconstancias' => 'nullable|date_format:Y-m-d',
+                'cabecera' => 'nullable|file',
+                'pie' => 'nullable|file'
+            ], $messages);
+
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
         }
 
-        if($request->hasFile('tecnmlog')){
-            $t_new = $request->file('tecnmlog')->getClientOriginalName();
-            $tecnm = $request->file('tecnmlog');
-            $tecnm->move($ruta, $t_new);
-            $tecnm = '/'.$ruta.$t_new;
+        $ruta = "images/ac_ito/"; $cabecera = ""; $pie = ""; 
+
+        if($request->hasFile('cabecera')){
+            $g_new = $request->file('cabecera')->getClientOriginalName();
+            $cabecera =  $request->file('cabecera');
+            $cabecera->move($ruta, $g_new);
+            $cabecera = '/'.$ruta.$g_new;
         }
 
-        if($request->hasFile('itolog')){
-            $i_new = $request->file('itolog')->getClientOriginalName();
-            $ito = $request->file('itolog');
-            $ito->move($ruta, $i_new);
-            $ito = '/'.$ruta.$i_new;
+        if($request->hasFile('pie')){
+            $t_new = $request->file('pie')->getClientOriginalName();
+            $pie = $request->file('pie');
+            $pie->move($ruta, $t_new);
+            $pie = '/'.$ruta.$t_new;
         }
 
-        if($request->hasFile('encabezado')){
-            $e_new = $request->file('encabezado')->getClientOriginalName();
-            $encabezado = $request->file('encabezado'); 
-            $encabezado->move($ruta, $e_new);
-            $encabezado = '/'.$ruta.$e_new;
-        }
+        $inscripcion = false; $evaluacion = false; $gconstancias = false; $semestre = false;
 
-        ($iniIns != '' && $finIns != '') 
-            ? (($finIns < date('Y-m-d', strtotime('+2 days', strtotime($iniIns)))
-                || $finIns > date('Y-m-d', strtotime('+14 days', strtotime($iniIns))))
-                ? $mi = true : $mi = false) 
-            : $inscrip = false;
+        ($data['ini_inscripcion'] != '' && $data['fin_inscripcion'] != '') 
+            ? (($data['fin_inscripcion'] < date('Y-m-d', strtotime('+2 days', strtotime($data['ini_inscripcion'])))
+                || $data['fin_inscripcion'] > date('Y-m-d', strtotime('+14 days', strtotime($data['ini_inscripcion']))))
+                ? $inscripcion = true : null) 
+            : (($data['ini_inscripcion'] != '' || $data['fin_inscripcion'] != '')
+                ? $inscripcion = true
+                : null);
 
-        ($iniEval != '' && $finEval != '') 
-            ? (($finEval < date('Y-m-d', strtotime('+2 days', strtotime($iniEval)))
-                || $finEval > date('Y-m-d', strtotime('+14 days', strtotime($iniEval))))
-                ? $me = true : $me = false) 
-            : $eval = false;
+        ($data['ini_evaluacion'] != '' && $data['fin_evaluacion'] != '') 
+            ? (($data['fin_evaluacion'] < date('Y-m-d', strtotime('+2 days', strtotime($data['ini_evaluacion'])))
+                || $data['fin_evaluacion'] > date('Y-m-d', strtotime('+14 days', strtotime($data['ini_evaluacion']))))
+                ? $evaluacion = true : null) 
+            : (($data['ini_evaluacion'] != '' || $data['fin_evaluacion'] != '') 
+                ? $evaluacion = true
+                : null);
 
-        ($iniCons != '' && $finCons != '') 
-            ? (($finCons < date('Y-m-d', strtotime('+2 days', strtotime($iniCons)))
-                || $finCons > date('Y-m-d', strtotime('+14 days', strtotime($iniCons))))
-                ? $mc = true : $mc = false) 
-            : $const = false;
+        ($data['ini_gconstancias'] != '' && $data['fin_gconstancias'] != '') 
+            ? (($data['fin_gconstancias'] < date('Y-m-d', strtotime('+2 days', strtotime($data['ini_gconstancias'])))
+                || $data['fin_gconstancias'] > date('Y-m-d', strtotime('+14 days', strtotime($data['ini_gconstancias']))))
+                ? $gconstancias = true : null) 
+            : (($data['ini_gconstancias'] != '' || $data['fin_gconstancias'] != '')
+                ? $gconstancias = true
+                : null);
         
-        if($inicio < $fin){
+        ($data['fin'] < date('Y-m-d', strtotime('+4 month', strtotime($data['inicio'])))
+        || $data['fin'] > date('Y-m-d', strtotime('+5 month', strtotime($data['inicio']))))
+            ? $semestre = true 
+            : null;
 
-            if($fin < date('Y-m-d', strtotime('+4 month', strtotime($inicio)))
-                || $fin > date('Y-m-d', strtotime('+5 month', strtotime($inicio)))){
-                ?><script>
-                   alert('Periodo fuera de rango, deben ser 4 meses como mínimo y 5 meses como máximo.');
-                   location.href = "DivEProf/nuevoPeri";
-                </script><?php
-            }else{
-                if(!$inscrip && !$eval && !$const){
-
-                    $sig = Mperiodo::select('id_periodo')
-                        ->where('estado', "Siguiente")->first();
-                    
-                    $sig != null 
-                        ? 
-                            Mperiodo::where('id_periodo', $sig->id_periodo)
-                                ->update(['estado' => "Espera"])
-                        :   "";
-
-                    Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                    'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
-                    'logo_ito' => $ito, 'logo_anio' => $encabezado, 
-                    'estado' => "Siguiente"]);
-
-                    return redirect()->to('/DivEProf/periodos/1');
-                }else{
-                    if(!$mi && !$me && !$mc){
-                        if($inicio < $iniIns && $finIns < $iniEval && $finEval < $iniCons && $finCons < $fin){
-                            
-                            $sig = Mperiodo::select('id_periodo')
-                                ->where('estado', "Siguiente")->first();
-                            
-                            $sig != null 
-                                ? 
-                                    Mperiodo::where('id_periodo', $sig->id_periodo)
-                                        ->update(['estado' => "Espera"])
-                                :   "";
-
-                            Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                            'ini_inscripcion' => $iniIns, 'fin_inscripcion' => $finIns,
-                            'ini_evaluacion' => $iniEval, 'fin_evaluacion' => $finEval,
-                            'ini_gconstancias' => $iniCons, 'fin_gconstancias' => $finCons,
-                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
-                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
-                            'estado' => "Siguiente"]);
-                            
-                            return redirect()->to('/DivEProf/periodos/1');
-
-                        }else{
-
-                            ?> <script>
-                                alert('Las fechas de los procesos de Inscripción, Evaluación y G. Constancias no pueden traslaparse.');
-                                location.href = "DivEProf/nuevoPeri";
-                            </script> <?php
-                        }
-                    }elseif(!$mi && $inicio < $iniIns){
-                        if(!$me && $finIns < $iniEval && $finEval < $fin){
-                            
-                            $sig = Mperiodo::select('id_periodo')
-                                ->where('estado', "Siguiente")->first();
-                            
-                            $sig != null 
-                                ? 
-                                    Mperiodo::where('id_periodo', $sig->id_periodo)
-                                        ->update(['estado' => "Espera"])
-                                :   "";
-
-                            Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                            'ini_inscripcion' => $iniIns, 'fin_inscripcion' => $finIns,
-                            'ini_evaluacion' => $iniEval, 'fin_evaluacion' => $finEval,
-                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
-                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
-                            'estado' => "Siguiente"]);
-
-                            return redirect()->to('/DivEProf/periodos/1');
-
-                        }elseif(!$mc && $finIns < $iniCons && $finCons < $fin){
-                            
-                            $sig = Mperiodo::select('id_periodo')
-                                ->where('estado', "Siguiente")->first();
-                            
-                            $sig != null 
-                                ? 
-                                    Mperiodo::where('id_periodo', $sig->id_periodo)
-                                        ->update(['estado' => "Espera"])
-                                :   "";
-
-                            Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                            'ini_inscripcion' => $iniIns, 'fin_inscripcion' => $finIns,
-                            'ini_gconstancias' => $iniCons, 'fin_gconstancias' => $finCons,
-                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
-                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
-                            'estado' => "Siguiente"]);
-
-                            return redirect()->to('/DivEProf/periodos/1');
-
-                        }else{
-
-                            $sig = Mperiodo::select('id_periodo')
-                                ->where('estado', "Siguiente")->first();
-                            
-                            $sig != null 
-                                ? 
-                                    Mperiodo::where('id_periodo', $sig->id_periodo)
-                                        ->update(['estado' => "Espera"])
-                                :   "";
-
-                            Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                            'ini_inscripcion' => $iniIns, 'fin_inscripcion' => $finIns,
-                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
-                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
-                            'estado' => "Siguiente"]);
-
-                            return redirect()->to('/DivEProf/periodos/1');
-
-                        }
-                    }elseif(!$me && $inicio < $iniEval){
-                        if(!$mc && $finEval < $iniCons && $finCons < $fin){
-                            
-                            $sig = Mperiodo::select('id_periodo')
-                                ->where('estado', "Siguiente")->first();
-                            
-                            $sig != null 
-                                ? 
-                                    Mperiodo::where('id_periodo', $sig->id_periodo)
-                                        ->update(['estado' => "Espera"])
-                                :   "";
-
-                            Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                            'ini_evaluacion' => $iniEval, 'fin_evaluacion' => $finEval,
-                            'ini_gconstancias' => $iniCons, 'fin_gconstancias' => $finCons,
-                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
-                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
-                            'estado' => "Siguiente"]);
-
-                            return redirect()->to('/DivEProf/periodos/1');
-
-                        }else{
-                            
-                            $sig = Mperiodo::select('id_periodo')
-                                ->where('estado', "Siguiente")->first();
-                            
-                            $sig != null 
-                                ? 
-                                    Mperiodo::where('id_periodo', $sig->id_periodo)
-                                        ->update(['estado' => "Espera"])
-                                :   "";
-
-                            Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                            'ini_evaluacion' => $iniEval, 'fin_evaluacion' => $finEval,
-                            'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
-                            'logo_ito' => $ito, 'logo_anio' => $encabezado, 
-                            'estado' => "Siguiente"]);
-
-                            return redirect()->to('/DivEProf/periodos/1');
-
-                        }
-                    }elseif(!$mc && $inicio < $iniCons && $finCons < $fin){
-                        
-                        $sig = Mperiodo::select('id_periodo')
-                                ->where('estado', "Siguiente")->first();
-                            
-                            $sig != null 
-                                ? 
-                                    Mperiodo::where('id_periodo', $sig->id_periodo)
-                                        ->update(['estado' => "Espera"])
-                                :   "";
-
-                        Mperiodo::create(['nombre' => $nombre, 'inicio' => $inicio, 'fin' => $fin, 
-                        'ini_gconstancias' => $iniCons, 'fin_gconstancias' => $finCons,
-                        'logo_gob' => $gob, 'logo_tecnm' => $tecnm, 
-                        'logo_ito' => $ito, 'logo_anio' => $encabezado, 
-                        'estado' => "Siguiente"]);
-
-                        return redirect()->to('/DivEProf/periodos/1');
-
-                    }else{
-
-                        ?> <script>
-                            alert('Los procesos de Inscripción, Evaluación y G. Constancias deben ser mínimo de 3 días y máximo 2 semanas.');
-                            location.href = "DivEProf/nuevoPeri";
-                        </script> <?php
-                    } 
-                }
-            }
-        }else{
-            ?> <script>
-                   alert('El término del semestre no puede ser anterior al inicio.');
-                   location.href = "DivEProf/nuevoPeri";
-                </script> <?php
+        if($inscripcion || $evaluacion || $gconstancias || $semestre){
+            $error = ["tiempo" => "Revise los tiempos en los periodos que intenta registrar."];
+            return redirect()->back()->withInput()->withErrors($error);
         }
+        
+        $siguiente = Mperiodo::select('id_periodo')
+            ->where('estado', "Siguiente")->first();
+        
+        $siguiente != null 
+            ? 
+                Mperiodo::where('id_periodo', $siguiente->id_periodo)
+                    ->update(['estado' => "Espera"])
+            :   null;
+
+        $nombre = $data['mes_ini']." ".$data['anio_fin']." - ".$data['mes_fin']." ".$data['anio_fin'];
+        
+        Mperiodo::create([
+            'nombre' => $nombre, 
+            'inicio' => $data['inicio'], 
+            'fin' => $data['fin'], 
+            'ini_inscripcion' => $data['ini_inscripcion'], 
+            'fin_inscripcion' => $data['fin_inscripcion'],
+            'ini_evaluacion' => $data['ini_evaluacion'], 
+            'fin_evaluacion' => $data['fin_evaluacion'],
+            'ini_gconstancias' => $data['ini_gconstancias'], 
+            'fin_gconstancias' => $data['fin_gconstancias'],
+            'cabecera' => $cabecera, 
+            'pie' => $pie, 
+            'estado' => "Siguiente"]);
+
+        return redirect()->to('/DivEProf/periodos/1');
 
     }
 
@@ -1654,10 +1733,8 @@ class DEProfessionalsController extends Controller
                     'g.nombre as grado', 
                     'pu.nombre as puesto', 
                     DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS empleado'))
-            ->when(null, function ($query) {
-                return $query->where('p.tipo', "Empleado")
-                            ->where('p.estado', 1);
-            })
+            ->where('p.tipo', "Empleado")
+            ->where('p.estado', 1)
             ->orderBy('p.id_persona')
             ->paginate(10);
 
@@ -1668,7 +1745,7 @@ class DEProfessionalsController extends Controller
 
     public function f_personalB($search, $pagina) {
 
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
 
         $empleados = DB::table('persona as p')
             ->leftJoin('empleado as e', 'p.id_persona', '=', 'e.id_persona')
@@ -1682,14 +1759,13 @@ class DEProfessionalsController extends Controller
                     'g.nombre as grado', 
                     'pu.nombre as puesto', 
                     DB::raw('CONCAT(p.nombre, " ", p.apePat, " ", p.apeMat) AS empleado'))
-            ->when($search, function ($query,$search) {
-                return $query->where('p.tipo', "Empleado")
-                            ->where('p.estado', 1)
-                            ->where('p.nombre', 'LIKE', $search)
-                            ->orWhere('p.apePat', 'LIKE', $search)
-                            ->orWhere('p.apeMat', 'LIKE', $search);
-            })
+            ->where('p.tipo', "Empleado")
+            ->where('p.nombre', 'LIKE', $search)
+            ->orWhere('p.apePat', 'LIKE', $search)
+            ->orWhere('p.apeMat', 'LIKE', $search)
+            // ->orWhere('d.nombre', 'LIKE', $search)
             ->orderBy('p.id_persona')
+            ->where('p.estado', 1)
             ->paginate(10);
 
         return view('DivEProf.persona.personas')
@@ -1700,15 +1776,21 @@ class DEProfessionalsController extends Controller
     public function f_searchpers(Request $request) { 
 
         $search = $request->search;
-        return $this->f_personalB($search, 1); 
-        //return redirect()->to('DivEProf/personal/'.$search.'/1');
+        // return $this->f_personalB($search, 1); 
+        return redirect()->to('/DivEProf/personal/'.$search.'/1');
     }
 
     public function f_n_persona(){
 
-        $deptos = Mdepartamento::get();
-        $puesto = Mpuesto::where('estado', 1)->get();
-        $grados = Mgrado::get();
+        $deptos = Mdepartamento::where('estado', 1)->get();
+
+        $puesto = Mpuesto::select('id_puesto', 'nombre')
+            ->where('id_puesto', '<>', 7)
+            ->where('id_puesto', '<>', 6)
+            ->where('estado', 1)
+            ->get();
+
+        $grados = Mgrado::where('estado', 1)->get();
 
         return view('DivEProf.persona.nueva')
         ->with('departamentos', $deptos)
@@ -1719,62 +1801,88 @@ class DEProfessionalsController extends Controller
 
     public function f_regEmp(Request $request){
 
-        $curp = mb_strtoupper($request->curp);
-        $contraseña = bcrypt($request->curp);
-        $nombre = mb_strtoupper($request->nombre);
-        $apePat = mb_strtoupper($request->apePat);
-        $apeMat = mb_strtoupper($request->apeMat);
-        $nomUser = mb_strtoupper($request->nombre.' '.$request->apePat.' '.$request->apeMat);
-        $depto = $request->depto;
-        $puesto = $request->puesto;
-        $grado = $request->grado;
-        $hoy = date("Y-m-d");
-        $exist = false;
-        $empleados = Mpersona::select('curp')->get();
+        $data = $request->all();
 
-        foreach($empleados as $e){
-            if($e->curp == $curp)
-                $exist = true;
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'unique' => 'El campo :attribute ya se ha registrado.',
+            'exists' => 'El campo :attribute no es un elemento valido.',
+            'integer' => 'El campo :attribute no corresponde al tipo correcto.'
+        ];
+
+        $validation = \Validator::make($data, [
+                'id_grado' => 'required|integer|exists:grado,id_grado',
+                'nombre' => 'required|min:3|max:30',
+                'apePat' => 'required|min:3|max:20',
+                'apeMat' => 'required|min:3|max:20',
+                'id_depto' => 'required|integer|exists:departamento,id_depto',
+                'curp' => 'nullable|unique:persona|size:18',
+                'id_puesto' => 'required|integer|exists:puesto,id_puesto',
+            ], $messages);
+
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
         }
 
-        if($exist){
-            ?><script>
-                alert("Empleado ya registrado, por favor verifca los datos.");
-                location.href = "/DivEProf/nuevaPer";
-            </script><?php
-        }else{
-            $persona = Mpersona::create(['nombre' => $nombre, 'apePat' => $apePat,
-            'apeMat' => $apeMat, 'curp' => $curp, 'tipo' => "Empleado", 'estado' => 1]);
+        $hoy = date("Y-m-d");
+        $nomUser = mb_strtoupper($data['nombre'].' '.$data['apePat'].' '.$data['apeMat']);
+        $contraseña = bcrypt(mb_strtoupper($data['curp']));
 
-            Mempleado::create(['id_persona' => $persona->id, 'id_depto' => $depto, 
-            'id_grado' => $grado, 'id_puesto' => $puesto]);
+        $persona = Mpersona::create([
+                    'nombre' => mb_strtoupper($data['nombre']), 
+                    'apePat' => mb_strtoupper($data['apePat']),
+                    'apeMat' => mb_strtoupper($data['apeMat']), 
+                    'curp' => mb_strtoupper($data['curp']), 
+                    'tipo' => "Empleado", 
+                    'estado' => 1]);
 
-            Musers::create(['id_persona' => $persona->id, 'id_puesto' => $puesto,
-            'nombre' => $nomUser, 'usuario' => $curp, 'password' => $contraseña,
-            'fecha_registro' => $hoy, 'edo_sesion' => 0, 'estado' => 1]);
+        Mempleado::create([
+            'id_persona' => $persona->id, 
+            'id_depto' => $data['id_depto'], 
+            'id_grado' => $data['id_grado'], 
+            'id_puesto' => $data['id_puesto']
+        ]);
+
+        Musers::create([
+            'id_persona' => $persona->id, 
+            'id_puesto' => $data['id_puesto'],
+            'nombre' => $nomUser, 
+            'usuario' => mb_strtoupper($data['curp']), 
+            'password' => $contraseña,
+            'fecha_registro' => $hoy, 
+            'edo_sesion' => 0, 
+            'estado' => 1]);
 
             return redirect()->to('/DivEProf/personal/1');
-        }
+        
     }
 
     public function f_e_persona($id_per){
 
         $deptos = Mdepartamento::get();
-        $puesto = Mpuesto::get();
+
+        $puesto = Mpuesto::select('id_puesto', 'nombre')
+            ->where('id_puesto', '<>', 7)
+            ->where('id_puesto', '<>', 6)
+            ->where('estado', 1)
+            ->get();
+
         $grados = Mgrado::get();
 
         $persona = DB::table('persona AS p')
-        ->join('empleado AS e', 'p.id_persona', '=', 'e.id_persona')
-        ->join('departamento AS d', 'e.id_depto', '=', 'd.id_depto')
-        ->join('grado AS g', 'e.id_grado', '=', 'g.id_grado')
-        ->join('puesto AS pu', 'e.id_puesto', '=', 'pu.id_puesto')
-        ->select('p.id_persona AS id_persona', 'p.nombre AS nombre', 
-                'p.apePat AS paterno', 'p.apeMat AS materno',
-                'p.curp AS curp', 'd.nombre AS depto', 'g.nombre AS grado',
-                'pu.nombre AS puesto', 'e.id_depto AS id_depto',
-                'e.id_grado AS id_grado', 'e.id_puesto AS id_puesto')
-        ->where('p.id_persona', $id_per)
-                ->get();
+            ->join('empleado AS e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('departamento AS d', 'e.id_depto', '=', 'd.id_depto')
+            ->join('grado AS g', 'e.id_grado', '=', 'g.id_grado')
+            ->join('puesto AS pu', 'e.id_puesto', '=', 'pu.id_puesto')
+            ->select('p.id_persona', 'p.nombre', 
+                    'p.apePat AS paterno', 'p.apeMat AS materno',
+                    'p.curp', 'd.nombre AS depto', 'g.nombre AS grado',
+                    'pu.nombre AS puesto', 'e.id_depto',
+                    'e.id_grado', 'e.id_puesto')
+            ->where('p.id_persona', $id_per)
+            ->get();
 
         return view('DivEProf.persona.editar')
         ->with('persona', $persona)
@@ -1786,29 +1894,65 @@ class DEProfessionalsController extends Controller
 
     public function f_editEmp($id_emp, Request $request){
 
-        
-        //$person = $request->persona->id_persona;
+        $data = $request->all();
+        $curp = Mpersona::where('id_persona', $id_emp)->first();
 
-        $grado = $request->grado;
-        $nombre = mb_strtoupper($request->nombre);
-        $apePat = mb_strtoupper($request->apePat);
-        $apeMat = mb_strtoupper($request->apeMat);
-        $depto = $request->depto;
-        $puesto = $request->puesto;
-        $curp = mb_strtoupper($request->curp);
-        $nomUser = mb_strtoupper($request->nombre.' '.$request->apePat.' '.$request->apeMat);
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'unique' => 'El campo :attribute ya se ha registrado.',
+            'exists' => 'El campo :attribute no es un elemento valido.',
+            'integer' => 'El campo :attribute no corresponde al tipo correcto.'
+        ];
+
+        $validation = \Validator::make($data, [
+                'id_grado' => 'required|integer|exists:grado,id_grado',
+                'nombre' => 'required|min:3|max:30',
+                'apePat' => 'required|min:3|max:20',
+                'apeMat' => 'required|min:3|max:20',
+                'id_depto' => 'required|integer|exists:departamento,id_depto',
+                'id_puesto' => 'required|integer|exists:puesto,id_puesto',
+            ], $messages);
+
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
+
+        if($curp->curp != mb_strtoupper($data['curp'])){
+
+            $validation = \Validator::make($data, [
+                'curp' => 'nullable|unique:persona|size:18'
+            ], $messages);
+
+            if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+            }
+        }
+
+        $nomUser = mb_strtoupper($data['nombre'].' '.$data['apePat'].' '.$data['apeMat']);
 
         Mpersona::where('id_persona', $id_emp)
-        ->update(['nombre' => $nombre, 'apePat' => $apePat,
-        'apeMat' => $apeMat, 'curp' => $curp]);
+            ->update([
+                'nombre' => mb_strtoupper($data['nombre']), 
+                'apePat' => mb_strtoupper($data['apePat']),
+                'apeMat' => mb_strtoupper($data['apeMat']), 
+                'curp' => mb_strtoupper($data['curp'])
+            ]);
 
         Mempleado::where('id_persona', $id_emp)
-        ->update(['id_depto' => $depto, 
-        'id_grado' => $grado, 'id_puesto' => $puesto]);
+            ->update([
+                'id_depto' => $data['id_depto'], 
+                'id_grado' => $data['id_grado'], 
+                'id_puesto' => $data['id_puesto']
+            ]);
 
         Musers::where('id_persona', $id_emp)
-        ->update(['id_puesto' => $puesto, 'nombre' => $nomUser, 
-        'usuario' => $curp]);
+            ->update([
+                'id_puesto' => $data['id_puesto'], 
+                'nombre' => $nomUser, 
+                'usuario' => $data['curp']
+            ]);
 
 
         return redirect()->to('/DivEProf/personal/1');
@@ -1826,7 +1970,7 @@ class DEProfessionalsController extends Controller
 
     public function f_puestos($search) {
 
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
         
         if($search == "%0%"){
             $puestos = DB::table('puesto')
@@ -1841,24 +1985,22 @@ class DEProfessionalsController extends Controller
                 ->select('id_puesto',
                         'nombre',
                         'descripcion')
-                ->when($search, function ($query, $search) {
-                    return $query->where('nombre', 'LIKE', $search)
-                            ->where('estado', 1);
-                })
+                ->where('nombre', 'LIKE', $search)
+                ->where('estado', 1)
                 ->orderBy('id_puesto')
                 ->paginate(10); 
         }
 
         return view('DivEProf.puesto.puestos')
-        ->with('puestos', $puestos)
-        ->with('tipos', $this->tipos());   
+            ->with('puestos', $puestos)
+            ->with('tipos', $this->tipos());   
     }
 
     public function f_searchpue(Request $request) { 
 
         $search = $request->search;
-        return $this->f_puestos($search); 
-        // return redirect()->to('DivEProf/puestos/'.$search);
+        // return $this->f_puestos($search); 
+        return redirect()->to('/DivEProf/puestos/'.$search);
     }
 
 /*----------------------------------------------------------------------------------------------------*/
@@ -1871,7 +2013,7 @@ class DEProfessionalsController extends Controller
                     'fecha',
                     'motivo')
             ->where('estado', 1)
-            ->orderBy('id_fecha')
+            ->orderBy('id_fecha', 'desc')
             ->paginate(10);
         
         return view('DivEProf.suspencion.sus_labores')
@@ -1881,7 +2023,7 @@ class DEProfessionalsController extends Controller
 
     public function f_s_labor($search, $pagina) { 
 
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
         
         $fechas = DB::table('fechas_inhabiles')
             ->select('id_fecha',
@@ -1892,7 +2034,7 @@ class DEProfessionalsController extends Controller
                         ->where('fecha', 'LIKE', $search)
                         ->orWhere('motivo', 'LIKE', $search);
             })
-            ->orderBy('id_fecha')
+            ->orderBy('id_fecha', 'desc')
             ->paginate(10);
         
         return view('DivEProf.suspencion.sus_labores')
@@ -1903,8 +2045,8 @@ class DEProfessionalsController extends Controller
     public function f_searchslab(Request $request) { 
 
         $search = $request->search;
-        return $this->f_s_labor($search, 1); 
-        //return redirect()->to('DivEProf/suspLabores/'.$search.'/1');
+        // return $this->f_s_labor($search, 1); 
+        return redirect()->to('DivEProf/suspLabores/'.$search.'/1');
     }
 
     public function f_n_fecha(){
@@ -1915,19 +2057,33 @@ class DEProfessionalsController extends Controller
 
     public function f_regFecha(Request $request){
 
-        $fecha = $request->fecha;
-        $fechfin = $request->fechafin;
-        $motivo = mb_strtoupper($request->motivo);
-        $end = false;
-  
-        if($fechfin == '' || $fecha == $fechfin)  {
+        $data = $request->all();
 
-            Mfechas_inhabiles::create(['fecha' => $fecha,
-            'motivo' => $motivo, 'estado' => 1]);
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'date_format' => 'El campo :attribute no cuanta con formato de fecha.'
+        ];
+
+        $validation = \Validator::make($data, [
+            'fecha' => 'required|date_format:Y-m-d',
+            'fecha_fin' => 'nullable|date_format:Y-m-d',
+            'motivo' => 'required|string|min:3|max:100'
+        ], $messages);
+        
+        if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
+
+        if($data['fecha_fin'] == '' || $data['fecha'] == $data['fecha_fin'])  {
+
+            Mfechas_inhabiles::create([
+                'fecha' => $data['fecha'],
+                'motivo' => mb_strtoupper($data['motivo']), 
+                'estado' => 1]);
         
             return redirect()->to('/DivEProf/suspLabores/1');
         }
-        elseif($fecha > $fechfin) {
+        elseif($data['fecha'] > $data['fecha_fin']) {
             ?>
                 <script>
                     alert("La fecha de término no puede ser menor que la fecha de inicio.");
@@ -1936,18 +2092,24 @@ class DEProfessionalsController extends Controller
             <?php
         }
         else{
-            $fnew = $fecha;
+            $fnew = $data['fecha']; $end = false;
             while($end != true){
 
-                Mfechas_inhabiles::create(['fecha' => $fnew,
-                'motivo' => $motivo, 'estado' => 1]);
+                Mfechas_inhabiles::create([
+                    'fecha' => $fnew,
+                    'motivo' => mb_strtoupper($data['motivo']), 
+                    'estado' => 1
+                ]);
 
                 $fnew = date('Y-m-d', strtotime('tomorrow', strtotime($fnew)));
 
-                if($fnew == $fechfin){ 
+                if($fnew == $data['fecha_fin']){ 
 
-                    Mfechas_inhabiles::create(['fecha' => $fnew,
-                    'motivo' => $motivo, 'estado' => 1]);
+                    Mfechas_inhabiles::create([
+                        'fecha' => $fnew,
+                        'motivo' => mb_strtoupper($data['motivo']), 
+                        'estado' => 1
+                    ]);
                     $end = true;
                     return redirect()->to('/DivEProf/suspLabores/1');
                 }
@@ -1960,7 +2122,7 @@ class DEProfessionalsController extends Controller
 
     public function f_lugar($search, $pagina) {
 
-        $search = mb_strtoupper("%".$search."%");
+        $search = mb_strtoupper("%".utf8_decode($search)."%");
         
         $lugares = DB::table('lugar')
             ->select('id_lugar',
@@ -1994,8 +2156,8 @@ class DEProfessionalsController extends Controller
     public function f_searchlug(Request $request) { 
 
         $search = $request->search;
-        return $this->f_lugar($search, 1);   
-        //return redirect()->to('DivEProf/lugares/'.$search.'/1');
+        // return $this->f_lugar($search, 1);   
+        return redirect()->to('DivEProf/lugares/'.$search.'/1');
     }
 
     public function f_n_lugar(){
@@ -2006,9 +2168,26 @@ class DEProfessionalsController extends Controller
 
     public function f_regLugar(Request $request){
 
-        $nombre = mb_strtoupper($request->nomLugar);
+        $data = $request->all();
 
-        Mlugar::create(['nombre' => $nombre, 'estado' => 1]);
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.'
+        ];
+
+        $validation = \Validator::make($data, [
+                'nombre' => 'required|string|min:3|max:100'
+            ], $messages);
+        
+        if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
+
+        Mlugar::create([
+            'nombre' => mb_strtoupper($data['nombre']), 
+            'estado' => 1
+        ]);
 
         return redirect()->to('/DivEProf/lugares/1');
     }
@@ -2091,20 +2270,49 @@ class DEProfessionalsController extends Controller
 
     public function f_editar(Request $request){
 
+        $data = $request->all();
+
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'min' => 'El campo :attribute debe contener minimo 3 caracteres.',
+            'max' => 'El campo :attribute se excede en longitud.',
+            'exists' => 'El campo :attribute no es un valor valido.',
+        ];
+        
+        $validation = \Validator::make($data, [
+            'id_grado' => 'required|exists:grado,id_grado',
+            'nombre' => 'required|min:3|max:30',
+            'apePat' => 'required|min:3|max:20',
+            'apeMat' => 'required|min:3|max:20'
+        ], $messages);      
+
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
+
+        if($curp->curp != mb_strtoupper($data['curp'])){
+
+            $validation = \Validator::make($data, [
+                'curp' => 'nullable|unique:persona|size:18'
+            ], $messages);
+
+            if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+            }
+        }
+
         $usuario = $request->user()->id_persona;
-        $grado = $request->grado;
-        $nombre = mb_strtoupper($request->nombre);
-        $ape1 = mb_strtoupper($request->apePat);
-        $ape2 = mb_strtoupper($request->apeMat);
-        $curp = mb_strtoupper($request->curp);
 
         Mpersona::where('id_persona', $usuario)
-            ->update(['nombre' => $nombre,
-            'apePat' => $ape1, 'apeMat' => $ape2,
-            'curp' => $curp]);
+            ->update([
+                'nombre' => $data['nombre'],
+                'apePat' => $data['apePat'], 
+                'apeMat' => $data['apeMat'],
+                'curp' => $data['curp']
+            ]);
 
         Mempleado::where('id_persona', $usuario)
-            ->update(['id_grado' => $grado]);
+            ->update(['id_grado' => $data['id_grado']]);
 
         return redirect()->to('/DivEProf/datosGen');
     }

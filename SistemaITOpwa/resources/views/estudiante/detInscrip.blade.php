@@ -121,16 +121,18 @@
                 
         @endforeach
 
-        <div class="form-group">
-            <div class="col-sm"></div>
-            <div class="col-sm"></div>
-            <div class="col-sm">
-                <a href="{{ url('Est/imprimir/horario').'/'.$actividad[0]->id_inscripcion }}" 
-                    class="btn btn-outline-primary" target="_blank">
-                    <i class="fa fa-lg fa-file-pdf-o"></i> Imprimir horario
-                </a>
+        @if($v != 00)
+            <div class="form-group">
+                <div class="col-sm"></div>
+                <div class="col-sm"></div>
+                <div class="col-sm">
+                    <a href="{{ url('Est/imprimir/horario').'/'.$actividad[0]->id_inscripcion }}" 
+                        class="btn btn-outline-primary" target="_blank">
+                        <i class="fa fa-lg fa-file-pdf-o"></i> Imprimir horario
+                    </a>
+                </div>
             </div>
-        </div>
+        @endif
 
     <div class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -142,7 +144,7 @@
                     </button>
                 </div>
 
-                <div class="modal-body text-center">
+                <div class="modal-body text-justify">
                     Se registrará tú solicitud de inscripción, por favor espera a que sea confirmada
                     por la Coordinación de Actividades Complementarias. <br>
                     Cuando sea aprobada recibirás un correo electrónico de aprobación, este correo
@@ -150,12 +152,18 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-primary" data-dismiss="modal">
-                        Cancelar
-                    </button>
-                    <a href="{{ url('/solicitudins').$a->id_grupo }}" class="btn btn-outline-danger">
-                        Confirmar
-                    </a>
+                    <div class="form-group">
+                        <div class="col-sm">
+                            <button type="button" class="btn btn-outline-primary" data-dismiss="modal">
+                                Cancelar
+                            </button>
+                        </div>
+                        <div class="col-sm">
+                            <a href="{{ url('/solicitudins').$a->id_grupo }}" class="btn btn-outline-danger">
+                                Confirmar
+                            </a>
+                        </div>
+                    </div>                                       
                 </div>
             </div>
         </div>

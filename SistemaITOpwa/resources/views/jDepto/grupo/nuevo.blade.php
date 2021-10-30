@@ -7,29 +7,41 @@
         </div>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ url('/dpt/regGru') }}" class="needs-validation">
+        <form method="POST" action="{{url('/dpt/regGrupo')}}" class="needs-validation">
             @csrf
             <div class="form-group">
                 <div class="col-sm">
 					<label for="clave">* Clave:</label>
-					<input type="text" class="form-control" name="clave" placeholder="Escribe la clave del grupo" pattern="[G]{1}[A-Z]{3}[0-9]{3}" required>
+					<input type="text" class="form-control text-uppercase" name="clave" 
+						placeholder="Escribe la clave del grupo" 
+						pattern="[G]{1}[A-Z]{3}[0-9]{3}|[g]{1}[a-z]{3}[0-9]{3}" required>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
                 <div class="col-sm">
-					<label for="periodo">* Periodo:</label>
+					<label for="periodo"> Periodo:</label>
 					<input type="text" class="form-control" value="{{ $periodo->nombre }}" disabled>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>	
                 </div>
             </div>
-            <div class="form-group">
+			<div class="form-group">
+                <div class="col-sm">
+					<label for="deptoper"> Departamento:</label>
+					<input type="text" class="form-control" value="{{ $depto->nombre }}" disabled>
+					<div class="valid-feedback">Valid.</div>
+					<div class="invalid-feedback">Por favor rellena el campo.</div>
+                </div>
+            </div>
+			<div class="form-group">
                 <div class="col-sm">
 					<label for="actividad">* Actividad:</label>
-					<select class="form-control" id="actividad" name="actividad" required> 
+					<select class="form-control" id="actividades" name="id_actividad" required> 
 						<option value=""> Selecciona la actividad </option>
 						@foreach($actividades as $a)
-							<option value="{{ $a->id_actividad }}" require> {{ $a->clave}} - {{ $a->nombre }} </option>
+							<option value="{{ $a->id_actividad }}"> 
+								{{ $a->creditos }}C - {{ $a->clave}} - {{ $a->nombre }} 
+							</option>
 						@endforeach
 					</select>
 					<div class="valid-feedback">Valid.</div>
@@ -39,10 +51,12 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="respon">* Responsable:</label>
-					<select class="form-control" id="respon" name="responsable" required> 
+					<select class="form-control" id="respon" name="id_persona" required> 
 						<option value=""> Selecciona el responsable </option>
 						@foreach($personas as $p)
-							<option value="{{ $p->id_persona }}" require>{{ $p->grado }} {{ $p->nombre }} {{ $p->apePat }} {{ $p->apeMat }} </option>
+							<option value="{{ $p->id_persona }}"> 
+								{{ $p->grado }} {{ $p->nombre }} {{ $p->apePat }} {{ $p->apeMat }} 
+							</option>
 						@endforeach
 					</select>
 					<div class="valid-feedback">Valid.</div>
@@ -50,7 +64,8 @@
                 </div>
                 <div class="col-sm">
 					<label for="cupo">* Cupo:</label>
-					<input type="text" class="form-control" name="cupo" placeholder="Escribe el cupo para el grupo" pattern="[0-9]{2}|[0-9]{1}" required>
+					<input type="text" class="form-control" name="cupo" 
+						placeholder="Escribe el cupo para el grupo" pattern="[0-9]{1,4}" required>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
@@ -68,7 +83,7 @@
                 </div>
                 <div class="col-sm">
 					<label for="lugar">* Lugar:</label>
-					<select class="form-control" id="lugar" name="lugar" required> 
+					<select class="form-control" id="lugar" name="id_lugar" required> 
 						<option value=""> Selecciona el lugar </option>
 						@foreach($lugares as $l)
 							<option value="{{ $l->id_lugar }}" require> {{ $l->nombre }} </option>
@@ -78,7 +93,7 @@
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
             </div>
-            <div class="form-group">
+			<div class="form-group">
                 <div class="col-sm">
 					<label for="lugar">* Horario semanal:</label>
                 </div>
@@ -107,7 +122,10 @@
 					<input type="time" class="form-control" name="miercolesf">
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
-                </div>
+                </div>	
+            </div>
+			<br>
+			<div class="form-group">
 				<div class="col-sm">
 					<label for="cupo"> Jueves:</label>
 					<input type="time" class="form-control" name="jueves">
@@ -133,9 +151,13 @@
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
             </div>
-            <div class="form-group">
+			<div class="form-group">
                 <div class="col-sm">
-                    <label ><strong> * Campos Obligatorios </strong></label>
+					<label > 
+						<strong>
+							* Campos Obligatorios
+						</strong> 
+					</label>
                 </div>
             </div>
             <div class="container">
@@ -146,9 +168,9 @@
                             Registrar
                         </button>
                     </div>
-                    <br>
+					<br>
                     <div class="col-sm">
-                        <a href="{{ url('JDepto/grupos/1') }}" class="btn btn-outline-danger"> 
+                        <a href="{{ url('/JDepto/grupos/1') }}" class="btn btn-outline-danger"> 
                             Cancelar 
                         </a> 
                     </div>
@@ -157,5 +179,15 @@
             </div>
         </form>
     </div>
+	
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

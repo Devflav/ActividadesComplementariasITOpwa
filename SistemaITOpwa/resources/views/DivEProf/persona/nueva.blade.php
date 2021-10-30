@@ -3,16 +3,20 @@
 <div class="container form-content col-sm-9">
 	<div class="form-group">
 		<div class="col-sm">
-			<div class="card-header"> Registrar Nuevo Personal </div>
+			<div class="card-header">
+				<div class="col-sm">
+					<label for=""> Registrar Nuevo Personal </label>
+				</div> 
+			</div>
         </div>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ url('/DivEProf/regEmp') }}" class="needs-validation">
+        <form method="POST" action="{{ url('DivEProf/regEmp') }}" class="needs-validation">
             @csrf
             <div class="form-group">
                 <div class="col-sm">
 					<label for="nControl">* Grado:</label>
-					<select class="form-control" id="grado" name="grado" required> 
+					<select class="form-control" id="grado" name="id_grado" required> 
 						<option value=""> Selecciona una Grado </option>
 						@foreach($grados as $g)
 							<option value="{{$g->id_grado}}" require> {{ $g->nombre }} </option>
@@ -51,7 +55,7 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="carrera">* Departamento:</label>
-					<select class="form-control" id="depto" name="depto" required> 
+					<select class="form-control" id="depto" name="id_depto" required> 
 						<option value=""> Selecciona un Departamento </option>
 						@foreach($departamentos as $d)
 							<option value="{{ $d->id_depto }}" require> {{ $d->nombre }} </option>
@@ -65,12 +69,12 @@
                 <div class="col-sm">
 					<label for="curp">* CURP:</label>
 					<input type="text" class="form-control text-uppercase" id="curp" 
-						placeholder="Escribe la Curp" pattern="[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9]{2}" 
+						placeholder="Escribe la Curp" pattern="[A-Z]{4}[0-9]{6}[A-Z]{6}[0-9]{2}|[a-z]{4}[0-9]{6}[a-z]{6}[0-9]{2}" 
 						minlength="18" maxlength="18" name="curp" required>
                 </div>
                 <div class="col-sm">
 					<label for="semestre">* Puesto:</label>
-					<select class="form-control" id="puesto" name="puesto" required> 
+					<select class="form-control" id="puesto" name="id_puesto" required> 
 						<option value=""> Selecciona el puesto </option>
 						@foreach($puestos as $p)
 								<option value="{{ $p->id_puesto }}" require> {{ $p->nombre }} </option>
@@ -106,6 +110,15 @@
                     <div class="col-sm"></div>
                 </div>
             </div>
+			@if ($errors->any())
+				@foreach ($errors->all() as $error)
+					<div class="row">
+						<div class="alert alert-danger">
+							{{ $error }}
+						</div>
+					</div>
+				@endforeach
+			@endif
         </form>
     </div>
 </div>

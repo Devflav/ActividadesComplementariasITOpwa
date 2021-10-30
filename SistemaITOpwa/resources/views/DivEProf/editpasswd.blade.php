@@ -7,7 +7,7 @@
         </div>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{ url('/DivEProf/cac/editpasswd') }}" class="needs-validation">
+        <form method="POST" action="{{ url('/cac/editpasswd') }}" class="needs-validation">
             @csrf
             <div class="form-group">
                 <div class="col-sm">
@@ -52,5 +52,14 @@
             </div>
         </form>
     </div>
+    @if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

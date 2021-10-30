@@ -7,13 +7,13 @@
         </div>
     </div>
     <div class="card-body">
-        <form method="POST" action="{{url('/DivEProf/regEst')}}" class="needs-validation">
+        <form method="POST" action="{{url('DivEProf/regEst')}}" class="needs-validation">
             @csrf
             <div class="form-group">
                 <div class="col-sm">
 					<label for="nControl">* Número de Control:</label>
 					<input type="text" class="form-control" id="nControl" placeholder="Escribe el número de control" 
-					pattern="[0-9]{8}|[C|B]{1}[0-9]{8}" name="nControl" required>
+					pattern="[0-9]{8}|[C|B]{1}[0-9]{8}" name="num_control" required>
 					<div class="valid-feedback"></div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
                 </div>
@@ -48,7 +48,7 @@
                 <div class="col-sm">
 					<label for="carrera">* Carrera:</label>
 					<select class="form-control" id="carrera" placeholder="Selecciona tu Carrera" 
-						name="carrera" required> 
+						name="id_carrera" required> 
 					<option value=""> Selecciona una Carrera </option>
 						@foreach($carreras as $c)
 							<option value="{{$c->id_carrera}}" require> {{ $c->nombre }} </option>
@@ -74,8 +74,8 @@
                 <div class="col-sm">
 					<label for="email">* Correo Institucional:</label>
 					<input type="email" class="form-control text-lowercase" id="email" 
-						placeholder="escribe tu correo institucional" 
-						pattern="[0-9]{8}@itoaxaca.edu.mx{1}|[C|B]{1}[0-9]{8}@itoaxaca.edu.mx{1}" 
+						placeholder="Escribe tu correo institucional" 
+						pattern="[0-9]{8}@itoaxaca.edu.mx{1}|[0-9]{9}@itoaxaca.edu.mx{1}|[C|B]{1}[0-9]{8}@itoaxaca.edu.mx{1}" 
 						minlength="24" maxlength="26" name="email" required>
 					<div class="valid-feedback">Valid.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
@@ -117,5 +117,14 @@
             </div>
         </form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

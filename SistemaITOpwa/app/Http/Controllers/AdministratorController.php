@@ -151,10 +151,7 @@ class AdministratorController extends Controller
         if($now < $roll->inicio || $now > $roll->fin_inscripcion)
             $modificar = false;
     
-        $periodo = DB::select('SELECT nombre FROM periodo WHERE estado = ? LIMIT 1',
-                    ["Actual"]);
-        $periodo = $periodo[0]->nombre;
-
+        $periodo = $roll->nombre;
         
         $actividades = DB::table('actividad as a')
             ->leftJoin('departamento as d', 'a.id_depto', '=', 'd.id_depto')
@@ -169,25 +166,6 @@ class AdministratorController extends Controller
             ->where('a.estado', 1)
             ->orderBy('a.id_actividad')
             ->paginate(10);
-            // ->chunk(10, function ($query) {
-            //     $data = [];
-            //     foreach ($query as $q){
-
-            //         $data = Arr::prepend($data,[
-            //             'id_actividad' => $q->id_actividad,
-            //             'clave' => $q->clave,
-            //             'nombre' => $q->nombre,
-            //             'creditos' => $q->creditos,
-            //             'depto' => $q->depto,
-            //             'tipo' => $q->tipo,
-            //             'descripcion' => $q->descripcion
-            //         ]);
-            //     }
-
-            //     return $data;
-            // });
-
-        
 
         return view('CoordAC.actividad.actividades')
         ->with('actividades', $actividades)
@@ -201,7 +179,7 @@ class AdministratorController extends Controller
 
         $now = date('Y-m-d');
         $modificar = true;
-        $search = "%".mb_strtoupper($search)."%";
+        $search = "%".mb_strtoupper(utf8_decode($search))."%";
 
         $roll = Mperiodo::where('estado', "Actual")->first();
     
@@ -227,24 +205,6 @@ class AdministratorController extends Controller
             })
             ->orderBy('a.id_actividad')
             ->paginate(10);
-            // ->chunk(10, function ($query) {
-            //     $data = null;
-            //     foreach ($query as $q){
-            //         $d = [
-            //             'id_actividad' => $q->id_actividad,
-            //             'clave' => $q->clave,
-            //             'nombre' => $q->nombre,
-            //             'creditos' => $q->creditos,
-            //             'depto' => $q->depto,
-            //             'tipo' => $q->tipo,
-            //             'descripcion' => $q->descripcion
-            //         ];
-
-            //         $data = Arr::add($d);
-            //     }
-
-            //     return $data;
-            // });
 
         return view('CoordAC.actividad.actividades')
         ->with('actividades', $actividades)
@@ -362,8 +322,8 @@ class AdministratorController extends Controller
         $depto = Mdepartamento::get();
         $tipos = Mtipo::get();
         $periodo = Mperiodo::select('nombre')
-        ->where('estado', "Actual")
-        ->first();
+            ->where('estado', "Actual")
+            ->first();
 
         return view('CoordAC.actividad.nueva')
         ->with('deptos', $depto)
@@ -385,13 +345,13 @@ class AdministratorController extends Controller
         ];
       
         $validation = \Validator::make($request->all(), [
-            'id_depto' => 'required',
-            'id_tipo' => 'required',
+            'id_depto' => 'required|exists:departamento,id_depto',
+            'id_tipo' => 'required|exists:tipo,id_tipo',
             'clave' => 'required|size:5',
             'nombre' => 'required|min:3|max:100',
-            'creditos' => 'required',
+            'creditos' => 'required|numeric',
             'descripcion' => 'nullable|max:250',
-            'restringida' => 'required'
+            'restringida' => 'required|numeric'
         ], $messages);      
           
         if ($validation->fails())  {
@@ -462,21 +422,21 @@ class AdministratorController extends Controller
         if( $clave->clave == mb_strtoupper($data['clave']) ) {
 
             $validation = \Validator::make($request->all(), [
-                'id_depto' => 'required',
-                'id_tipo' => 'required',
+                'id_depto' => 'required|exists:departamento,id_depto',
+                'id_tipo' => 'required|exists:tipo,id_tipo',
                 'nombre' => 'required|min:3|max:100',
                 'descripcion' => 'nullable|max:250',
-                'restringida' => 'required'
+                'restringida' => 'required|numeric'
             ], $messages);  
         } else {
 
             $validation = \Validator::make($request->all(), [
-                'id_depto' => 'required',
-                'id_tipo' => 'required',
+                'id_depto' => 'required|exists:departamento,id_depto',
+                'id_tipo' => 'required|exists:tipo,id_tipo',
                 'clave' => 'required|unique:actividad|size:5',
                 'nombre' => 'required|min:3|max:100',
                 'descripcion' => 'nullable|max:250',
-                'restringida' => 'required'
+                'restringida' => 'required|numeric'
             ], $messages);   
         }   
           
@@ -654,7 +614,7 @@ class AdministratorController extends Controller
             'id_lugar' => 'required|exists:lugar,id_lugar',
             'clave' => 'required|unique:grupo|starts_with:G,g|size:7',
             'cupo' => 'required|integer:4',
-            'orden' => 'required|boolean'
+            'orden' => 'required|numeric'
         ], $messages);      
           
         if ($validation->fails())  {
@@ -873,14 +833,16 @@ class AdministratorController extends Controller
             'id_lugar' => 'required|exists:lugar,id_lugar',
             'clave' => 'required|starts_with:G,g|size:7',
             'cupo' => 'required|integer:4',
-            'orden' => 'required|boolean'
+            'orden' => 'required|numeric'
         ], $messages);      
           
         if ($validation->fails())  {
             return redirect()->back()->withInput()->withErrors($validation->errors());
         }
 
-        $old_data = Mgrupo::select('clave', 'cupo', 'cupo_libre')->where('id_grupo', $id_gru)->first();
+        $old_data = Mgrupo::select('clave', 'cupo', 'cupo_libre')
+            ->where('id_grupo', $id_gru)
+            ->first();
 
         // foreach($old_data as $c){
             
@@ -1053,7 +1015,6 @@ class AdministratorController extends Controller
                 }
             }
         
-
         return redirect()->to('/CoordAC/grupos/1');
     }
 
@@ -1190,7 +1151,7 @@ class AdministratorController extends Controller
             'nombre' => 'required|min:3|max:30',
             'apePat' => 'required|min:3|max:20',
             'apeMat' => 'required|min:3|max:20',
-            'id_carrera' => 'required',
+            'id_carrera' => 'required|exists:carrera,id_carrera',
             'email' => 'required|email|unique:estudiante|ends_with:@itoaxaca.edu.mx|min:24|max:25',
             'curp' => 'nullable|unique:persona|size:18'
         ], $messages);      
@@ -1227,7 +1188,6 @@ class AdministratorController extends Controller
             'fecha_registro' => $hoy, 
             'edo_sesion' => 0, 
             'estado' => 1]);
-
 
         return redirect()->to('/CoordAC/estudiantes/1');
     }
@@ -1284,7 +1244,7 @@ class AdministratorController extends Controller
             'nombre' => 'required|min:3|max:30',
             'apePat' => 'required|min:3|max:20',
             'apeMat' => 'required|min:3|max:20',
-            'id_carrera' => 'required'
+            'id_carrera' => 'required|exists:carrera,id_carrera'
         ], $messages);
 
         if ($validation->fails())  {
@@ -1403,7 +1363,6 @@ class AdministratorController extends Controller
                 ->where('p.id_periodo', '=', $periodoI)
                 ->where('a.id_actividad', '=', $actividadI)
                 ->get();
-        
         
         return view('CoordAC.reportes')
             ->with('tipos', $this->tipos())
@@ -2768,6 +2727,20 @@ class AdministratorController extends Controller
 
         $puesto = $request->id_puesto;
 
+        $messages = [
+            'required' => 'El campo :attribute es requierido.',
+            'exists' => 'El campo :attribute no es un elemento valido.',
+            'integer' => 'El campo :attribute no es un elemento valido.'
+        ];
+
+        $validation = \Validator::make($data, [
+                'id_puesto' => 'required|integer|exists:puesto,id_puesto'
+            ], $messages);
+
+        if ($validation->fails())  {
+            return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
+
         Mempleado::where('id_persona', $id_emp)
             ->update(['id_puesto' => $puesto]);
 
@@ -2811,8 +2784,8 @@ class AdministratorController extends Controller
         }
 
         return view('CoordAC.puesto.puestos')
-        ->with('puestos', $puestos)
-        ->with('tipos', $this->tipos());   
+            ->with('puestos', $puestos)
+            ->with('tipos', $this->tipos());   
     }
 
     public function f_searchpue(Request $request) { 
@@ -2931,7 +2904,8 @@ class AdministratorController extends Controller
 
         $personas = DB::table('persona as p')
             ->join('users as u', 'p.id_persona', '=', 'u.id_persona')
-            ->join('estudiante as e', 'p.id_persona', '=', 'e.id_persona')
+            ->leftJoin('estudiante as e', 'p.id_persona', '=', 'e.id_persona')
+            ->leftJoin('empleado as em', 'p.id_persona', '=', 'em.id_persona')
             ->select('p.id_persona',
                     'p.nombre',
                     'p.apePat',
@@ -2944,7 +2918,7 @@ class AdministratorController extends Controller
                         ->orWhere('p.apePat', 'LIKE', $search)
                         ->orWhere('p.apePat', 'LIKE', $search)
                         ->orWhere('p.curp', 'LIKE', $search)
-                        ->orWhere('e.num_control', 'LIKE', $search)                        ;
+                        ->orWhere('e.num_control', 'LIKE', $search);
             })
             ->orderBy('p.id_persona')
             ->paginate(10);
@@ -2993,8 +2967,9 @@ class AdministratorController extends Controller
             $newpw = Hash::make($passwd->curp);
 
             Musers::where('id_persona', $iduser)
-                ->update(['password' => $newpw,
-                    'edo_sesion' => 0]);
+                ->update(['usuario' => $passwd->curp,
+                        'password' => $newpw,
+                        'edo_sesion' => 0]);
 
         }
 
@@ -3016,8 +2991,8 @@ class AdministratorController extends Controller
             ->paginate(10);
         
         return view('CoordAC.suspencion.sus_labores')
-        ->with('fechas', $fechas)
-        ->with('tipos', $this->tipos()); 
+            ->with('fechas', $fechas)
+            ->with('tipos', $this->tipos()); 
     }
 
     public function f_s_labor($search, $pagina) { 
@@ -5449,16 +5424,26 @@ class AdministratorController extends Controller
             'exists' => 'El campo :attribute no es un valor valido.',
         ];
         
-        $validation = \Validator::make($request->all(), [
+        $validation = \Validator::make($data, [
             'id_grado' => 'required|exists:grado,id_grado',
             'nombre' => 'required|min:3|max:30',
             'apePat' => 'required|min:3|max:20',
-            'apeMat' => 'required|min:3|max:20',
-            'curp' => 'required|unique:persona|size:18'
+            'apeMat' => 'required|min:3|max:20'
         ], $messages);      
 
         if ($validation->fails())  {
             return redirect()->back()->withInput()->withErrors($validation->errors());
+        }
+
+        if($curp->curp != mb_strtoupper($data['curp'])){
+
+            $validation = \Validator::make($data, [
+                'curp' => 'nullable|unique:persona|size:18'
+            ], $messages);
+
+            if ($validation->fails())  {
+                return redirect()->back()->withInput()->withErrors($validation->errors());
+            }
         }
 
         $usuario = $request->user()->id_persona;
@@ -5472,7 +5457,7 @@ class AdministratorController extends Controller
             ]);
 
         Mempleado::where('id_persona', $usuario)
-            ->update(['id_grado' => $data['id_gradogrado']]);
+            ->update(['id_grado' => $data['id_grado']]);
 
         return redirect()->to('/CoordAC/datosGen');
     }

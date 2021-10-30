@@ -69,11 +69,11 @@
                 @endforeach
             @else
                 <tr class="text-white" style="background:#1B396A;">
-                    <th width="15%"># Control</th>
-                    <th width="20%">Nombre</th>
+                    <th width="10%">No Control</th>
+                    <th width="23%">Nombre</th>
                     <th width="20%">Ape. paterno</th>
-                    <th width="25%">Ape. materno</th>
-                    <th width="10%">Nivel de desempeño</th>
+                    <th width="20%">Ape. materno</th>
+                    <th width="17%">Nivel de desempeño</th>
                     @if($tipo=='evaluar')
                         <th width="10%">Evaluar</th>
                     @else
@@ -94,17 +94,17 @@
 
                             </script>
                             @if($tipo=='evaluar')
-                                <a href="{{ url('ProfR/formEval').$e->num_control }}"
+                                <a href="{{ url('ProfR/formEval').'/'.$e->num_control.'/'.$e->id_grupo }}"
                                     id='btn-{{ $e->num_control }}' shouldBeDisabled='{{ $e->id_eval }}'
-                                    class="btn btn-outline-primary btn-sm">Evaluar</a>
+                                    class="btn btn-outline-primary">Evaluar</a>
                             @elseif($tipo=='constancia')
                                 <a href="{{ url('ProfR/genConst').$e->num_control }}"
                                     id='btn-{{ $e->num_control }}' shouldBeDisabled='{{ $e->nivel_desempenio }}'
-                                    class="btn btn-outline-primary btn-sm">Constancia</a>
+                                    class="btn btn-outline-primary">Constancia</a>
                             @elseif($tipo=='criterio')
                                 <a href="{{ url('ProfR/criterioPdf').$e->num_control }}"
                                     id='btn-{{ $e->num_control }}' shouldBeDisabled='{{ $e->id_eval }}'
-                                    class="btn btn-outline-primary btn-sm">Evaluación</a>
+                                    class="btn btn-outline-primary">Evaluación</a>
                             @endif
 
                         </th>

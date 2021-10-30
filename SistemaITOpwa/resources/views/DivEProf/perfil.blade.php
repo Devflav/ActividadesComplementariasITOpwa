@@ -11,37 +11,44 @@
             <div class="form-group">
                 <div class="col-sm">
 					<label for="nControl"> Grado:</label>
-					<input type="text" class="form-control" value="{{ $p->grado }}" name="grado" disabled>
+					<input type="text" class="form-control" value="{{ $p->grado }}" 
+                        name="id_grado" disabled>
                 </div>
                 <div class="col-sm">
 					<label for="nombre"> Nombre (s):</label>
-					<input type="text" class="form-control" value="{{ $p->nombre }}" name="nombre" disabled>
+					<input type="text" class="form-control" value="{{ $p->nombre }}" 
+                        name="nombre" disabled>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-sm">
 					<label for="apePat"> Apallido Paterno:</label>
-					<input type="text" class="form-control" value="{{ $p->paterno }}" name="apePat" disabled>
+					<input type="text" class="form-control" value="{{ $p->paterno }}" 
+                        name="apePat" disabled>
                 </div>
                 <div class="col-sm">
 					<label for="apeMat"> Apellido Materno:</label>
-					<input type="text" class="form-control" value="{{ $p->materno }}" name="apeMat" disabled>
+					<input type="text" class="form-control" value="{{ $p->materno }}" 
+                        name="apeMat" disabled>
                 </div>
             </div>
             <div class="form-group">
                 <div class="col-sm">
 					<label for="carrera"> Departamento:</label>
-					<input type="text" class="form-control" value="{{ $p->depto }}" name="depto" disabled>
+					<input type="text" class="form-control" value="{{ $p->depto }}" 
+                        name="id_depto" disabled>
                 </div>
                 <div class="col-sm">
 					<label for="semestre"> Puesto:</label>
-					<input type="text" class="form-control" value="{{ $p->puesto }}" name="puesto" disabled>
+					<input type="text" class="form-control" value="{{ $p->puesto }}" 
+                        name="id_puesto" disabled>
                 </div>
             </div>
 			<div class="form-group">
                 <div class="col-sm">
 					<label for="curp"> CURP:</label>
-					<input type="text" class="form-control" value="{{ $p->curp }}" name="curp" disabled>
+					<input type="text" class="form-control" value="{{ $p->curp }}" 
+                        name="curp" disabled>
                 </div>
                 <div class="col-sm">
                 </div>
@@ -62,7 +69,7 @@
                     </div>
                     <br>
                     <div class="col-sm">
-                        <a href="{{ url('DivEProf') }}" class="btn btn-outline-danger">
+                        <a href="{{ url('DivEProf') }}" class="btn btn-outline-danger"> 
                             Regresar 
                         </a> 
                     </div>

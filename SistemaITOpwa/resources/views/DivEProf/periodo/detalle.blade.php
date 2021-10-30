@@ -74,39 +74,27 @@
 		</div>
 		<div class="form-group">
 			<div class="col-sm">
-				<label for="logoSep"> Logo Gobierno:</label>
+				<label for="logoIto"> Cabecera de constancias:</label>
 				<br>
-				<img id="logoGob" src="{{ $p->logo_gob }}" width="90%" class="img-thumbnail">
+				<img id="logoIto" src="{{ $p->cabecera }}" width="100%" class="img-thumbnail float-right">
 			</div>
 			<div class="col-sm">
-				<label for="logoTecNM"> Logo Tecnológico Nacional de México:</label>
+				<label for="logoEnca"> Pie de pagina de constancias:</label>
 				<br>
-				<img id="logoTecNM" src="{{ $p->logo_tecnm }}" width="45%" class="img-thumbnail float-right">
+				<img id="logoEnca" src="{{ $p->pie }}" width="100%" class="img-thumbnail">
 			</div>
 		</div>
-		<div class="form-group">
-			<div class="col-sm">
-				<label for="logoIto"> Logo Instituto Tecnológico de Oaxaca:</label>
-				<br>
-				<img id="logoIto" src="{{ $p->logo_ito }}" width="30%" class="img-thumbnail float-right">
-			</div>
-			<div class="col-sm">
-				<label for="logoEnca"> Logo Año (Encabezado):</label>
-				<br>
-				<img id="logoEnca" src="{{ $p->logo_anio }}" width="100%" class="img-thumbnail">
-			</div>
-		</div>
-		<div class="container">
-			<div class="form-group">
-				<div class="col-sm"></div>
-				<div class="col-sm">
-					<a href="{{ URL::previous() }}" class="btn btn-outline-primary"> 
-						Regresar 
-					</a>
+			<div class="container">
+				<div class="form-group">
+					<div class="col-sm"></div>
+					<div class="col-sm">
+						<a href="{{ url('DivEProf/periodos/1') }}" class="btn btn-outline-primary"> 
+							Regresar 
+						</a>
+					</div>
+					<div class="col-sm"></div>
 				</div>
-				<div class="col-sm"></div>
 			</div>
-		</div>
 	@endforeach
     </div>
 </div>

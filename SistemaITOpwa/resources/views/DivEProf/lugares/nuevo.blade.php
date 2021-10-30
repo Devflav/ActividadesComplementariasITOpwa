@@ -7,14 +7,14 @@
         </div>
     </div>
     <div class="card-body">
-		<form method="POST" action="{{url('/DivEProf/regLugar')}}" class="needs-validation">
+		<form method="POST" action="{{url('DivEProf/regLugar')}}" class="needs-validation">
 			@csrf
 			<div class="form-group">
 				<div class="col-sm">
 					<label for="nomLugar">* Nombre:</label>
 					<input type="text" class="form-control text-uppercase" 
 						placeholder="Escribe el nombre del lugar" pattern="{[A-Z][a-z]+}+ *" 
-						name="nomLugar" required>
+						name="nombre" required>
 					<div class="valid-feedback">Valido.</div>
 					<div class="invalid-feedback">Por favor rellena el campo.</div>
 				</div>
@@ -46,5 +46,14 @@
 			</div>
 		</form>
     </div>
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection

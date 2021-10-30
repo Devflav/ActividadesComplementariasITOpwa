@@ -7,7 +7,7 @@
         </div>
     </div>
 	<div class="card-body">
-		<form method="POST" action="{{url('/DivEProf/regAct')}}" class="needs-validation">
+		<form method="POST" action="{{url('DivEProf/regAct')}}" class="needs-validation">
 			@csrf
 			<div class="form-group">
 				<div class="col-sm">
@@ -39,7 +39,7 @@
 				</div>
 				<div class="col-sm">
 					<label for="depto">* Departamento:</label>
-					<select class="form-control" id="depto" name="depto" required> 
+					<select class="form-control" id="depto" name="id_depto" required> 
 						<option value=""> Selecciona un Departamento </option>
 						@foreach($deptos as $d)
 							<option value="{{$d->id_depto}}" require> {{ $d->nombre }} </option>
@@ -52,7 +52,7 @@
 			<div class="form-group">
 				<div class="col-sm">
 					<label for="tipo">* Tipo de actividad:</label>
-					<select class="form-control" id="tipo" name="tipo" required> 
+					<select class="form-control" id="tipo" name="id_tipo" required> 
 						<option value=""> Selecciona un Tipo </option>
 						@foreach($tipos as $t)
 							<option value="{{$t->id_tipo}}" require> {{ $t->nombre }} </option>
@@ -118,5 +118,15 @@
 			</div>
 		</form>
 	</div>
+
+	@if ($errors->any())
+		@foreach ($errors->all() as $error)
+			<div class="row">
+				<div class="alert alert-danger">
+					{{ $error }}
+				</div>
+			</div>
+		@endforeach
+	@endif
 </div>
 @endsection
