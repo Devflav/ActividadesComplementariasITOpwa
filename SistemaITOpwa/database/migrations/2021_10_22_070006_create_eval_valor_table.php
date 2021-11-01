@@ -14,8 +14,9 @@ class CreateEvalValorTable extends Migration
     public function up()
     {
         Schema::create('eval_valor', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->foreign('id_evaluacion')->references('id_evaluacion')->on('evaluacion');
+            $table->foreign('id_crit_eval')->references('id_crit_eval')->on('criterios_evaluacion');
+            $table->foreign('id_desempenio')->references('id_desempenio')->on('desempenio');
         });
     }
 

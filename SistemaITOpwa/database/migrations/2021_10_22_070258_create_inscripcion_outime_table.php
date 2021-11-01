@@ -14,8 +14,8 @@ class CreateInscripcionOutimeTable extends Migration
     public function up()
     {
         Schema::create('inscripcion_outime', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->foreign('id_inscripcion')->references('id_inscripcion')->on('inscripcion');
+            $table->string('oficio', 150);
         });
     }
 

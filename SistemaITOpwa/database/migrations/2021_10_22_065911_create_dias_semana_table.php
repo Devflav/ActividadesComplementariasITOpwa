@@ -14,8 +14,8 @@ class CreateDiasSemanaTable extends Migration
     public function up()
     {
         Schema::create('dias_semana', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_dia')->autoIncrement();
+            $table->string('nombre', 100);
         });
     }
 

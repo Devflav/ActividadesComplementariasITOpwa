@@ -14,8 +14,14 @@ class CreateRespaldoTable extends Migration
     public function up()
     {
         Schema::create('respaldo', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_respaldo')->autoIncrement();
+            $table->foreign('id_empleado')->references('id_empleado')->on('empleado');
+            $table->string('tipo', 30);
+            $table->string('ubicacion', 300);
+            $table->string('descripcion', 150);
+            $table->date('fecha');
+            $table->time('hora');
+            $table->tinyInteger('estado');
         });
     }
 

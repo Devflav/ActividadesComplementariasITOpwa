@@ -14,8 +14,10 @@ class CreatePuestoTable extends Migration
     public function up()
     {
         Schema::create('puesto', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_puesto')->autoIncrement();
+            $table->string('nombre', 100);
+            $table->string('descripcion', 150);
+            $table->tinyInteger('estado');
         });
     }
 

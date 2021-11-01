@@ -51,18 +51,16 @@ class AdministratorController extends Controller
         return $tipos;
     }
 
-    public function finalizarPeriodo(){
+    public function finalizarPeriodo($user){
         
         $today = date("Y-m-d");
 
-        // $finish = DB::select('SELECT id_periodo, fin FROM periodo WHERE estado = ? LIMIT 1', 
-        //     ["Actual"]);
-
-        $finish = Mperiodo::where('estado', "Actual")->first();
+        $finished = Mperiodo::where('estado', "Actual")->first();
+        $new = Mperiodo::where('estado', "Siguiente")->first();
         
-        if($today > $finish->fin){
+        if($today > $finished->fin){
 
-            // Mgrupo::where('id_periodo', $finish->id_periodo)
+            // Mgrupo::where('id_periodo', $finished->id_periodo)
             //     ->update(['estado' => 0]);
 
             // Mperiodo::where('estado', "Anterior")
@@ -72,11 +70,16 @@ class AdministratorController extends Controller
             //     ->update(['estado' => "Anterior"]);
     
             // Mperiodo::where('estado', "Siguiente")
-            //     ->update(['cabecera' => $finish->cabecera,
-            //             'pie' =>$finish->pie,
+            //     ->update(['cabecera' => $finished->cabecera,
+            //             'pie' =>$finished->pie,
             //             'estado' => "Actual"]);
     
             // DB::delete('DELETE FROM horarios_impresos WHERE id_grupo <> 0');
+
+            $periodo = "Finalizado: ".$finished->id_periodo;
+            $periodo .= "Nuevo: ".$new->id_periodo;
+
+            // $this->logs("Finalización de periodo escolar.", $periodo, $user);
         }
 
         return true;
@@ -110,7 +113,7 @@ class AdministratorController extends Controller
 
         $now = date_create('America/Mexico_City')->format('H');
 
-        $this->finalizarPeriodo();
+        $this->finalizarPeriodo($request->user()->id_persona);
         $procesos = $this->procesoActual();
 
         return view('CoordAC.inicio')
@@ -371,7 +374,7 @@ class AdministratorController extends Controller
             ->where('estado', "Actual")
                 ->first();
 
-        Mactividad::create([
+        $actividad = Mactividad::create([
                 'id_depto' => $data['id_depto'], 
                 'id_tipo' => $data['id_tipo'],
                 'id_periodo' => $periodo->id_periodo, 
@@ -381,6 +384,10 @@ class AdministratorController extends Controller
                 'descripcion' => mb_strtoupper($data['descripcion']), 
                 'restringida' => $data['restringida'], 
                 'estado' => 1]);
+
+        $this->logs("Creación nueva actividad.", 
+                    $actividad->id, 
+                    $request->user()->id_persona);
 
         return redirect()->to('/CoordAC/actividades/1');
     }
@@ -463,13 +470,21 @@ class AdministratorController extends Controller
                 'restringida' => $data['restringida']
             ]);
 
+        $this->logs("Edición de actividad.", 
+                $id_act, 
+                $request->user()->id_persona);
+
         return redirect()->to('/CoordAC/actividades/1');
     }
 
-    public function f_deleteact($id_delete){
+    public function f_deleteact($id_delete, Request $request){
 
         Mactividad::where('id_actividad', $id_delete)
             ->update(['estado' => 0]);
+
+        $this->logs("Eliminación de actividad (Cambio de estado).", 
+            $id_act, 
+            $request->user()->id_persona);
 
         return redirect()->to('/CoordAC/actividades/1');
     }
@@ -548,6 +563,10 @@ class AdministratorController extends Controller
             // ->orWhere('pe.apePat', 'LIKE', $search)
             ->orderBy('g.id_grupo')
             ->paginate(10);
+
+        $this->logs("Busqueda de grupo(s).", 
+            $search, 
+            $request->user()->id_persona);
 
         return view('CoordAC.grupo.grupos')
         ->with('grupos', $grupos)
@@ -680,6 +699,10 @@ class AdministratorController extends Controller
                 'id_dia' => 6, 'hora_inicio' => $data['sabado'],
                 'hora_fin' => $data['sabadof']]);
         }
+
+        $this->logs("Creación de grupo nuevo.", 
+            $grupo->id, 
+            $request->user()->id_persona);
 
         return redirect()->to('/CoordAC/grupos/1');
     }
@@ -1023,14 +1046,22 @@ class AdministratorController extends Controller
                         'hora_fin' => $data['sabadof']]);
                 }
             }
+
+        $this->logs("Edición de grupo.", 
+            $id_gru, 
+            $request->user()->id_persona);
         
         return redirect()->to('/CoordAC/grupos/1');
     }
 
-    public function f_deletegru($id_delete){
+    public function f_deletegru($id_delete, Request $request){
 
         Mgrupo::where('id_grupo', $id_delete)
             ->update(['estado' => 0]);
+
+        $this->logs("Eliminación de grupo (Cambio de estado).", 
+            $id_delete, 
+            $request->user()->id_persona);
 
         return redirect()->to('/CoordAC/grupos/1');
     

@@ -14,8 +14,11 @@ class CreateInscripcionTable extends Migration
     public function up()
     {
         Schema::create('inscripcion', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_inscripcion')->autoIncrement();
+            $table->foreign('id_estudiante')->references('id_estudiante')->on('estudiante');
+            $table->foreign('id_grupo')->references('id_grupo')->on('grupo');
+            $table->date('fecha');
+            $table->tinyInteger('aprobada');
         });
     }
 

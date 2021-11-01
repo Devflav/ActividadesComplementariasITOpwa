@@ -25,34 +25,26 @@ use App\Http\Controllers\EscServicesController;
 //     return view('welcome');
 // });
 
-//Route::group(['middleware' => 'guest'], function() {
+    Route::get('/limpiar-cache', function () {
+        Artisan::call('optimize:clear');
+        echo Artisan::output();
+        header("refresh:5;url=" . url()->previous());
+    });
 
     /*-------------------------------------------------------------------------------------------------------------------------------*/
     //Rutas para las vistas de presentación
-    Route::group(['namespace' => 'App\Http\Controllers'], function()     {
 
-        Route::get('/', [PublicController::class, 'iniSesion']);
-        Route::get('/IniciarSesion', [PublicController::class, 'iniSesion'])->name('inises');
-        Route::post('/Acceso', [PublicController::class, 'authenticate']);
-        Route::get('/CambiarConstrasenia', [PublicController::class, 'change']);
-        Route::post('/change/passwd', [PublicController::class, 'changepasswd']);
-        Route::get('/SeleccionarSesion', [PublicController::class, 'selectSesion']);
-        Route::post('/redirectUsu', [PublicController::class, 'selectesion']);
-        Route::get('/Registrarse', [PublicController::class, 'registro']);
-        Route::post('/Enviar/Registro', [PublicController::class, 'nuevo_registro']);
-        Route::get('/sesionexpired', [PublicController::class, 'expired']);
+    Route::get('/', [PublicController::class, 'iniSesion']);
+    Route::get('/IniciarSesion', [PublicController::class, 'iniSesion'])->name('inises');
+    Route::post('/Acceso', [PublicController::class, 'authenticate']);
+    Route::get('/CambiarConstrasenia', [PublicController::class, 'change']);
+    Route::post('/change/passwd', [PublicController::class, 'changepasswd']);
+    Route::get('/SeleccionarSesion', [PublicController::class, 'selectSesion']);
+    Route::post('/redirectUsu', [PublicController::class, 'selectesion']);
+    Route::get('/Registrarse', [PublicController::class, 'registro']);
+    Route::post('/Enviar/Registro', [PublicController::class, 'nuevo_registro']);
+    Route::get('/sesionexpired', [PublicController::class, 'expired']);
         
-    });
-
-    // Route::group(['middleware' => 'guest', 'namespace' => 'App\Http\Controllers\Auth'], function()
-    // {
-    //     Route::get('/', [App\Http\Controllers\Auth\LoginController::class, 'inises'])->name('inises');
-    //     Route::get('IniciarSesion', [App\Http\Controllers\Auth\LoginController::class, 'inises'])->name('inises');
-    //     Route::post('Acceso', [App\Http\Controllers\Auth\LoginController::class, 'authenticate']);
-    //     Route::post('Logout', [App\Http\Controllers\Auth\LoginController::class, 'cer_ses'])->name('cer_ses');
-    // });
-//});
-
 
 Route::group(['middleware' => 'auth'], function() {
 /*-------------------------------------------------------------------------------------------------------------------------------*/

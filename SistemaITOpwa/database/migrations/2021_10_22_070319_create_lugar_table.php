@@ -14,8 +14,9 @@ class CreateLugarTable extends Migration
     public function up()
     {
         Schema::create('lugar', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_lugar')->autoIncrement();
+            $table->string('nombre', 100);
+            $table->tinyInteger('estado');
         });
     }
 

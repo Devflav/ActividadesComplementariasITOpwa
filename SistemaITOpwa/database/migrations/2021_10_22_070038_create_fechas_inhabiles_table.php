@@ -14,8 +14,10 @@ class CreateFechasInhabilesTable extends Migration
     public function up()
     {
         Schema::create('fechas_inhabiles', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_fecha')->autoIncrement();
+            $table->date('fecha');
+            $table->string('motivo', 100);
+            $table->tinyInteger('estado');
         });
     }
 

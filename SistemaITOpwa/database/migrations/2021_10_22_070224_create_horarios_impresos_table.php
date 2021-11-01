@@ -14,8 +14,8 @@ class CreateHorariosImpresosTable extends Migration
     public function up()
     {
         Schema::create('horarios_impresos', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->foreign('id_grupo')->references('id_grupo')->on('grupo');
+            $table->foreign('id_estudiante')->references('id_estudiante')->on('estudiante');
         });
     }
 

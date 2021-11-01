@@ -14,8 +14,10 @@ class CreateGradoTable extends Migration
     public function up()
     {
         Schema::create('grado', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_grado')->autoIncrement();
+            $table->string('nombre', 15);
+            $table->string('significado', 100);
+            $table->tinyInteger('estado');
         });
     }
 

@@ -14,8 +14,12 @@ class CreateLogsTable extends Migration
     public function up()
     {
         Schema::create('logs', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_log')->autoIncrement();
+            $table->foreign('id_persona')->references('id_persona')->on('persona');
+            $table->integer('id_de_evento');
+            $table->string('evento', 150);
+            $table->string('direccion', 300);
+            $table->dateTime('fecha');
         });
     }
 

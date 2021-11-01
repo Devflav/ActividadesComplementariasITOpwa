@@ -14,8 +14,13 @@ class CreateEvaluacionTable extends Migration
     public function up()
     {
         Schema::create('evaluacion', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_evaluacion')->autoIncrement();
+            $table->foreign('id_inscripcion')->references('id_inscripcion')->on('inscripcion');
+            $table->foreign('id_desempenio')->references('id_desempenio')->on('desempenio');
+            $table->tinyInteger('asistencias', 2);
+            $table->decimal('calificacion', $precision = 10, $scale = 2);
+            $table->string('observaciones', 250);
+            $table->string('constancia', 200);
         });
     }
 

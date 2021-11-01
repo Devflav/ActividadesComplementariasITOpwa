@@ -14,8 +14,12 @@ class CreateEstudianteTable extends Migration
     public function up()
     {
         Schema::create('estudiante', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_estudiante')->autoIncrement();
+            $table->foreign('id_persona')->references('id_persona')->on('persona');
+            $table->foreign('id_carrera')->references('id_carrera')->on('carrera');
+            $table->string('num_control', 9);
+            $table->string('email', 26);
+            $table->tinyInteger('semestre');
         });
     }
 

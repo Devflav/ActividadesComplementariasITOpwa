@@ -14,8 +14,10 @@ class CreateCriteriosEvaluacionTable extends Migration
     public function up()
     {
         Schema::create('criterios_evaluacion', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_crit_eval')->autoIncrement();
+            $table->string('nombre', 45);
+            $table->string('descripcion', 150);
+            $table->tinyInteger('estado');
         });
     }
 

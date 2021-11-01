@@ -12,6 +12,7 @@ use App\Models\Mcarrera;
 use App\Models\Musers;
 use App\Models\Mestudiante;
 use App\Models\Mpersona;
+
 use Auth;
 
 class PublicController extends Controller {
@@ -38,7 +39,7 @@ class PublicController extends Controller {
 
         $semestres = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
-        return view('presentacionAC.registro', 
+        return \View::make('presentacionAC.registro', 
             ['carreras' => $carreras, 
             'semestres' => $semestres,
             'back' => null]);
