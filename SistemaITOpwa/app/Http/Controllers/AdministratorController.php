@@ -76,8 +76,8 @@ class AdministratorController extends Controller
     
             // DB::delete('DELETE FROM horarios_impresos WHERE id_grupo <> 0');
 
-            $periodo = "Finalizado: ".$finished->id_periodo;
-            $periodo .= "Nuevo: ".$new->id_periodo;
+            // $periodo = "Finalizado: ".$finished->id_periodo;
+            // $periodo .= "Nuevo: ".$new->id_periodo;
 
             // $this->logs("Finalización de periodo escolar.", $periodo, $user);
         }
