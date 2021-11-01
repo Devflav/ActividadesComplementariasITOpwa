@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Musers;
 use App\Models\Mgrado;
@@ -22,6 +23,12 @@ class CAcademicController extends Controller
  * se está llevando a cabo en el sistema (Inscripción, Evalucación, 
  * Generación de constancias)
  */
+
+    public function logs($action, $object, $user){
+
+        Log::info($action, ['Object' => $object, 'User:' => $user]);
+    }
+
     public function f_inicio() { 
         
         $now = date_create('America/Mexico_City')->format('H');

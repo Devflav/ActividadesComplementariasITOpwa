@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\MessageBag;
 use Illuminate\Validation\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Mcarrera;
 use App\Models\Musers;
@@ -18,6 +19,11 @@ class PublicController extends Controller {
     public function _construct() {  
         //$this->middleware('guest');
      }
+
+    public function logs($action, $object, $user){
+
+        Log::info($action, ['Object' => $object, 'User:' => $user]);
+    }
 
     public function inicio() { return view('presentacionAC.noticias');  }
 /**Retorna a la vista de inicio de sesión */

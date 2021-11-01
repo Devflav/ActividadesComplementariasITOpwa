@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Hash;
 use Codedge\Fpdf\Facades\Fpdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 // se declara modelos (bd)
 use App\Models\Mtipo;          use App\Models\Musers;
@@ -19,11 +20,17 @@ use App\Models\Mestudiante;    use App\Models\Minscripcion;
 use App\Models\Mdepartamento;  use App\Models\Mcriterios_evaluacion;
 use DB;
 
-class StudentController extends Controller
-{
-    public function _construct() {  
-        $this->middleware('estudiante');
-      }
+class StudentController extends Controller {
+
+   public function _construct() {  
+      $this->middleware('estudiante');
+   }
+     
+   public function logs($action, $object, $user){
+
+      Log::info($action, ['Object' => $object, 'User:' => $user]);
+   }
+
   /**Envia los tipos de actividades complementarias para la construcción
    * de la barra de navegación en el apartado Actividades
    */

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 use DB;
 use Auth;
@@ -27,6 +28,11 @@ class JDepartmentController extends Controller
 {
     public function _construct() { $this->middleware('jefedepto');  }
 
+    public function logs($action, $object, $user){
+
+        Log::info($action, ['Object' => $object, 'User:' => $user]);
+    }
+    
     public function f_inicio(Request $request) {
 
         $now = date_create('America/Mexico_City')->format('H');

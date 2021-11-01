@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Codedge\Fpdf\Facades\Fpdf;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 /**Declaración de los modelos a ocupar dentro del controlador */
 use App\Models\Mlogs;           use App\Models\Mgrupo;
@@ -30,6 +31,12 @@ class AdministratorController extends Controller
     public function _construct() { 
         $this->middleware('admin');
     }
+
+    public function logs($action, $object, $user){
+
+        Log::info($action, ['Object' => $object, 'User:' => $user]);
+    }
+
     /**Retorna los tipos de actividades que existen en la bd
     se ocupan para la barra de navegación, de esta manera
     funciona dinamicamente*/
@@ -175,7 +182,7 @@ class AdministratorController extends Controller
         ->with('tipos', $this->tipos()); 
     }
 
-    public function f_actividad($search, $pagina) { 
+    public function f_actividad($search, $pagina, Request $request) { 
 
         $now = date('Y-m-d');
         $modificar = true;
@@ -205,6 +212,8 @@ class AdministratorController extends Controller
             })
             ->orderBy('a.id_actividad')
             ->paginate(10);
+
+        $this->logs("Busqueda de actividades.", $search, $request->user()->id_persona);
 
         return view('CoordAC.actividad.actividades')
         ->with('actividades', $actividades)

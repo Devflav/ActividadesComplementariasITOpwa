@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 use App\Models\Mtipo;
 use App\Models\Mgrupo;
@@ -29,6 +30,11 @@ class DEProfessionalsController extends Controller
     public function _construct() { 
         $this->middleware('divisionep');
       }
+
+    public function logs($action, $object, $user){
+
+        Log::info($action, ['Object' => $object, 'User:' => $user]);
+    }
 
     public function tipos(){
 

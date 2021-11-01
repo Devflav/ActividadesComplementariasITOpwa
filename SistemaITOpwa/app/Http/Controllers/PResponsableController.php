@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Log;
 
 // se declara modelos (bd)
 use App\Models\Musers;              use App\Models\Mgrado;
@@ -22,6 +23,11 @@ class PResponsableController extends Controller
 {
     /**Constructor del controlador */
     public function _construct() {  $this->middleware('profesorr'); }
+    
+    public function logs($action, $object, $user){
+
+        Log::info($action, ['Object' => $object, 'User:' => $user]);
+    }
     
     /**Redirecciona a la pagina de inicio de sesión de este usuario */
     public function f_inicio() { 
