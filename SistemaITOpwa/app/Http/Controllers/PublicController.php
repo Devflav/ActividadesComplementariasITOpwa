@@ -129,6 +129,9 @@ class PublicController extends Controller {
         }
         else if (Auth::attempt(['id_puesto' => 7, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 1, 'estado' => 1])) {
             $request->session()->regenerate();
+            $this->logs("Inicio de sesión Administrador.", 
+                $request->user()->id_persona, 
+                $request->user()->id_persona);
             return redirect()->intended('CoordAC');
         }elseif (Auth::attempt(['id_puesto' => 7, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 0, 'estado' => 1])) {
             $request->session()->regenerate();
@@ -136,6 +139,9 @@ class PublicController extends Controller {
         }
         else if (Auth::attempt(['id_puesto' => 2, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 1, 'estado' => 1])) {
             $request->session()->regenerate();
+            $this->logs("Inicio de sesión Jefe de departamento.", 
+                $request->user()->id_persona, 
+                $request->user()->id_persona);
             return redirect()->intended('JDepto');
         }elseif (Auth::attempt(['id_puesto' => 2, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 0, 'estado' => 1])) {
             $request->session()->regenerate();
@@ -143,6 +149,9 @@ class PublicController extends Controller {
         }
         else if (Auth::attempt(['id_puesto' => 3, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 1, 'estado' => 1])) {
             $request->session()->regenerate();
+            $this->logs("Inicio de sesión Profesor responsable.", 
+                $request->user()->id_persona, 
+                $request->user()->id_persona);
             return redirect()->intended('ProfR');
         }elseif (Auth::attempt(['id_puesto' => 3, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 0, 'estado' => 1])) {
             $request->session()->regenerate();
@@ -151,12 +160,18 @@ class PublicController extends Controller {
         else if (Auth::attempt(['id_puesto' => 4, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 1, 'estado' => 1])) {
             $request->session()->regenerate();
             return redirect()->intended('CoordC');
+            $this->logs("Inicio de sesión Coordinador de carrera.", 
+                $request->user()->id_persona, 
+                $request->user()->id_persona);
         }elseif (Auth::attempt(['id_puesto' => 4, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 0, 'estado' => 1])) {
             $request->session()->regenerate();
             return redirect()->intended('CambiarConstrasenia');
         }
         else if (Auth::attempt(['id_puesto' => 5, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 1, 'estado' => 1])) {
             $request->session()->regenerate();
+            $this->logs("Inicio de sesión Servicios escolares.", 
+                $request->user()->id_persona, 
+                $request->user()->id_persona);
             return redirect()->intended('ServEsc');
         }elseif (Auth::attempt(['id_puesto' => 5, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 0, 'estado' => 1])) {
             $request->session()->regenerate();
@@ -164,12 +179,18 @@ class PublicController extends Controller {
         }
         else if (Auth::attempt(['id_puesto' => 1, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 1, 'estado' => 1])) {
             $request->session()->regenerate();
+            $this->logs("Inicio de sesión División E. P.", 
+                $request->user()->id_persona, 
+                $request->user()->id_persona);
             return redirect()->intended('DivEProf');
         }elseif (Auth::attempt(['id_puesto' => 1, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 0, 'estado' => 1])) {
             $request->session()->regenerate();
             return redirect()->intended('CambiarConstrasenia');
         }else if (Auth::attempt(['id_puesto' => 8, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 1, 'estado' => 1])) {
             $request->session()->regenerate();
+            $this->logs("Inicio de sesión Usuario multirol.", 
+                $request->user()->id_persona, 
+                $request->user()->id_persona);
             return redirect()->intended('SeleccionarSesion');
         }elseif (Auth::attempt(['id_puesto' => 8, 'usuario' => $usuario, 'password' => $password, 'edo_sesion' => 0, 'estado' => 1])) {
             $request->session()->regenerate();

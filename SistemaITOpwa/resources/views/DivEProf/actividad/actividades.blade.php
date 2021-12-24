@@ -1,7 +1,16 @@
 @extends('layouts.divEProf')
 @section('content')
 <div class="container" style="background-color: transparent; padding-left: 02%; padding-right: 02%; padding-bottom: 05%;">
-
+@if (session('Catch') != null)
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<h5 class="alert-heading"> 
+				<strong> <em> ¡ Error ! </em> </strong>
+				<i class="bi bi-x-octagon-fill close float-right" type="button" data-dismiss="alert"></i>
+			</h5>
+			<hr>
+			<p class="text-justify"> {{ session('Catch') }} </p>
+		</div>
+    @endif
     <div class="input-group mb-3">
         <label for="" class="form-text">LISTA DE ACTIVIDADES OFERTADAS 
                 <strong> "{{ $periodo }}" </strong>

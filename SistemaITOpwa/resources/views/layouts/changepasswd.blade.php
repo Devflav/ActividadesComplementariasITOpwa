@@ -44,7 +44,7 @@
 
 		<main class="py-4">
 			<center><h6>TECNOLÓGICO NACIONAL DE MÉXICO CAMPUS OAXACA - 
-						INSTUTITO TECNOLÓGICO DE OAXACA <br> 
+						INSTITUTO TECNOLÓGICO DE OAXACA <br> 
 						ACTIVIDADES COMPLEMENTARIAS</h6></center>
 			<br>
 				@yield('content')

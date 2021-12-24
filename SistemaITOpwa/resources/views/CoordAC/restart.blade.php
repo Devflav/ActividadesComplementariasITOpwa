@@ -1,6 +1,15 @@
 @extends('layouts.coordComple')
 @section('content')
-
+@if (session('Catch') != null)
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<h5 class="alert-heading"> 
+				<strong> <em> ¡ Error ! </em> </strong>
+				<i class="bi bi-x-octagon-fill close float-right" type="button" data-dismiss="alert"></i>
+			</h5>
+			<hr>
+			<p class="text-justify"> {{ session('Catch') }} </p>
+		</div>
+    @endif
 <div class="modal fade" id="restablecer" data-backdrop="static"  aria-labelledby="restablecerLabel" 
   data-keyboard="false" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">

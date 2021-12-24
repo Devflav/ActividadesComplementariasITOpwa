@@ -1,6 +1,16 @@
 @extends('layouts.servesc')
 @section('content')
 <div class="container" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 40px;">
+@if (session('Catch') != null)
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<h5 class="alert-heading"> 
+				<strong> <em> ¡ Error ! </em> </strong>
+				<i class="bi bi-x-octagon-fill close float-right" type="button" data-dismiss="alert"></i>
+			</h5>
+			<hr>
+			<p class="text-justify"> {{ session('Catch') }} </p>
+		</div>
+    @endif
     <div class="justify-content-center">
 		<div class="col-sm-12">
         <label for="" ><strong> - HISTORIAL DEL ESTUDIANTE -</strong></label>

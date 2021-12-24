@@ -2,6 +2,16 @@
 @section('content')
 
 	<div class="container" style="padding-bottom: 55px;">
+	@if (session('Catch') != null)
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<h5 class="alert-heading"> 
+				<strong> <em> ¡ Error ! </em> </strong>
+				<i class="bi bi-x-octagon-fill close float-right" type="button" data-dismiss="alert"></i>
+			</h5>
+			<hr>
+			<p class="text-justify"> {{ session('Catch') }} </p>
+		</div>
+    @endif
 		<div class="row justify-content-center">
 			<div class="col-sm-9">
 				<div class="card border-bottom-0 border-left-0 border-right-0" style="background-color: transparent;">

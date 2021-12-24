@@ -1,7 +1,16 @@
 @extends('layouts.estudiante')
 @section('content')
 <div class="container justify-content-center" style="background-color: transparent; padding-left: 10px; padding-right: 10px; padding-bottom: 55px;">
-
+@if (session('Catch') != null)
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<h5 class="alert-heading"> 
+				<strong> <em> ¡ Error ! </em> </strong>
+				<i class="bi bi-x-octagon-fill close float-right" type="button" data-dismiss="alert"></i>
+			</h5>
+			<hr>
+			<p class="text-justify"> {{ session('Catch') }} </p>
+		</div>
+    @endif
     <label for="carrera" style="padding-left: 10%;"> LISTA DE ACTIVIDADES OFERTADAS POR <strong>"CARRERAS"</strong>  </label>
 
     <div id="divTable">

@@ -34,18 +34,18 @@ class StudentController extends Controller {
   /**Envia los tipos de actividades complementarias para la construcción
    * de la barra de navegación en el apartado Actividades
    */
-      public function tipos(){
+   public function tipos(){
   
-         $tipos = Mtipo::select('id_tipo', 'nombre')->get();
-  
-          foreach($tipos as $t){
-              $t->nombre = ucwords(mb_strtolower($t->nombre));
-          }
-  
-          return $tipos;
-      }
+      $tipos = Mtipo::select('id_tipo', 'nombre')->get();
+
+         foreach($tipos as $t){
+            $t->nombre = ucwords(mb_strtolower($t->nombre));
+         }
+
+         return $tipos;
+   }
   /**Verifica si el estudiante está inscrito en alguna actividad complementaria */
-     public function inscrito($id_per){
+   public function inscrito($id_per){
   
       $estudiante = Mestudiante::select('id_estudiante')->where('id_persona', $id_per)->first();
 
@@ -67,12 +67,13 @@ class StudentController extends Controller {
         }
   
         return $inscrito;
-     }
+   }
   /**Retorna a la vista de inicio con un saludo y un mensaje del proceso que se
    * está llevando a cabo en el sistema, (Inscripción, Evaluación, Generación de constancias)
    */
-      public function f_inicio(Request $request) { 
+   public function f_inicio(Request $request) { 
   
+      try {
          $now = date_create('America/Mexico_City')->format('H');
          $today = date("Y-m-d");
          $data = Mperiodo::where('estado', "Actual")->first();
@@ -97,77 +98,88 @@ class StudentController extends Controller {
             ->with('process', $processes)
             ->with('end', $endprocess)  
             ->with('tipos', $this->tipos());
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
   /**Retorna a la vista del listado de las diferentes carreras que ofertaron actividades
    * complementarias (Solo las carreras que no restringen sus actividades)
    */
-     public function f_actCarreras(Request $request){
+   public function f_actCarreras(Request $request){
   
-        $now = date('Y-m-d');
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
-              ->where('estado', "Actual")->first();
-  
-        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+      try {
+         $now = date('Y-m-d');
+         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
+               ->where('estado', "Actual")->first();
+   
+         if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
 
-         $car = DB::table('actividad as a')
-            ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
-            ->join('carrera as c', 'd.id_depto', '=', 'c.id_depto')
-            ->join('grupo as g', 'a.id_actividad', '=', 'g.id_actividad')
-            ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
-            ->select('c.id_carrera',
-                     'c.nombre')
-            ->where('p.estado', "Actual")
-            ->where('c.estado', 1)
-            ->where('a.restringida', 0)
-            ->groupBy('c.id_carrera')
-            ->orderBy('c.id_carrera')
-            ->paginate(10);
-  
-           $inscrito = $this->inscrito($request->user()->id_persona);
-  
-           if(!$inscrito){
-              return view('estudiante.actcarreras')
-                 ->with('carreras', $car)
-                 ->with('tipos', $this->tipos());
-           }else{
-              return view('estudiante.inscrito')
-                 ->with('v', 00)
-                 ->with('tipos', $this->tipos());
-           }
-        }else{
-  
-           return view('estudiante.inscrito')
-                 ->with('v', 11)
-                 ->with('tipos', $this->tipos());         
-        }
-        
-     }
+            $car = DB::table('actividad as a')
+               ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+               ->join('carrera as c', 'd.id_depto', '=', 'c.id_depto')
+               ->join('grupo as g', 'a.id_actividad', '=', 'g.id_actividad')
+               ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
+               ->select('c.id_carrera',
+                        'c.nombre')
+               ->where('p.estado', "Actual")
+               ->where('c.estado', 1)
+               ->where('a.restringida', 0)
+               ->groupBy('c.id_carrera')
+               ->orderBy('c.id_carrera')
+               ->paginate(10);
+   
+            $inscrito = $this->inscrito($request->user()->id_persona);
+   
+            if(!$inscrito){
+               return view('estudiante.actcarreras')
+                  ->with('carreras', $car)
+                  ->with('tipos', $this->tipos());
+            }else{
+               return view('estudiante.inscrito')
+                  ->with('v', 00)
+                  ->with('tipos', $this->tipos());
+            }
+         }else{
+   
+            return view('estudiante.inscrito')
+                  ->with('v', 11)
+                  ->with('tipos', $this->tipos());         
+         }
+      
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
+      }
+   }
   /**Retorna a la vista del listado de actividades con las actividades ofertadas por la 
    * carrera del estudiante
    */
-     public function f_micarrera(Request $request){
-  
-        $now = date('Y-m-d');
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
-              ->where('estado', "Actual")->first();
-  
-        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+   public function f_micarrera(Request $request){
+
+      try {
+         $now = date('Y-m-d');
+         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
+               ->where('estado', "Actual")->first();
+
+         if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
          //   
-           $id_per = $request->user()->id_persona;
-  
-           $carrera = DB::table('carrera as c')
-           ->join('estudiante as e', 'c.id_carrera', '=', 'e.id_carrera')
-           ->select('c.nombre')
-           ->where('e.id_persona', $id_per)
-           ->get();
-  
-           $dpte = DB::table('departamento as d')
-              ->join('carrera as c', 'd.id_depto', '=', 'c.id_depto')
-              ->join('estudiante as e', 'c.id_carrera', '=', 'e.id_carrera')
-              ->select('d.id_depto')
-              ->where('e.id_persona', $id_per)
-              ->get();
-  
+            $id_per = $request->user()->id_persona;
+
+            $carrera = DB::table('carrera as c')
+            ->join('estudiante as e', 'c.id_carrera', '=', 'e.id_carrera')
+            ->select('c.nombre')
+            ->where('e.id_persona', $id_per)
+            ->get();
+
+            $dpte = DB::table('departamento as d')
+               ->join('carrera as c', 'd.id_depto', '=', 'c.id_depto')
+               ->join('estudiante as e', 'c.id_carrera', '=', 'e.id_carrera')
+               ->select('d.id_depto')
+               ->where('e.id_persona', $id_per)
+               ->get();
+
             $actCar = DB::table('grupo as g')
                ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
                ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
@@ -187,42 +199,48 @@ class StudentController extends Controller {
                ->groupBy('g.id_grupo')
                ->orderBy('g.id_grupo')
                ->paginate(10);
-  
-           $inscrito = $this->inscrito($id_per);
-  
-           if(!$inscrito){
-              return view('estudiante.micarrera')
-                 ->with('actividades', $actCar)
-                 ->with('car', $carrera)
-                 ->with('tipos', $this->tipos());
-           }else{
-              return view('estudiante.inscrito')
-                 ->with('v', 00)
-                 ->with('tipos', $this->tipos());    
-           }
-        }else{
-  
-           return view('estudiante.inscrito')
-                 ->with('v', 11)
-                 ->with('tipos', $this->tipos());         
-        }
-     }
+
+            $inscrito = $this->inscrito($id_per);
+
+            if(!$inscrito){
+               return view('estudiante.micarrera')
+                  ->with('actividades', $actCar)
+                  ->with('car', $carrera)
+                  ->with('tipos', $this->tipos());
+            }else{
+               return view('estudiante.inscrito')
+                  ->with('v', 00)
+                  ->with('tipos', $this->tipos());    
+            }
+         }else{
+
+            return view('estudiante.inscrito')
+                  ->with('v', 11)
+                  ->with('tipos', $this->tipos());         
+         }
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
+      }
+   }
   /**Retorna a la vista del listado de actividades complementarias filtradas po el tipo
    * de actividad seleccionado en el menú
    */
-     public function f_actividades($tipo, Request $request){
-  
-        $now = date('Y-m-d');
-        $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
-              ->where('estado', "Actual")->first();
-  
-        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
-  
-           $tact = Mtipo::select('nombre')
-           ->where('id_tipo', $tipo)
-           ->get();
-  
-           $actividad = DB::table('grupo as g')
+   public function f_actividades($tipo, Request $request){
+
+      try {
+         $now = date('Y-m-d');
+         $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
+               ->where('estado', "Actual")->first();
+
+         if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+
+            $tact = Mtipo::select('nombre')
+            ->where('id_tipo', $tipo)
+            ->get();
+
+            $actividad = DB::table('grupo as g')
                ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
                ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
                ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
@@ -239,39 +257,44 @@ class StudentController extends Controller {
                ->groupBy('g.id_grupo')
                ->orderBy('g.id_grupo')
                ->paginate(10);
-  
-           $inscrito = $this->inscrito($request->user()->id_persona);
-  
-           if(!$inscrito){
-              return view('estudiante.actividades')
-                 ->with('actividades', $actividad)
-                 ->with('tnom', $tact)
-                 ->with('tipos', $this->tipos());
-           }else{
-              return view('estudiante.inscrito')
-                 ->with('v', 00)
-                 ->with('tipos', $this->tipos());
-           }
-        }else{
-  
-           return view('estudiante.inscrito')
-                 ->with('v', 11)
-                 ->with('tipos', $this->tipos());         
-        }
-  
-     }
+
+            $inscrito = $this->inscrito($request->user()->id_persona);
+
+            if(!$inscrito){
+               return view('estudiante.actividades')
+                  ->with('actividades', $actividad)
+                  ->with('tnom', $tact)
+                  ->with('tipos', $this->tipos());
+            }else{
+               return view('estudiante.inscrito')
+                  ->with('v', 00)
+                  ->with('tipos', $this->tipos());
+            }
+         }else{
+
+            return view('estudiante.inscrito')
+                  ->with('v', 11)
+                  ->with('tipos', $this->tipos());         
+         }
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
+      }
+   }
   /**Retorna a la vista del listado de actividades con las actividades ofertadas por las 
    * diferentes carreras, solo aquellas a las que puede inscribirse este estudiante, las
    * que no están restringidas
    */
-     public function f_actividadesCar($id_car, Request $request){
-  
+   public function f_actividadesCar($id_car, Request $request){
+
+      try {
          $now = date('Y-m-d');
          $roll = Mperiodo::select('ini_inscripcion', 'fin_inscripcion')
                ->where('estado', "Actual")->first();
-   
-        if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
-   
+
+         if($now >= $roll->ini_inscripcion && $now <= $roll->fin_inscripcion){
+
             $cact = Mcarrera::select('nombre')
                   ->where('id_carrera', $id_car)
                   ->get();
@@ -294,9 +317,9 @@ class StudentController extends Controller {
                   ->where('c.id_carrera', $id_car)
                   ->orderBy('g.id_grupo')
                   ->paginate(10);
-   
+
             $inscrito = $this->inscrito($request->user()->id_persona);
-  
+
             if(!$inscrito){
                   return view('estudiante.actividades')
                      ->with('actividades', $actCar)
@@ -308,18 +331,23 @@ class StudentController extends Controller {
                      ->with('tipos', $this->tipos());
             }
          } else {
-   
+
             return view('estudiante.inscrito')
                   ->with('v', 11)
                   ->with('tipos', $this->tipos());         
          }
-   
-     }
+         
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
+      }     
+   }
   /**Retorna a la vista donde se muestran los datos generales de la actividad
    * complementaria, donde el estudiante debe confirmar la solicitud de inscripción
    */
-     public function f_inscribir($id_gru){
-  
+   public function f_inscribir($id_gru){
+
+      try {
          $actividad = DB::table('grupo as g')
             ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
             ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
@@ -358,11 +386,17 @@ class StudentController extends Controller {
             ->with('horario', $horario)
             ->with('v', 00)
             ->with('tipos', $this->tipos());
-     }
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
+      }
+   }
 
   /**Se confirma la solitud de inscripción del estudiante */
-      public function f_solicitudIns($idgrupo, Request $request){
-        
+   public function f_solicitudIns($idgrupo, Request $request){
+      
+      try {
          $student = Mestudiante::where('id_persona', $request->user()->id_persona)
             ->first();
 
@@ -370,69 +404,75 @@ class StudentController extends Controller {
             ->first();
 
          $hoy = date("Y-m-d");
-  
+
          Minscripcion::create([
             'id_estudiante' => $student->id_estudiante,
             'id_grupo' => $idgrupo, 
             'fecha' => $hoy, 
             'aprobada' => 0
          ]);
-        
+         
          Mgrupo::where('id_grupo', $idgrupo)
             ->update([
                'cupo_libre' => ($cupo->cupo_libre-1)
          ]);
-        
-        return redirect()->to('Est');
+         
+         return redirect()->to('Est');
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
 
   /**Retorna a la vista donde se muestra la actividad que está cursando el estudiante */
-      public function f_cursando(Request $request){
-   
-            $id_per = $request->user()->id_persona;
-            $student = Mestudiante::where('id_persona', $id_per)
-               ->first();
+   public function f_cursando(Request $request){
 
-            $actividad = DB::table('inscripcion as i')
-               ->join('grupo as g', 'i.id_grupo', '=', 'g.id_grupo')
-               ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
-               ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
-               ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
-               ->join('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
-               ->join('persona as p', 'g.id_persona', '=', 'p.id_persona')
-               ->join('empleado as e', 'p.id_persona', '=', 'e.id_persona')
-               ->join('grado as gr', 'e.id_grado', '=', 'gr.id_grado')
-               ->join('periodo as pr', 'g.id_periodo', '=', 'pr.id_periodo')
-               ->select('g.id_grupo',
-                        'g.clave',
-                        'a.nombre as actividad',
-                        'gr.nombre as grado',
-                        'p.nombre',
-                        'p.apePat',
-                        'p.apeMat',
-                        'a.creditos',
-                        'l.nombre AS lugar',
-                        'gr.nombre AS grado',
-                        'd.nombre AS depto',
-                        't.nombre as tipo',
-                        'i.id_inscripcion')
-               ->where('pr.estado', "Actual")
-               ->where('i.aprobada', 1)
-               ->where('i.id_estudiante', $student->id_estudiante)
-               ->get();
-      
-            $inscription = DB::table('inscripcion as i')
-               ->join('estudiante as e', 'i.id_estudiante', '=', 'e.id_estudiante')
-               ->join('grupo as g', 'i.id_grupo', '=', 'g.id_grupo')
-               ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
-               ->select('i.id_inscripcion')
-               ->where('p.estado', "Actual")
-               ->where('i.aprobada', 1)
-               ->where('e.id_persona', $id_per)
-               ->get();
+      try {
+         $id_per = $request->user()->id_persona;
+         $student = Mestudiante::where('id_persona', $id_per)
+            ->first();
+
+         $actividad = DB::table('inscripcion as i')
+            ->join('grupo as g', 'i.id_grupo', '=', 'g.id_grupo')
+            ->join('lugar as l', 'g.id_lugar', '=', 'l.id_lugar')
+            ->join('actividad as a', 'g.id_actividad', '=', 'a.id_actividad')
+            ->join('departamento as d', 'a.id_depto', '=', 'd.id_depto')
+            ->join('tipo as t', 'a.id_tipo', '=', 't.id_tipo')
+            ->join('persona as p', 'g.id_persona', '=', 'p.id_persona')
+            ->join('empleado as e', 'p.id_persona', '=', 'e.id_persona')
+            ->join('grado as gr', 'e.id_grado', '=', 'gr.id_grado')
+            ->join('periodo as pr', 'g.id_periodo', '=', 'pr.id_periodo')
+            ->select('g.id_grupo',
+                     'g.clave',
+                     'a.nombre as actividad',
+                     'gr.nombre as grado',
+                     'p.nombre',
+                     'p.apePat',
+                     'p.apeMat',
+                     'a.creditos',
+                     'l.nombre AS lugar',
+                     'gr.nombre AS grado',
+                     'd.nombre AS depto',
+                     't.nombre as tipo',
+                     'i.id_inscripcion')
+            ->where('pr.estado', "Actual")
+            ->where('i.aprobada', 1)
+            ->where('i.id_estudiante', $student->id_estudiante)
+            ->get();
    
+         $inscription = DB::table('inscripcion as i')
+            ->join('estudiante as e', 'i.id_estudiante', '=', 'e.id_estudiante')
+            ->join('grupo as g', 'i.id_grupo', '=', 'g.id_grupo')
+            ->join('periodo as p', 'g.id_periodo', '=', 'p.id_periodo')
+            ->select('i.id_inscripcion')
+            ->where('p.estado', "Actual")
+            ->where('i.aprobada', 1)
+            ->where('e.id_persona', $id_per)
+            ->get();
+
          $horario = [];
-         
+      
          foreach($inscription as $i){
 
             $horario = DB::table('inscripcion as i')
@@ -452,19 +492,25 @@ class StudentController extends Controller {
                ->with('v', 01)
                ->with('tipos', $this->tipos());
          }else{
-   
+
             return view('estudiante.detInscrip')
                ->with('actividad', $actividad)
                ->with('horario', $horario)
                ->with('v', 11)
                ->with('tipos', $this->tipos());
          }
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
   
   /**Retorna a la vista donde se muestra el historial del estudiante */
-     public function f_historial(Request $request){
-  
-        $id_per = $request->user()->id_persona;
+   public function f_historial(Request $request){
+
+      try {
+         $id_per = $request->user()->id_persona;
 
          $historial = DB::table('evaluacion as ev')
             ->join('nivel_desempenio as nd', 'ev.id_desempenio', '=', 'nd.id_desempenio')
@@ -483,24 +529,30 @@ class StudentController extends Controller {
             ->orderBy('p.id_periodo', 'asc')
             ->get();
 
-        if(!count($historial)){
-  
-           return view('estudiante.inscrito')
-              ->with('v', 10)
-              ->with('tipos', $this->tipos());
-        }else{
-  
-           return view('estudiante.historial')
-           ->with('historial', $historial)
-           ->with('tipos', $this->tipos());
-        }
-     }
+         if(!count($historial)){
+
+            return view('estudiante.inscrito')
+               ->with('v', 10)
+               ->with('tipos', $this->tipos());
+         }else{
+
+            return view('estudiante.historial')
+            ->with('historial', $historial)
+            ->with('tipos', $this->tipos());
+         }
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
+      }
+   }
 
   /**Retorna a la vista del perfil de usuario, donde se muestran los datos 
    * generales y las opciones a edición de los mismos como de la contraseña
    */
-      public function f_vhorario($id_gru){
-      
+   public function f_vhorario($id_gru){
+   
+      try {
          $horario = DB::table('horario as h')
             ->join('dias_semana as ds', 'h.id_dia', '=', 'ds.id_dia')
             ->select('ds.nombre as dia', 
@@ -512,10 +564,16 @@ class StudentController extends Controller {
          return view('estudiante.vhorario')
          ->with('horario', $horario)
          ->with('tipos', $this->tipos());
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
 
-      public function f_horario_e($id_ins){
+   public function f_horario_e($id_ins){
 
+      try {
          $periodo_ = Mperiodo::select('nombre', 'inicio', 'cabecera')
             ->where('estado', "Actual")->first();
 
@@ -898,13 +956,19 @@ class StudentController extends Controller {
          $doc_name = "Horario-".$student[0]->num_control.".pdf";
 
          return Response::make(Fpdf::Output($tipo, $doc_name), 200, $headers);
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
 
   /**Retorna a la vista donde se muestra la sección del manual de lineamientos del 
    * Tecnológico Nacional de México que habla acerca de las actividades complementarias
    */
-      public function f_perfil(Request $request){
-            
+   public function f_perfil(Request $request){
+         
+      try {
          $id_per = $request->user()->id_persona;
       
          $estudiante = DB::table('persona as p')
@@ -924,13 +988,19 @@ class StudentController extends Controller {
          return view('estudiante.perfil')
          ->with('estudiante', $estudiante)
          ->with('tipos', $this->tipos());
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
 
   /**Realiza el request de los datos cambiados para actualizar el contenido
   * en la base de datos y retorna a la vista del perfil de usuairo
   */
-      public function f_editar(Request $request){
-         
+   public function f_editar(Request $request){
+      
+      try {
          $id_per = $request->user()->id_persona;
       
          $estudiante = DB::table('persona as p')
@@ -950,22 +1020,34 @@ class StudentController extends Controller {
          return view('estudiante.editar')
          ->with('estudiante', $estudiante)
          ->with('tipos', $this->tipos());
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
 
   /**Retorna a la vista para cambiar la contraseña */
-      public function f_e_passwd() {
-         
+   public function f_e_passwd() {
+      
+      try {
          return view('estudiante.editpasswd')
          ->with('tipos', $this->tipos());
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
 
   /**Realiza el request de la nueva contraseña. Para realizar un cambio de contraseña
   * coteja que:
   * 1.- La nueva contraseña no sea igual a la contraseña actual
   * 2.- Sea de tamaño >= 8 && <= 16
   */
-      public function f_editpsswd(Request $request){
-      
+   public function f_editpsswd(Request $request){
+   
+      try {
          $userpwd = $request->user()->password;
          $user = $request->user()->id_persona;
       
@@ -1014,23 +1096,40 @@ class StudentController extends Controller {
             <?php
       
          }
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
       }
+   }
 
   /**Retorna un modal en el cual se muestra el horario de la actividad complementaria
   * seleccionada
   */
-     public function f_lineamiento(){
-  
-        return view('estudiante.lineamiento')
-           ->with('tipos', $this->tipos());
-     }
+   public function f_lineamiento(){
+
+      try {
+         return view('estudiante.lineamiento')
+            ->with('tipos', $this->tipos());
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
+      }
+   }
 
   /**Destruye la sesión del usuario y retorna a la vista de inicio de sesión */
-     public function logoutE(Request $request){
-  
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        
-        return redirect("IniciarSesion");
-     }
+   public function logoutE(Request $request){
+
+      try {
+         $request->session()->invalidate();
+         $request->session()->regenerateToken();
+         
+         return redirect("IniciarSesion");
+
+      } catch (\Exception $e) { 
+         $error = 'Ocurrió un problema interno en el sistema, estamos trabajando para solucionarlo, sentimos las molestias.';
+         return redirect()->back()->with('Catch', $error); 
+      }
+   }
 }

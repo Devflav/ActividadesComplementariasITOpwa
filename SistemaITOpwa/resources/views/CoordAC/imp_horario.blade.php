@@ -1,6 +1,16 @@
 @extends('layouts.coordComple')
 @section('content')
 
+@if (session('Catch') != null)
+		<div class="alert alert-danger alert-dismissible fade show" role="alert">
+			<h5 class="alert-heading"> 
+				<strong> <em> ¡ Error ! </em> </strong>
+				<i class="bi bi-x-octagon-fill close float-right" type="button" data-dismiss="alert"></i>
+			</h5>
+			<hr>
+			<p class="text-justify"> {{ session('Catch') }} </p>
+		</div>
+    @endif
 <button type="button" class="btn btn-primary d-none" data-toggle="modal" data-target="#horario" id="btn_horario">
         </button>
 
